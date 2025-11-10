@@ -1,0 +1,118 @@
+{
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "classes": "Classes",
+    "studioRental": "Studio Rental",
+    "gallery": "Gallery",
+    "contact": "Contact"
+  },
+  "home": {
+    "hero": {
+      "title": "Welcome to Alliance Dance Studio",
+      "subtitle": "Experience the art of Latin dance in Montreal's premier dance studio",
+      "bookStudio": "Book Studio",
+      "viewClasses": "View Classes"
+    },
+    "overview": {
+      "title": "About Alliance",
+      "description": "Alliance Dance Studio is Montreal's premier destination for Latin dance. We offer professional instruction, state-of-the-art facilities, and a vibrant community of dancers."
+    },
+    "instagram": {
+      "title": "Follow Us on Instagram",
+      "viewProfile": "View Profile"
+    }
+  },
+  "studioRental": {
+    "title": "Studio Rental",
+    "subtitle": "Book one of our professional dance studios",
+    "selectStudio": "Select a Studio",
+    "selectDate": "Select Date",
+    "selectTime": "Select Time",
+    "bookingForm": {
+      "title": "Booking Information",
+      "name": "Full Name",
+      "email": "Email",
+      "phone": "Phone Number",
+      "specialRequests": "Special Requests (Optional)",
+      "submit": "Book Studio",
+      "submitting": "Booking...",
+      "success": "Booking submitted successfully! We'll contact you soon.",
+      "error": "Failed to submit booking. Please try again."
+    },
+    "availability": {
+      "available": "Available",
+      "booked": "Booked",
+      "unavailable": "Unavailable"
+    },
+    "price": {
+      "perHour": "per hour",
+      "total": "Total"
+    }
+  },
+  "about": {
+    "title": "About Us",
+    "history": {
+      "title": "Our History",
+      "content": "Alliance Dance Studio was founded with a passion for Latin dance and a commitment to excellence."
+    },
+    "mission": {
+      "title": "Our Mission",
+      "content": "To provide world-class dance instruction and create a welcoming community for dancers of all levels."
+    },
+    "team": {
+      "title": "Our Team",
+      "content": "Our instructors are experienced professionals dedicated to helping you achieve your dance goals."
+    }
+  },
+  "classes": {
+    "title": "Dance Classes",
+    "subtitle": "Explore our diverse range of Latin dance classes",
+    "schedule": "Class Schedule",
+    "instructors": "Our Instructors"
+  },
+  "gallery": {
+    "title": "Gallery",
+    "subtitle": "Explore our studio and community"
+  },
+  "contact": {
+    "title": "Contact Us",
+    "subtitle": "Get in touch with Alliance Dance Studio",
+    "form": {
+      "name": "Name",
+      "email": "Email",
+      "message": "Message",
+      "submit": "Send Message",
+      "success": "Message sent successfully!",
+      "error": "Failed to send message. Please try again."
+    },
+    "info": {
+      "address": "Address",
+      "phone": "Phone",
+      "email": "Email",
+      "hours": "Hours"
+    }
+  },
+  "admin": {
+    "title": "Admin Dashboard",
+    "bookings": {
+      "title": "Bookings",
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "cancelled": "Cancelled",
+      "actions": "Actions",
+      "confirm": "Confirm",
+      "cancel": "Cancel"
+    }
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "retry": "Retry",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close"
+  }
+}

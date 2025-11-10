@@ -1,0 +1,118 @@
+{
+  "nav": {
+    "home": "Inicio",
+    "about": "Nosotros",
+    "classes": "Clases",
+    "studioRental": "Alquiler de Estudio",
+    "gallery": "Galería",
+    "contact": "Contacto"
+  },
+  "home": {
+    "hero": {
+      "title": "Bienvenido a Alliance Dance Studio",
+      "subtitle": "Experimenta el arte de la danza latina en el estudio de danza premier de Montreal",
+      "bookStudio": "Reservar Estudio",
+      "viewClasses": "Ver Clases"
+    },
+    "overview": {
+      "title": "Acerca de Alliance",
+      "description": "Alliance Dance Studio es el destino premier de Montreal para la danza latina. Ofrecemos instrucción profesional, instalaciones de última generación y una vibrante comunidad de bailarines."
+    },
+    "instagram": {
+      "title": "Síguenos en Instagram",
+      "viewProfile": "Ver Perfil"
+    }
+  },
+  "studioRental": {
+    "title": "Alquiler de Estudio",
+    "subtitle": "Reserva uno de nuestros estudios de danza profesionales",
+    "selectStudio": "Seleccionar Estudio",
+    "selectDate": "Seleccionar Fecha",
+    "selectTime": "Seleccionar Hora",
+    "bookingForm": {
+      "title": "Información de Reserva",
+      "name": "Nombre Completo",
+      "email": "Correo Electrónico",
+      "phone": "Número de Teléfono",
+      "specialRequests": "Solicitudes Especiales (Opcional)",
+      "submit": "Reservar Estudio",
+      "submitting": "Reservando...",
+      "success": "¡Reserva enviada exitosamente! Te contactaremos pronto.",
+      "error": "Error al enviar la reserva. Por favor intenta de nuevo."
+    },
+    "availability": {
+      "available": "Disponible",
+      "booked": "Reservado",
+      "unavailable": "No Disponible"
+    },
+    "price": {
+      "perHour": "por hora",
+      "total": "Total"
+    }
+  },
+  "about": {
+    "title": "Nosotros",
+    "history": {
+      "title": "Nuestra Historia",
+      "content": "Alliance Dance Studio fue fundado con una pasión por la danza latina y un compromiso con la excelencia."
+    },
+    "mission": {
+      "title": "Nuestra Misión",
+      "content": "Proporcionar instrucción de danza de clase mundial y crear una comunidad acogedora para bailarines de todos los niveles."
+    },
+    "team": {
+      "title": "Nuestro Equipo",
+      "content": "Nuestros instructores son profesionales experimentados dedicados a ayudarte a alcanzar tus metas de baile."
+    }
+  },
+  "classes": {
+    "title": "Clases de Baile",
+    "subtitle": "Explora nuestra diversa gama de clases de danza latina",
+    "schedule": "Horario de Clases",
+    "instructors": "Nuestros Instructores"
+  },
+  "gallery": {
+    "title": "Galería",
+    "subtitle": "Explora nuestro estudio y comunidad"
+  },
+  "contact": {
+    "title": "Contáctanos",
+    "subtitle": "Ponte en contacto con Alliance Dance Studio",
+    "form": {
+      "name": "Nombre",
+      "email": "Correo Electrónico",
+      "message": "Mensaje",
+      "submit": "Enviar Mensaje",
+      "success": "¡Mensaje enviado exitosamente!",
+      "error": "Error al enviar el mensaje. Por favor intenta de nuevo."
+    },
+    "info": {
+      "address": "Dirección",
+      "phone": "Teléfono",
+      "email": "Correo Electrónico",
+      "hours": "Horario"
+    }
+  },
+  "admin": {
+    "title": "Panel de Administración",
+    "bookings": {
+      "title": "Reservas",
+      "pending": "Pendiente",
+      "confirmed": "Confirmado",
+      "cancelled": "Cancelado",
+      "actions": "Acciones",
+      "confirm": "Confirmar",
+      "cancel": "Cancelar"
+    }
+  },
+  "common": {
+    "loading": "Cargando...",
+    "error": "Ocurrió un error",
+    "retry": "Reintentar",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "close": "Cerrar"
+  }
+}
