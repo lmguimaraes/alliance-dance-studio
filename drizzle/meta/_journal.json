@@ -1,20 +1,5 @@
 {
   "version": "7",
-  "dialect": "mysql",
-  "entries": [
-    {
-      "idx": 0,
-      "version": "5",
-      "when": 1762809942876,
-      "tag": "0000_real_meggan",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "5",
-      "when": 1762810066883,
-      "tag": "0001_tiny_mauler",
-      "breakpoints": true
-    }
-  ]
+  "dialect": "postgresql",
+  "entries": []
 }
