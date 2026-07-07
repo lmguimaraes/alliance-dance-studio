@@ -19,6 +19,7 @@ function Router() {
       <Route path={"/"} component={Home} />
       <Route path={"/about"} component={About} />
       <Route path={"/classes"} component={Classes} />
+      <Route path={"/studio-rental/availability"} component={StudioRental} />
       <Route path={"/studio-rental"} component={StudioRental} />
       <Route path={"/gallery"} component={Gallery} />
       <Route path={"/contact"} component={Contact} />

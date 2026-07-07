@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { useTranslation } from "react-i18next";
 import { Menu, X } from "lucide-react";
-import { APP_LOGO } from "@/const";
+import { LOGOS } from "@/const";
 import { Button } from "@/components/ui/button";
 
 const languages = [
@@ -35,8 +35,30 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link href="/">
-            <div className="flex items-center gap-3 cursor-pointer">
-              <img src={APP_LOGO} alt="Alliance" className="h-12 w-auto" />
+            <div
+              className="flex items-center gap-3 cursor-pointer"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              {/* Default site logo */}
+              <img
+                src={LOGOS.default}
+                alt="Alliance"
+                className="h-12 w-auto brand-logo-default"
+              />
+
+              {/* Studio vertical logo (shown only inside .studio-theme) */}
+              <img
+                src={LOGOS.studio}
+                alt="Alliance Studio"
+                className="h-12 w-auto brand-logo-studio"
+              />
+
+              {/* Academy logo (only inside .academy-theme) */}
+              <img
+                src={LOGOS.academy}
+                alt="Alliance Academy"
+                className="h-12 w-auto brand-logo-academy"
+              />
             </div>
           </Link>
 
@@ -69,6 +91,8 @@ export default function Navbar() {
                       : "text-muted-foreground hover:text-primary"
                   }`}
                   title={lang.label}
+                  aria-label={lang.label}
+                  type="button"
                 >
                   {lang.flag}
                 </button>
@@ -81,12 +105,10 @@ export default function Navbar() {
               size="icon"
               className="lg:hidden"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+              type="button"
             >
-              {mobileMenuOpen ? (
-                <X className="h-6 w-6" />
-              ) : (
-                <Menu className="h-6 w-6" />
-              )}
+              {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </Button>
           </div>
         </div>

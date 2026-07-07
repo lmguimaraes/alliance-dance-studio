@@ -176,3 +176,233 @@
     }
   }
 }
+
+/* ===========================
+   Studio domain theme (DARK teal/green)
+   Scope: only inside .studio-theme
+   =========================== */
+
+.studio-theme {
+  /* Teal/green derived from logo (#0A5F58) but slightly brighter for UI */
+  --primary: oklch(0.541 0.092 185.1); /* ~ #0F8076 */
+  --primary-foreground: oklch(0.985 0 0);
+
+  /* Dark, premium studio background (distinct from black/gold landing) */
+  --background: oklch(0.155 0.015 185);
+  --foreground: oklch(0.97 0.01 185);
+
+  --card: oklch(0.19 0.015 185);
+  --card-foreground: var(--foreground);
+
+  --popover: oklch(0.19 0.015 185);
+  --popover-foreground: var(--foreground);
+
+  --secondary: oklch(0.22 0.018 185);
+  --secondary-foreground: var(--foreground);
+
+  --muted: oklch(0.21 0.015 185);
+  --muted-foreground: oklch(0.74 0.01 185);
+
+  --accent: oklch(0.24 0.02 185);
+  --accent-foreground: var(--foreground);
+
+  --border: oklch(0.28 0.015 185);
+  --input: oklch(0.28 0.015 185);
+  --ring: var(--primary);
+
+  --sidebar: var(--background);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--accent);
+  --sidebar-accent-foreground: var(--accent-foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
+}
+
+/* Studio hero: subtle teal glow on a dark surface */
+.studio-theme .studio-hero {
+  background:
+    radial-gradient(
+      900px 360px at 50% 0%,
+      oklch(0.541 0.092 185.1 / 0.22) 0%,
+      transparent 60%
+    ),
+    linear-gradient(
+      180deg,
+      oklch(0.541 0.092 185.1 / 0.10) 0%,
+      transparent 100%
+    );
+}
+
+/* Optional: make cards feel premium on dark bg */
+.studio-theme .studio-card {
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.35);
+}
+
+/* Make navbar/footer follow the studio palette even if they used light classes */
+.studio-theme nav,
+.studio-theme header {
+  background-color: var(--background);
+  color: var(--foreground);
+  border-color: var(--border);
+}
+
+.studio-theme nav a {
+  color: var(--foreground);
+}
+.studio-theme nav a:hover {
+  color: var(--primary);
+}
+
+.studio-theme footer {
+  background-color: var(--background);
+  color: var(--foreground);
+  border-color: var(--border);
+}
+
+/* Calendar selected day fallback */
+.studio-theme .rdp-day_selected {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
+/* ===== Logo swap: default vs studio (no JS switch needed) ===== */
+.brand-logo-default {
+  display: inline-block;
+}
+.brand-logo-studio {
+  display: none;
+}
+
+.studio-theme .brand-logo-default {
+  display: none;
+}
+.studio-theme .brand-logo-studio {
+  display: inline-block;
+}
+
+/* ===========================
+   Logo swap: default vs studio vs academy
+   =========================== */
+.brand-logo-default {
+  display: inline-block;
+}
+.brand-logo-studio,
+.brand-logo-academy {
+  display: none;
+}
+
+.studio-theme .brand-logo-default,
+.academy-theme .brand-logo-default {
+  display: none;
+}
+.studio-theme .brand-logo-studio {
+  display: inline-block;
+}
+.academy-theme .brand-logo-academy {
+  display: inline-block;
+}
+
+/* ===========================
+   Academy domain theme (DARK blue)
+   Picked from logo: #063D8E (oklch hue ~259.6)
+   Scope: only inside .academy-theme
+   =========================== */
+.academy-theme {
+  --primary: oklch(0.54 0.155 259.6);
+  --primary-foreground: oklch(0.985 0 0);
+
+  --background: oklch(0.145 0.02 260);
+  --foreground: oklch(0.97 0.01 260);
+
+  --card: oklch(0.185 0.02 260);
+  --card-foreground: var(--foreground);
+
+  --popover: oklch(0.185 0.02 260);
+  --popover-foreground: var(--foreground);
+
+  --secondary: oklch(0.215 0.02 260);
+  --secondary-foreground: var(--foreground);
+
+  --muted: oklch(0.205 0.018 260);
+  --muted-foreground: oklch(0.74 0.02 260);
+
+  --accent: oklch(0.24 0.02 260);
+  --accent-foreground: var(--foreground);
+
+  --border: oklch(0.26 0.02 260);
+  --input: oklch(0.26 0.02 260);
+  --ring: var(--primary);
+}
+
+/* Academy hero: subtle blue glow on dark surface */
+.academy-theme .academy-hero {
+  background:
+    radial-gradient(
+      900px 360px at 50% 0%,
+      oklch(0.54 0.155 259.6 / 0.22) 0%,
+      transparent 60%
+    ),
+    linear-gradient(
+      180deg,
+      oklch(0.54 0.155 259.6 / 0.08) 0%,
+      transparent 100%
+    );
+}
+
+.academy-theme .academy-card {
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.35);
+}
+
+/* =========================================
+   Academy theme (SOFT LIGHT) — less glaring
+   ========================================= */
+.academy-theme {
+  /* Academy blue */
+  --primary: oklch(0.49 0.19 259.6);
+  --primary-foreground: oklch(0.985 0 0);
+
+  /* Softer "light" background (blue-gray), not pure white */
+  --background: oklch(0.955 0.012 260);
+  --foreground: oklch(0.22 0.02 260);
+
+  /* Cards slightly tinted so they don't look like white sheets */
+  --card: oklch(0.975 0.008 260);
+  --card-foreground: var(--foreground);
+
+  --popover: oklch(0.975 0.008 260);
+  --popover-foreground: var(--foreground);
+
+  --secondary: oklch(0.945 0.012 260);
+  --secondary-foreground: var(--foreground);
+
+  --muted: oklch(0.94 0.01 260);
+  --muted-foreground: oklch(0.46 0.02 260);
+
+  --accent: oklch(0.945 0.012 260);
+  --accent-foreground: var(--foreground);
+
+  /* Border a touch darker so separation still reads on soft bg */
+  --border: oklch(0.875 0.015 260);
+  --input: oklch(0.875 0.015 260);
+  --ring: var(--primary);
+}
+
+.academy-theme .academy-hero {
+  background:
+    radial-gradient(
+      900px 360px at 50% 0%,
+      oklch(0.49 0.19 259.6 / 0.14) 0%,
+      transparent 62%
+    ),
+    linear-gradient(
+      180deg,
+      oklch(0.49 0.19 259.6 / 0.05) 0%,
+      transparent 100%
+    );
+}
+
+.academy-theme .academy-card {
+  box-shadow: 0 18px 45px rgba(8, 18, 40, 0.08);
+}

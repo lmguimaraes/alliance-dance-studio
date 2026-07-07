@@ -48,7 +48,32 @@
     "price": {
       "perHour": "por hora",
       "total": "Total"
-    }
+    },
+    "labels": {
+    "startTime": "Hora de inicio ",
+    "endTime": "Hora de fin",
+    "bookingSummary": "Resumen de la reserva",
+    "studio": "Estudio",
+    "date": "Fecha",
+    "time": "Hora"
+  },
+  "actions": {
+    "change": "Cambiar"
+  },
+  "messages": {
+    "selectStudioFirst": "Por favor selecciona un estudio primero",
+    "selectDate": "Por favor selecciona una fecha",
+    "availableTimeSlots": "Horarios disponibles",
+    "noStartTimes": "No hay horas de inicio disponibles para esta fecha.",
+    "noDurations": "No hay duraciones válidas desde esta hora de inicio.",
+    "selectDateAndTimeSlot": "Por favor selecciona una fecha y un horario",
+    "selectDateStartDuration": "Por favor selecciona una fecha, hora de inicio y duración"
+  },
+  "errors": {
+    "missingSelectionOld": "Por favor selecciona un estudio, fecha y horario",
+    "missingSelection": "Por favor selecciona un estudio, fecha, hora de inicio y duración",
+    "requiredFields": "Por favor completa todos los campos obligatorios"
+  }
   },
   "about": {
     "title": "Nosotros",

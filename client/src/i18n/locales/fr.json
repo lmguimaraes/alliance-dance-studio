@@ -48,7 +48,32 @@
     "price": {
       "perHour": "par heure",
       "total": "Total"
-    }
+    },
+    "labels": {
+    "startTime": "Heure de début (15 min)",
+    "endTime": "Heure de fin (par pas de 30 min)",
+    "bookingSummary": "Résumé de la réservation",
+    "studio": "Studio",
+    "date": "Date",
+    "time": "Heure"
+   },
+  "actions": {
+    "change": "Modifier"
+  },
+  "messages": {
+    "selectStudioFirst": "Veuillez d'abord sélectionner un studio",
+    "selectDate": "Veuillez sélectionner une date",
+    "availableTimeSlots": "Créneaux disponibles",
+    "noStartTimes": "Aucune heure de début disponible pour cette date.",
+    "noDurations": "Aucune durée valide à partir de cette heure de début.",
+    "selectDateAndTimeSlot": "Veuillez sélectionner une date et un créneau horaire",
+    "selectDateStartDuration": "Veuillez sélectionner une date, une heure de début et une durée"
+  },
+  "errors": {
+    "missingSelectionOld": "Veuillez sélectionner un studio, une date et un créneau horaire",
+    "missingSelection": "Veuillez sélectionner un studio, une date, une heure de début et une durée",
+    "requiredFields": "Veuillez remplir tous les champs obligatoires"
+  }
   },
   "about": {
     "title": "À Propos",

@@ -15,7 +15,7 @@ Professional website for Alliance Dance Studio - Montreal's premier Latin dance 
 
 - **Frontend**: React 19 + Tailwind CSS 4
 - **Backend**: Node.js + Express
-- **Database**: MySQL/TiDB (via Drizzle ORM)
+- **Database**: PostgreSQL (Supabase) via Drizzle ORM
 - **API**: tRPC for type-safe API calls
 - **i18n**: react-i18next for multi-language support
 - **UI Components**: shadcn/ui + Radix UI
@@ -45,8 +45,8 @@ alliance-dance-studio/
 ### Prerequisites
 
 - Node.js 22+
-- pnpm
-- MySQL/TiDB database
+- pnpm (recommended) or npm
+- PostgreSQL database (Supabase recommended)
 
 ### Installation
 
@@ -61,13 +61,25 @@ cd alliance-dance-studio
 pnpm install
 ```
 
-3. Set up environment variables:
+3. Create a .env file in the root directory:
 ```bash
-cp .env.example .env
-# Edit .env with your database credentials and other settings
+# Database - Supabase PostgreSQL
+# Use the Transaction Pooler or Session Pooler URL from Supabase Dashboard
+# Settings → Database → Connection string → Change Method to "Transaction pooler"
+DATABASE_URL="postgresql://postgres.YOUR_PROJECT_REF:YOUR_PASSWORD@aws-0-REGION.pooler.supabase.com:6543/postgres"
+
+# OAuth (optional - for authentication)
+OAUTH_SERVER_URL=""
+OWNER_OPEN_ID=""
+
+# Vite Frontend Variables
+VITE_APP_TITLE="Alliance Dance Studio"
+VITE_APP_LOGO="/logo.png"
+VITE_ANALYTICS_ENDPOINT=""
+VITE_ANALYTICS_WEBSITE_ID=""
 ```
 
-4. Run database migrations:
+4. Push database schema to Supabase:
 ```bash
 pnpm db:push
 ```

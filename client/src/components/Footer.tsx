@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { Instagram, Facebook, Mail, Phone, MapPin } from "lucide-react";
-import { APP_LOGO } from "@/const";
+import { LOGOS } from "@/const";
 
 export default function Footer() {
   const { t } = useTranslation();
@@ -11,7 +11,27 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Logo & Description */}
           <div>
-            <img src={APP_LOGO} alt="Alliance" className="h-12 w-auto mb-4" />
+            {/* Default site logo */}
+            <img
+              src={LOGOS.default}
+              alt="Alliance"
+              className="h-12 w-auto mb-4 brand-logo-default"
+            />
+
+            {/* Studio vertical logo (shown only inside .studio-theme) */}
+            <img
+              src={LOGOS.studio}
+              alt="Alliance Studio"
+              className="h-12 w-auto mb-4 brand-logo-studio"
+            />
+
+            {/* Academy logo (only inside .academy-theme) */}
+            <img
+              src={LOGOS.academy}
+              alt="Alliance Academy"
+              className="h-12 w-auto mb-4 brand-logo-academy"
+            />
+
             <p className="text-sm text-muted-foreground">
               {t("home.overview.description")}
             </p>
@@ -49,6 +69,7 @@ export default function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2 rounded-full bg-primary/10 hover:bg-primary/20 transition-colors"
+                aria-label="Instagram"
               >
                 <Instagram className="h-5 w-5 text-primary" />
               </a>
@@ -57,6 +78,7 @@ export default function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2 rounded-full bg-primary/10 hover:bg-primary/20 transition-colors"
+                aria-label="Facebook"
               >
                 <Facebook className="h-5 w-5 text-primary" />
               </a>

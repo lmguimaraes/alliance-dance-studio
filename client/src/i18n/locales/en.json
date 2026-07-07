@@ -38,7 +38,8 @@
       "submit": "Book Studio",
       "submitting": "Booking...",
       "success": "Booking submitted successfully! We'll contact you soon.",
-      "error": "Failed to submit booking. Please try again."
+      "error": "Failed to submit booking. Please try again.",
+      "submitCart": "Confirm reservation"
     },
     "availability": {
       "available": "Available",
@@ -48,8 +49,57 @@
     "price": {
       "perHour": "per hour",
       "total": "Total"
-    }
+    },
+    "labels": {
+    "startTime": "Start time ",
+    "endTime": "End time",
+    "bookingSummary": "Booking summary",
+    "studio": "Studio",
+    "date": "Date",
+    "time": "Time"
   },
+  "actions": {
+    "change": "Change",
+    "addToCart": "Add slot",
+    "addRecurring": "Add recurring"
+  },
+  "recurring": {
+      "title": "Recurring (weekly)",
+      "helper": "Adds {{count}} weekly reservations (up to 2 months).",
+      "added": "Added {{count}} weekly reservations.",
+      "pickCount": "Choose how many weeks to repeat."
+    },
+  "messages": {
+    "selectStudioFirst": "Please select a studio first",
+    "selectDate": "Please select a date",
+    "availableTimeSlots": "Available time slots",
+    "noStartTimes": "No available start times for this date.",
+    "noDurations": "No valid durations from this start time.",
+    "selectDateAndTimeSlot": "Please select a date and time slot",
+    "selectDateStartDuration": "Please select a date, start time, and duration",
+    "addMultipleNote": "You can add multiple time slots (different days/times) and confirm everything at once.",
+    "cartConflict": "This slot conflicts with another reservation.",
+    "recurringUnavailable": "Some dates are not available: {{dates}}"
+  },
+  "errors": {
+    "missingSelectionOld": "Please select a studio, date, and time slot",
+    "missingSelection": "Please select a studio, date, start time, and duration",
+    "requiredFields": "Please fill in all required fields",
+    "cartEmpty": "Please add at least one time slot."
+  },
+  "cart": {
+      "title": "Your reservation",
+      "empty": "No slots added yet.",
+      "count": "{{count}} slot(s) added",
+      "clear": "Clear",
+      "remove": "Remove",
+      "seriesLabel": "Weekly series",
+      "occurrences": "{{count}} occurrences",
+      "total": "Total",
+      "added": "Added to your reservation.",
+      "cleared": "Reservation cleared."
+    }
+},
   "about": {
     "title": "About Us",
     "history": {

@@ -2,7 +2,19 @@ export { COOKIE_NAME, ONE_YEAR_MS } from "@shared/const";
 
 export const APP_TITLE = import.meta.env.VITE_APP_TITLE || "App";
 
-export const APP_LOGO = "/logo-white.webp";
+export const LOGOS = {
+  default: "/logo-white.webp",
+  defaultHorizontal: "/logo-gold.webp", 
+  // Studio domain
+  studio: "/logo-studio.webp", 
+  studioHorizontal: "/logo-studio-horizontal.webp", 
+  // Academy domain
+  academy: "/logo-academy.webp",
+  academyHorizontal: "/logo-academy-horizontal.webp",
+
+} as const;
+
+export const APP_LOGO = LOGOS.default;
 
 // Generate login URL at runtime so redirect URI reflects the current origin.
 export const getLoginUrl = () => {
