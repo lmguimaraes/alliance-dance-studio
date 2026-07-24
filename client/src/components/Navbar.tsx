@@ -1,20 +1,38 @@
 import { useState } from "react";
-import { Link, useLocation } from "wouter";
 import { useTranslation } from "react-i18next";
+import { Link, useLocation } from "wouter";
 import { Menu, X } from "lucide-react";
-import { LOGOS } from "@/const";
+
 import { Button } from "@/components/ui/button";
+import { APP_TITLE, BRAND_LOGOS } from "@/const";
 
 const languages = [
-  { code: "en", label: "EN", flag: "🇬🇧" },
-  { code: "es", label: "ES", flag: "🇪🇸" },
-  { code: "fr", label: "FR", flag: "🇫🇷" },
+  { code: "en", label: "EN" },
+  { code: "es", label: "ES" },
+  { code: "fr", label: "FR" },
 ];
+
+const isActive = (location: string, path: string) => {
+  if (path === "/") {
+    return location === "/";
+  }
+
+  return location.startsWith(path);
+};
+
+const getLogoForRoute = (location: string) => {
+  if (location.startsWith("/about") || location.startsWith("/gallery")) {
+    return BRAND_LOGOS.danceCo.horizontal;
+  }
+
+  return BRAND_LOGOS.alliance.horizontal;
+};
 
 export default function Navbar() {
   const [location] = useLocation();
   const { t, i18n } = useTranslation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const logo = getLogoForRoute(location);
 
   const navItems = [
     { path: "/", label: t("nav.home") },
@@ -22,114 +40,126 @@ export default function Navbar() {
     { path: "/classes", label: t("nav.classes") },
     { path: "/studio-rental", label: t("nav.studioRental") },
     { path: "/gallery", label: t("nav.gallery") },
-    { path: "/contact", label: t("nav.contact") },
   ];
 
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);
+    setMobileMenuOpen(false);
   };
 
   return (
-    <nav className="sticky top-0 z-50 bg-background border-b border-border">
+    <nav className="sticky top-0 z-50 border-b border-border/70 bg-background/90 backdrop-blur-xl">
       <div className="container">
-        <div className="flex items-center justify-between h-20">
-          {/* Logo */}
-          <Link href="/">
-            <div
-              className="flex items-center gap-3 cursor-pointer"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              {/* Default site logo */}
-              <img
-                src={LOGOS.default}
-                alt="Alliance"
-                className="h-12 w-auto brand-logo-default"
-              />
-
-              {/* Studio vertical logo (shown only inside .studio-theme) */}
-              <img
-                src={LOGOS.studio}
-                alt="Alliance Studio"
-                className="h-12 w-auto brand-logo-studio"
-              />
-
-              {/* Academy logo (only inside .academy-theme) */}
-              <img
-                src={LOGOS.academy}
-                alt="Alliance Academy"
-                className="h-12 w-auto brand-logo-academy"
-              />
-            </div>
+        <div className="flex h-20 items-center justify-between gap-4">
+          <Link
+            href="/"
+            className="flex shrink-0 items-center gap-3 rounded-md outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+            aria-label={`${APP_TITLE} home`}
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            <img
+              src={logo}
+              alt={APP_TITLE}
+              className="h-12 w-auto max-w-[190px] object-contain md:h-14"
+            />
           </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-8">
-            {navItems.map((item) => (
-              <Link key={item.path} href={item.path}>
-                <span
-                  className={`text-sm font-medium transition-colors hover:text-primary cursor-pointer ${
-                    location === item.path ? "text-primary" : "text-foreground"
+          <div className="hidden items-center gap-1 lg:flex">
+            {navItems.map((item) => {
+              const active = isActive(location, item.path);
+
+              return (
+                <Link
+                  key={item.path}
+                  href={item.path}
+                  className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+                    active
+                      ? "bg-primary/10 text-primary"
+                      : "text-muted-foreground hover:bg-accent hover:text-foreground"
                   }`}
                 >
                   {item.label}
-                </span>
-              </Link>
-            ))}
+                </Link>
+              );
+            })}
           </div>
 
-          {/* Language Selector & Mobile Menu Button */}
-          <div className="flex items-center gap-4">
-            {/* Language Selector */}
-            <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
+            <div className="hidden items-center rounded-full border border-border/70 bg-card/60 p-1 sm:flex">
               {languages.map((lang) => (
                 <button
                   key={lang.code}
                   onClick={() => changeLanguage(lang.code)}
-                  className={`px-2 py-1 text-sm font-medium transition-colors rounded ${
+                  className={`rounded-full px-2.5 py-1 text-xs font-semibold tracking-wide transition-colors ${
                     i18n.language === lang.code
                       ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:text-primary"
+                      : "text-muted-foreground hover:text-foreground"
                   }`}
-                  title={lang.label}
-                  aria-label={lang.label}
                   type="button"
+                  aria-label={`Switch language to ${lang.label}`}
                 >
-                  {lang.flag}
+                  {lang.label}
                 </button>
               ))}
             </div>
 
-            {/* Mobile Menu Button */}
+            <Link
+              href="/contact"
+              className="hidden rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90 md:inline-flex"
+            >
+              Contact
+            </Link>
+
             <Button
               variant="ghost"
               size="icon"
               className="lg:hidden"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
-              type="button"
+              onClick={() => setMobileMenuOpen((open) => !open)}
+              aria-expanded={mobileMenuOpen}
+              aria-label="Toggle navigation"
             >
               {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </Button>
           </div>
         </div>
 
-        {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="lg:hidden py-4 border-t border-border">
-            <div className="flex flex-col gap-4">
-              {navItems.map((item) => (
-                <Link key={item.path} href={item.path}>
-                  <span
-                    className={`block py-2 text-sm font-medium transition-colors cursor-pointer ${
-                      location === item.path
-                        ? "text-primary"
-                        : "text-foreground hover:text-primary"
-                    }`}
+          <div className="border-t border-border/70 py-5 lg:hidden">
+            <div className="flex flex-col gap-2">
+              {[...navItems, { path: "/contact", label: "Contact" }].map((item) => {
+                const active = isActive(location, item.path);
+
+                return (
+                  <Link
+                    key={item.path}
+                    href={item.path}
                     onClick={() => setMobileMenuOpen(false)}
+                    className={`rounded-2xl px-4 py-3 text-sm font-medium transition-colors ${
+                      active
+                        ? "bg-primary/10 text-primary"
+                        : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                    }`}
                   >
                     {item.label}
-                  </span>
-                </Link>
+                  </Link>
+                );
+              })}
+            </div>
+
+            <div className="mt-4 flex items-center gap-2 border-t border-border/70 pt-4 sm:hidden">
+              {languages.map((lang) => (
+                <button
+                  key={lang.code}
+                  onClick={() => changeLanguage(lang.code)}
+                  className={`rounded-full px-3 py-1.5 text-xs font-semibold tracking-wide transition-colors ${
+                    i18n.language === lang.code
+                      ? "bg-primary text-primary-foreground"
+                      : "border border-border text-muted-foreground hover:text-foreground"
+                  }`}
+                  type="button"
+                >
+                  {lang.label}
+                </button>
               ))}
             </div>
           </div>

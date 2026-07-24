@@ -1,67 +1,122 @@
-import { useTranslation } from "react-i18next";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Target, History, Users } from "lucide-react";
-import Navbar from "@/components/Navbar";
+import { Link } from "wouter";
+import { ArrowRight, CircleDot, Palette, Sparkles, Users } from "lucide-react";
+
+import { Card, CardContent } from "@/components/ui/card";
 import Footer from "@/components/Footer";
+import Navbar from "@/components/Navbar";
+import { BRAND_LOGOS } from "@/const";
+
+const values = [
+  {
+    title: "Creative direction",
+    description:
+      "A visual and movement language for performances, campaigns, events and projects that need a precise dance voice.",
+    icon: Palette,
+  },
+  {
+    title: "Company work",
+    description:
+      "A home for artists, rehearsals and dance concepts that carry the Alliance Dance Co. identity forward.",
+    icon: Sparkles,
+  },
+  {
+    title: "Community connection",
+    description:
+      "A bridge between stage, studio and class culture so the brand feels connected instead of fragmented.",
+    icon: Users,
+  },
+];
+
+const brandMap = [
+  { name: "Alliance", role: "Parent brand", color: "Gold", className: "bg-[#D4AF37]" },
+  { name: "Dance Co.", role: "Creative company", color: "Burgundy", className: "bg-[#8A1027]" },
+  { name: "Classes", role: "Training pillar", color: "Blue", className: "bg-[#2563EB]" },
+  { name: "Studio", role: "Space pillar", color: "Green", className: "bg-[#1F7A4D]" },
+];
 
 export default function About() {
-  const { t } = useTranslation();
-
-  const sections = [
-    {
-      icon: History,
-      title: t("about.history.title"),
-      content: t("about.history.content"),
-    },
-    {
-      icon: Target,
-      title: t("about.mission.title"),
-      content: t("about.mission.content"),
-    },
-    {
-      icon: Users,
-      title: t("about.team.title"),
-      content: t("about.team.content"),
-    },
-  ];
-
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="brand-shell">
       <Navbar />
 
       <main className="flex-1">
-        {/* Hero */}
-        <section className="py-20 bg-gradient-to-br from-background via-background to-primary/5">
-          <div className="container text-center">
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 text-primary">
-              {t("about.title")}
-            </h1>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              Discover the story behind Montreal's premier Latin dance studio
-            </p>
+        <section className="relative overflow-hidden border-b border-border/70 bg-gradient-to-br from-background via-background to-secondary/60">
+          <div className="container grid gap-12 py-20 md:py-28 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
+            <div className="glass-panel relative overflow-hidden rounded-[2rem] p-8">
+              <div className="absolute -right-12 -top-12 h-40 w-40 rounded-full bg-primary/10 blur-3xl" />
+              <div className="relative rounded-[1.5rem] border border-border/70 bg-card p-8 text-center">
+                <img
+                  src={BRAND_LOGOS.danceCo.horizontal}
+                  alt="Alliance Dance Co."
+                  className="mx-auto max-h-44 w-auto object-contain"
+                />
+                <div className="mt-8 grid gap-3 sm:grid-cols-3">
+                  <div className="rounded-2xl bg-muted p-4">
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Create</p>
+                  </div>
+                  <div className="rounded-2xl bg-muted p-4">
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Perform</p>
+                  </div>
+                  <div className="rounded-2xl bg-muted p-4">
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Connect</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <p className="eyebrow">Alliance Dance Co.</p>
+              <h1 className="mt-5 max-w-4xl text-5xl font-semibold tracking-tight text-foreground md:text-7xl">
+                The creative company inside Alliance Dance.
+              </h1>
+              <p className="mt-6 max-w-2xl text-lg leading-8 text-muted-foreground md:text-xl">
+                Alliance Dance Co. is the artistic pillar of the brand: a place for performance, direction,
+                rehearsal culture and the creative identity that gives the wider Alliance ecosystem its edge.
+              </p>
+              <div className="mt-10 flex flex-col gap-3 sm:flex-row">
+                <Link
+                  href="/gallery"
+                  className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90"
+                >
+                  View gallery
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+                <Link
+                  href="/contact"
+                  className="inline-flex items-center justify-center rounded-full border border-border bg-card px-6 py-3 text-sm font-semibold text-foreground transition hover:border-primary hover:text-primary"
+                >
+                  Collaborate
+                </Link>
+              </div>
+            </div>
           </div>
         </section>
 
-        {/* Content Sections */}
         <section className="py-20">
           <div className="container">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {sections.map((section, index) => {
-                const Icon = section.icon;
+            <div className="max-w-2xl">
+              <p className="eyebrow">What it represents</p>
+              <h2 className="mt-4 text-3xl font-semibold tracking-tight md:text-5xl">
+                Burgundy, space and restraint.
+              </h2>
+              <p className="mt-5 text-base leading-7 text-muted-foreground">
+                This page follows the same clean page rhythm as classes and rental, but the burgundy identity
+                makes Dance Co. feel more editorial, artistic and company-led.
+              </p>
+            </div>
+
+            <div className="mt-12 grid gap-5 md:grid-cols-3">
+              {values.map((value) => {
+                const Icon = value.icon;
+
                 return (
-                  <Card key={index} className="border-border">
-                    <CardHeader>
-                      <div className="mb-4">
-                        <div className="p-3 rounded-full bg-primary/10 w-fit">
-                          <Icon className="h-8 w-8 text-primary" />
-                        </div>
+                  <Card key={value.title} className="border-border bg-card transition hover:-translate-y-1 hover:border-primary/50">
+                    <CardContent className="p-6">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+                        <Icon className="h-5 w-5" />
                       </div>
-                      <CardTitle className="text-2xl">{section.title}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-muted-foreground leading-relaxed">
-                        {section.content}
-                      </p>
+                      <h3 className="mt-6 text-xl font-semibold text-foreground">{value.title}</h3>
+                      <p className="mt-4 text-sm leading-6 text-muted-foreground">{value.description}</p>
                     </CardContent>
                   </Card>
                 );
@@ -70,27 +125,40 @@ export default function About() {
           </div>
         </section>
 
-        {/* Values Section */}
-        <section className="py-20 bg-card">
+        <section className="pb-20">
           <div className="container">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4 text-primary">
-                Our Values
-              </h2>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                What makes Alliance Dance Studio special
-              </p>
-            </div>
+            <div className="grid gap-8 rounded-[2rem] border border-border/70 bg-card p-8 md:p-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
+              <div>
+                <p className="eyebrow">Brand architecture</p>
+                <h2 className="mt-4 text-3xl font-semibold tracking-tight md:text-4xl">
+                  One parent brand, four clear roles.
+                </h2>
+                <p className="mt-5 text-sm leading-6 text-muted-foreground">
+                  The site can now communicate Alliance Dance as a complete dance ecosystem instead of only a
+                  studio website.
+                </p>
+              </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {["Excellence", "Community", "Passion", "Innovation"].map((value, index) => (
-                <div key={index} className="text-center p-6">
-                  <div className="text-4xl font-bold text-primary mb-2">{value}</div>
-                  <p className="text-sm text-muted-foreground">
-                    We believe in {value.toLowerCase()} in everything we do
-                  </p>
-                </div>
-              ))}
+              <div className="space-y-3">
+                {brandMap.map((item) => (
+                  <div
+                    key={item.name}
+                    className="flex flex-col gap-4 rounded-3xl border border-border/70 bg-background/60 p-5 sm:flex-row sm:items-center sm:justify-between"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className={`h-10 w-10 rounded-full ${item.className}`} />
+                      <div>
+                        <h3 className="font-semibold text-foreground">{item.name}</h3>
+                        <p className="text-sm text-muted-foreground">{item.role}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm font-semibold text-primary">
+                      <CircleDot className="h-4 w-4" />
+                      {item.color}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </section>

@@ -42,85 +42,166 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
-:root {
-  --primary: var(--color-blue-700);
-  --primary-foreground: var(--color-blue-50);
-  --sidebar-primary: var(--color-blue-600);
-  --sidebar-primary-foreground: var(--color-blue-50);
-  --chart-1: var(--color-blue-300);
-  --chart-2: var(--color-blue-500);
-  --chart-3: var(--color-blue-600);
-  --chart-4: var(--color-blue-700);
-  --chart-5: var(--color-blue-800);
-  --radius: 0.65rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.235 0.015 65);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.235 0.015 65);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.235 0.015 65);
-  --secondary: oklch(0.98 0.001 286.375);
-  --secondary-foreground: oklch(0.4 0.015 65);
-  --muted: oklch(0.967 0.001 286.375);
-  --muted-foreground: oklch(0.552 0.016 285.938);
-  --accent: oklch(0.967 0.001 286.375);
-  --accent-foreground: oklch(0.141 0.005 285.823);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.92 0.004 286.32);
-  --input: oklch(0.92 0.004 286.32);
-  --ring: oklch(0.623 0.214 259.815);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.235 0.015 65);
-  --sidebar-accent: oklch(0.967 0.001 286.375);
-  --sidebar-accent-foreground: oklch(0.141 0.005 285.823);
-  --sidebar-border: oklch(0.92 0.004 286.32);
-  --sidebar-ring: oklch(0.623 0.214 259.815);
+:root,
+.dark,
+.brand-alliance {
+  --radius: 0.8rem;
+  --background: #232220;
+  --foreground: #f8f2e7;
+  --card: #2c2a27;
+  --card-foreground: #f8f2e7;
+  --popover: #2c2a27;
+  --popover-foreground: #f8f2e7;
+  --primary: #d4af37;
+  --primary-foreground: #211f1b;
+  --secondary: #39342d;
+  --secondary-foreground: #f8f2e7;
+  --muted: #34312e;
+  --muted-foreground: #c9bdac;
+  --accent: #3f382d;
+  --accent-foreground: #f8f2e7;
+  --destructive: #e35d5b;
+  --destructive-foreground: #ffffff;
+  --border: #47413a;
+  --input: #47413a;
+  --ring: #d4af37;
+  --chart-1: #d4af37;
+  --chart-2: #8a1027;
+  --chart-3: #e2c76a;
+  --chart-4: #6d6252;
+  --chart-5: #f8f2e7;
+  --sidebar: #232220;
+  --sidebar-foreground: #f8f2e7;
+  --sidebar-primary: #d4af37;
+  --sidebar-primary-foreground: #211f1b;
+  --sidebar-accent: #3f382d;
+  --sidebar-accent-foreground: #f8f2e7;
+  --sidebar-border: #47413a;
+  --sidebar-ring: #d4af37;
 }
 
-.dark {
-  /* Alliance Dance Studio Theme - Black, Gold (#D4AF37), Burgundy (#800020) */
-  --primary: oklch(0.72 0.12 85); /* Gold */
-  --primary-foreground: oklch(0.15 0 0); /* Black text on gold */
-  --sidebar-primary: oklch(0.72 0.12 85);
-  --sidebar-primary-foreground: oklch(0.15 0 0);
-  --background: oklch(0.15 0 0); /* Black background */
-  --foreground: oklch(0.98 0 0); /* White text */
-  --card: oklch(0.18 0 0); /* Slightly lighter black for cards */
-  --card-foreground: oklch(0.98 0 0);
-  --popover: oklch(0.15 0 0);
-  --popover-foreground: oklch(0.98 0 0);
-  --secondary: oklch(0.35 0.15 25); /* Burgundy */
-  --secondary-foreground: oklch(0.98 0 0); /* White text on burgundy */
-  --muted: oklch(0.25 0 0);
-  --muted-foreground: oklch(0.64 0 0);
-  --accent: oklch(0.72 0.12 85); /* Gold accent */
-  --accent-foreground: oklch(0.15 0 0);
-  --destructive: oklch(0.62 0.25 29);
-  --destructive-foreground: oklch(0.98 0 0);
-  --border: oklch(0.25 0 0);
-  --input: oklch(0.22 0 0);
-  --ring: oklch(0.72 0.12 85); /* Gold ring */
-  --chart-1: oklch(0.72 0.12 85); /* Gold */
-  --chart-2: oklch(0.35 0.15 25); /* Burgundy */
-  --chart-3: oklch(0.65 0.15 85);
-  --chart-4: oklch(0.75 0.15 56);
-  --chart-5: oklch(0.65 0.15 10);
-  --sidebar: oklch(0.15 0 0);
-  --sidebar-foreground: oklch(0.98 0 0);
-  --sidebar-accent: oklch(0.72 0.12 85);
-  --sidebar-accent-foreground: oklch(0.15 0 0);
-  --sidebar-border: oklch(0.25 0 0);
-  --sidebar-ring: oklch(0.72 0.12 85);
+.brand-company {
+  --background: #fbf6f4;
+  --foreground: #241114;
+  --card: #ffffff;
+  --card-foreground: #241114;
+  --popover: #ffffff;
+  --popover-foreground: #241114;
+  --primary: #8a1027;
+  --primary-foreground: #fff8f5;
+  --secondary: #f2e2e4;
+  --secondary-foreground: #5f1423;
+  --muted: #f5ebea;
+  --muted-foreground: #73575c;
+  --accent: #efd9dd;
+  --accent-foreground: #5f1423;
+  --destructive: #c84343;
+  --destructive-foreground: #ffffff;
+  --border: #e5cfd1;
+  --input: #e5cfd1;
+  --ring: #8a1027;
+  --chart-1: #8a1027;
+  --chart-2: #b65d6e;
+  --chart-3: #d8a2aa;
+  --chart-4: #241114;
+  --chart-5: #f5ebea;
+  --sidebar: #fbf6f4;
+  --sidebar-foreground: #241114;
+  --sidebar-primary: #8a1027;
+  --sidebar-primary-foreground: #fff8f5;
+  --sidebar-accent: #efd9dd;
+  --sidebar-accent-foreground: #5f1423;
+  --sidebar-border: #e5cfd1;
+  --sidebar-ring: #8a1027;
+}
+
+.brand-classes {
+  --background: #f6f9ff;
+  --foreground: #101828;
+  --card: #ffffff;
+  --card-foreground: #101828;
+  --popover: #ffffff;
+  --popover-foreground: #101828;
+  --primary: #2563eb;
+  --primary-foreground: #ffffff;
+  --secondary: #e7f0ff;
+  --secondary-foreground: #163a88;
+  --muted: #eef4ff;
+  --muted-foreground: #53627a;
+  --accent: #dbeafe;
+  --accent-foreground: #163a88;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --border: #d7e3f8;
+  --input: #d7e3f8;
+  --ring: #2563eb;
+  --chart-1: #2563eb;
+  --chart-2: #60a5fa;
+  --chart-3: #93c5fd;
+  --chart-4: #1e3a8a;
+  --chart-5: #eff6ff;
+  --sidebar: #f6f9ff;
+  --sidebar-foreground: #101828;
+  --sidebar-primary: #2563eb;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #dbeafe;
+  --sidebar-accent-foreground: #163a88;
+  --sidebar-border: #d7e3f8;
+  --sidebar-ring: #2563eb;
+}
+
+.brand-studio {
+  --background: #f4faf6;
+  --foreground: #102016;
+  --card: #ffffff;
+  --card-foreground: #102016;
+  --popover: #ffffff;
+  --popover-foreground: #102016;
+  --primary: #1f7a4d;
+  --primary-foreground: #ffffff;
+  --secondary: #e0f1e6;
+  --secondary-foreground: #165236;
+  --muted: #edf6ef;
+  --muted-foreground: #556b5e;
+  --accent: #d8eddf;
+  --accent-foreground: #165236;
+  --destructive: #c84343;
+  --destructive-foreground: #ffffff;
+  --border: #cfe2d4;
+  --input: #cfe2d4;
+  --ring: #1f7a4d;
+  --chart-1: #1f7a4d;
+  --chart-2: #4da172;
+  --chart-3: #91cba7;
+  --chart-4: #174c32;
+  --chart-5: #edf6ef;
+  --sidebar: #f4faf6;
+  --sidebar-foreground: #102016;
+  --sidebar-primary: #1f7a4d;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #d8eddf;
+  --sidebar-accent-foreground: #165236;
+  --sidebar-border: #cfe2d4;
+  --sidebar-ring: #1f7a4d;
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
-  body {
-    @apply bg-background text-foreground;
+
+  html {
+    scroll-behavior: smooth;
   }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+
+  ::selection {
+    background: color-mix(in srgb, var(--primary) 28%, transparent);
+  }
+
   button:not(:disabled),
   [role="button"]:not([aria-disabled="true"]),
   [type="button"]:not(:disabled),
@@ -135,24 +216,11 @@
 }
 
 @layer components {
-  /**
-   * Custom container utility that centers content and adds responsive padding.
-   *
-   * This overrides Tailwind's default container behavior to:
-   * - Auto-center content (mx-auto)
-   * - Add responsive horizontal padding
-   * - Set max-width for large screens
-   *
-   * Usage: <div className="container">...</div>
-   *
-   * For custom widths, use max-w-* utilities directly:
-   * <div className="max-w-6xl mx-auto px-4">...</div>
-   */
   .container {
     width: 100%;
     margin-left: auto;
     margin-right: auto;
-    padding-left: 1rem; /* 16px - mobile padding */
+    padding-left: 1rem;
     padding-right: 1rem;
   }
 
@@ -161,248 +229,30 @@
     min-width: 0;
   }
 
+  .brand-shell {
+    @apply min-h-screen flex flex-col bg-background text-foreground;
+  }
+
+  .eyebrow {
+    @apply text-xs font-semibold uppercase tracking-[0.28em] text-primary;
+  }
+
+  .glass-panel {
+    @apply border border-border/70 bg-card/80 shadow-sm backdrop-blur-xl;
+  }
+
   @media (min-width: 640px) {
     .container {
-      padding-left: 1.5rem; /* 24px - tablet padding */
+      padding-left: 1.5rem;
       padding-right: 1.5rem;
     }
   }
 
   @media (min-width: 1024px) {
     .container {
-      padding-left: 2rem; /* 32px - desktop padding */
+      max-width: 1280px;
+      padding-left: 2rem;
       padding-right: 2rem;
-      max-width: 1280px; /* Standard content width */
     }
   }
-}
-
-/* ===========================
-   Studio domain theme (DARK teal/green)
-   Scope: only inside .studio-theme
-   =========================== */
-
-.studio-theme {
-  /* Teal/green derived from logo (#0A5F58) but slightly brighter for UI */
-  --primary: oklch(0.541 0.092 185.1); /* ~ #0F8076 */
-  --primary-foreground: oklch(0.985 0 0);
-
-  /* Dark, premium studio background (distinct from black/gold landing) */
-  --background: oklch(0.155 0.015 185);
-  --foreground: oklch(0.97 0.01 185);
-
-  --card: oklch(0.19 0.015 185);
-  --card-foreground: var(--foreground);
-
-  --popover: oklch(0.19 0.015 185);
-  --popover-foreground: var(--foreground);
-
-  --secondary: oklch(0.22 0.018 185);
-  --secondary-foreground: var(--foreground);
-
-  --muted: oklch(0.21 0.015 185);
-  --muted-foreground: oklch(0.74 0.01 185);
-
-  --accent: oklch(0.24 0.02 185);
-  --accent-foreground: var(--foreground);
-
-  --border: oklch(0.28 0.015 185);
-  --input: oklch(0.28 0.015 185);
-  --ring: var(--primary);
-
-  --sidebar: var(--background);
-  --sidebar-foreground: var(--foreground);
-  --sidebar-primary: var(--primary);
-  --sidebar-primary-foreground: var(--primary-foreground);
-  --sidebar-accent: var(--accent);
-  --sidebar-accent-foreground: var(--accent-foreground);
-  --sidebar-border: var(--border);
-  --sidebar-ring: var(--ring);
-}
-
-/* Studio hero: subtle teal glow on a dark surface */
-.studio-theme .studio-hero {
-  background:
-    radial-gradient(
-      900px 360px at 50% 0%,
-      oklch(0.541 0.092 185.1 / 0.22) 0%,
-      transparent 60%
-    ),
-    linear-gradient(
-      180deg,
-      oklch(0.541 0.092 185.1 / 0.10) 0%,
-      transparent 100%
-    );
-}
-
-/* Optional: make cards feel premium on dark bg */
-.studio-theme .studio-card {
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.35);
-}
-
-/* Make navbar/footer follow the studio palette even if they used light classes */
-.studio-theme nav,
-.studio-theme header {
-  background-color: var(--background);
-  color: var(--foreground);
-  border-color: var(--border);
-}
-
-.studio-theme nav a {
-  color: var(--foreground);
-}
-.studio-theme nav a:hover {
-  color: var(--primary);
-}
-
-.studio-theme footer {
-  background-color: var(--background);
-  color: var(--foreground);
-  border-color: var(--border);
-}
-
-/* Calendar selected day fallback */
-.studio-theme .rdp-day_selected {
-  background: var(--primary);
-  color: var(--primary-foreground);
-}
-
-/* ===== Logo swap: default vs studio (no JS switch needed) ===== */
-.brand-logo-default {
-  display: inline-block;
-}
-.brand-logo-studio {
-  display: none;
-}
-
-.studio-theme .brand-logo-default {
-  display: none;
-}
-.studio-theme .brand-logo-studio {
-  display: inline-block;
-}
-
-/* ===========================
-   Logo swap: default vs studio vs academy
-   =========================== */
-.brand-logo-default {
-  display: inline-block;
-}
-.brand-logo-studio,
-.brand-logo-academy {
-  display: none;
-}
-
-.studio-theme .brand-logo-default,
-.academy-theme .brand-logo-default {
-  display: none;
-}
-.studio-theme .brand-logo-studio {
-  display: inline-block;
-}
-.academy-theme .brand-logo-academy {
-  display: inline-block;
-}
-
-/* ===========================
-   Academy domain theme (DARK blue)
-   Picked from logo: #063D8E (oklch hue ~259.6)
-   Scope: only inside .academy-theme
-   =========================== */
-.academy-theme {
-  --primary: oklch(0.54 0.155 259.6);
-  --primary-foreground: oklch(0.985 0 0);
-
-  --background: oklch(0.145 0.02 260);
-  --foreground: oklch(0.97 0.01 260);
-
-  --card: oklch(0.185 0.02 260);
-  --card-foreground: var(--foreground);
-
-  --popover: oklch(0.185 0.02 260);
-  --popover-foreground: var(--foreground);
-
-  --secondary: oklch(0.215 0.02 260);
-  --secondary-foreground: var(--foreground);
-
-  --muted: oklch(0.205 0.018 260);
-  --muted-foreground: oklch(0.74 0.02 260);
-
-  --accent: oklch(0.24 0.02 260);
-  --accent-foreground: var(--foreground);
-
-  --border: oklch(0.26 0.02 260);
-  --input: oklch(0.26 0.02 260);
-  --ring: var(--primary);
-}
-
-/* Academy hero: subtle blue glow on dark surface */
-.academy-theme .academy-hero {
-  background:
-    radial-gradient(
-      900px 360px at 50% 0%,
-      oklch(0.54 0.155 259.6 / 0.22) 0%,
-      transparent 60%
-    ),
-    linear-gradient(
-      180deg,
-      oklch(0.54 0.155 259.6 / 0.08) 0%,
-      transparent 100%
-    );
-}
-
-.academy-theme .academy-card {
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.35);
-}
-
-/* =========================================
-   Academy theme (SOFT LIGHT) — less glaring
-   ========================================= */
-.academy-theme {
-  /* Academy blue */
-  --primary: oklch(0.49 0.19 259.6);
-  --primary-foreground: oklch(0.985 0 0);
-
-  /* Softer "light" background (blue-gray), not pure white */
-  --background: oklch(0.955 0.012 260);
-  --foreground: oklch(0.22 0.02 260);
-
-  /* Cards slightly tinted so they don't look like white sheets */
-  --card: oklch(0.975 0.008 260);
-  --card-foreground: var(--foreground);
-
-  --popover: oklch(0.975 0.008 260);
-  --popover-foreground: var(--foreground);
-
-  --secondary: oklch(0.945 0.012 260);
-  --secondary-foreground: var(--foreground);
-
-  --muted: oklch(0.94 0.01 260);
-  --muted-foreground: oklch(0.46 0.02 260);
-
-  --accent: oklch(0.945 0.012 260);
-  --accent-foreground: var(--foreground);
-
-  /* Border a touch darker so separation still reads on soft bg */
-  --border: oklch(0.875 0.015 260);
-  --input: oklch(0.875 0.015 260);
-  --ring: var(--primary);
-}
-
-.academy-theme .academy-hero {
-  background:
-    radial-gradient(
-      900px 360px at 50% 0%,
-      oklch(0.49 0.19 259.6 / 0.14) 0%,
-      transparent 62%
-    ),
-    linear-gradient(
-      180deg,
-      oklch(0.49 0.19 259.6 / 0.05) 0%,
-      transparent 100%
-    );
-}
-
-.academy-theme .academy-card {
-  box-shadow: 0 18px 45px rgba(8, 18, 40, 0.08);
 }

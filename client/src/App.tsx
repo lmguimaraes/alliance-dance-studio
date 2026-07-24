@@ -1,48 +1,58 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import NotFound from "./pages/NotFound";
-import { Route, Switch } from "wouter";
+import { Route, Switch, useLocation } from "wouter";
+
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
-import Home from "./pages/Home";
 import About from "./pages/About";
-import Classes from "./pages/Classes";
-import StudioRental from "./pages/StudioRental";
-import Gallery from "./pages/Gallery";
-import Contact from "./pages/Contact";
 import Admin from "./pages/Admin";
+import Classes from "./pages/Classes";
+import Contact from "./pages/Contact";
+import Gallery from "./pages/Gallery";
+import Home from "./pages/Home";
+import NotFound from "./pages/NotFound";
+import StudioRental from "./pages/StudioRental";
+
+const getBrandThemeClass = (location: string) => {
+  if (location.startsWith("/about") || location.startsWith("/gallery")) {
+    return "brand-company";
+  }
+
+  if (location.startsWith("/classes")) {
+    return "brand-classes";
+  }
+
+  if (location.startsWith("/studio-rental")) {
+    return "brand-studio";
+  }
+
+  return "brand-alliance";
+};
 
 function Router() {
-  // make sure to consider if you need authentication for certain routes
+  const [location] = useLocation();
+
   return (
-    <Switch>
-      <Route path={"/"} component={Home} />
-      <Route path={"/about"} component={About} />
-      <Route path={"/classes"} component={Classes} />
-      <Route path={"/studio-rental/availability"} component={StudioRental} />
-      <Route path={"/studio-rental"} component={StudioRental} />
-      <Route path={"/gallery"} component={Gallery} />
-      <Route path={"/contact"} component={Contact} />
-      <Route path={"/admin"} component={Admin} />
-      <Route path={"/404"} component={NotFound} />
-      {/* Final fallback route */}
-      <Route component={NotFound} />
-    </Switch>
+    <div className={getBrandThemeClass(location)}>
+      <Switch>
+        <Route path="/" component={Home} />
+        <Route path="/about" component={About} />
+        <Route path="/classes" component={Classes} />
+        <Route path="/studio-rental" component={StudioRental} />
+        <Route path="/gallery" component={Gallery} />
+        <Route path="/contact" component={Contact} />
+        <Route path="/admin" component={Admin} />
+        <Route path="/404" component={NotFound} />
+        <Route component={NotFound} />
+      </Switch>
+    </div>
   );
 }
-
-// NOTE: About Theme
-// - First choose a default theme according to your design style (dark or light bg), than change color palette in index.css
-//   to keep consistent foreground/background color across components
-// - If you want to make theme switchable, pass `switchable` ThemeProvider and use `useTheme` hook
 
 function App() {
   return (
     <ErrorBoundary>
-      <ThemeProvider
-        defaultTheme="dark"
-        // switchable
-      >
+      <ThemeProvider defaultTheme="dark">
         <TooltipProvider>
           <Toaster />
           <Router />
