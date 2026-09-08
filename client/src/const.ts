@@ -17,23 +17,5 @@ export const BRAND_LOGOS = {
 
 export const APP_LOGO = BRAND_LOGOS.alliance.horizontal;
 
-// Generate login URL at runtime so redirect URI reflects the current origin.
-export const getLoginUrl = () => {
-  const oauthPortalUrl = import.meta.env.VITE_OAUTH_PORTAL_URL;
-  const appId = import.meta.env.VITE_APP_ID;
-
-  if (!oauthPortalUrl || !appId) {
-    return "#";
-  }
-
-  const redirectUri = `${window.location.origin}/api/oauth/callback`;
-  const state = btoa(redirectUri);
-  const url = new URL(`${oauthPortalUrl}/app-auth`);
-
-  url.searchParams.set("appId", appId);
-  url.searchParams.set("redirectUri", redirectUri);
-  url.searchParams.set("state", state);
-  url.searchParams.set("type", "signIn");
-
-  return url.toString();
-};
+// OAuth state is created and validated server-side; the client never handles it.
+export const getLoginUrl = (): string => "/api/oauth/login";

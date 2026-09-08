@@ -1,63 +1,60 @@
+import { Check, Loader2, LockKeyhole, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useAuth } from "@/_core/hooks/useAuth";
-import { trpc } from "@/lib/trpc";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Loader2, Check, X } from "lucide-react";
-import Navbar from "@/components/Navbar";
+import { useAuth } from "@/_core/hooks/useAuth";
 import Footer from "@/components/Footer";
+import Navbar from "@/components/Navbar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { getLoginUrl } from "@/const";
+import { trpc } from "@/lib/trpc";
+
+function statusBadge(status: "pending" | "confirmed" | "cancelled") {
+  if (status === "confirmed") return <Badge>Confirmed</Badge>;
+  if (status === "cancelled") return <Badge variant="destructive">Cancelled</Badge>;
+  return <Badge variant="secondary">Pending</Badge>;
+}
 
 export default function Admin() {
   const { t } = useTranslation();
   const { user, loading, isAuthenticated } = useAuth();
   const utils = trpc.useUtils();
-
-  const { data: bookings, isLoading: bookingsLoading } = trpc.bookings.list.useQuery(
-    undefined,
-    { enabled: isAuthenticated && user?.role === "admin" }
-  );
-
+  const bookingsQuery = trpc.bookings.list.useQuery(undefined, {
+    enabled: isAuthenticated && user?.role === "admin",
+  });
   const updateStatus = trpc.bookings.updateStatus.useMutation({
-    onSuccess: () => {
-      toast.success("Booking status updated successfully");
-      utils.bookings.list.invalidate();
+    onSuccess: async () => {
+      toast.success("Booking status updated.");
+      await utils.bookings.list.invalidate();
     },
-    onError: (error) => {
-      toast.error(error.message || "Failed to update booking status");
-    },
+    onError: error => toast.error(error.message || "Unable to update booking."),
   });
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="h-6 w-6 animate-spin text-primary" />
       </div>
     );
   }
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex flex-col bg-background">
+      <div className="brand-shell min-h-screen bg-background text-foreground">
         <Navbar />
-        <main className="flex-1 flex items-center justify-center">
-          <Card className="max-w-md w-full border-border">
-            <CardHeader>
-              <CardTitle className="text-2xl text-center text-primary">
-                Authentication Required
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="text-center">
-              <p className="text-muted-foreground mb-6">
-                Please log in to access the admin dashboard
-              </p>
-              <Button onClick={() => (window.location.href = getLoginUrl())}>
-                Log In
-              </Button>
-            </CardContent>
-          </Card>
+        <main className="container flex min-h-[70vh] items-center justify-center py-16">
+          <div className="max-w-md rounded-[2rem] border border-border bg-card p-8 text-center">
+            <h1 className="text-2xl font-semibold">Authentication required</h1>
+            <p className="mt-3 text-sm text-muted-foreground">
+              Sign in to access the reservation dashboard.
+            </p>
+            <Button
+              className="mt-6 rounded-full"
+              onClick={() => window.location.assign(getLoginUrl())}
+            >
+              Sign in
+            </Button>
+          </div>
         </main>
         <Footer />
       </div>
@@ -66,134 +63,132 @@ export default function Admin() {
 
   if (user?.role !== "admin") {
     return (
-      <div className="min-h-screen flex flex-col bg-background">
+      <div className="brand-shell min-h-screen bg-background text-foreground">
         <Navbar />
-        <main className="flex-1 flex items-center justify-center">
-          <Card className="max-w-md w-full border-border">
-            <CardHeader>
-              <CardTitle className="text-2xl text-center text-destructive">
-                Access Denied
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="text-center">
-              <p className="text-muted-foreground">
-                You do not have permission to access this page
-              </p>
-            </CardContent>
-          </Card>
+        <main className="container flex min-h-[70vh] items-center justify-center py-16">
+          <div className="max-w-md rounded-[2rem] border border-border bg-card p-8 text-center">
+            <h1 className="text-2xl font-semibold">Access denied</h1>
+            <p className="mt-3 text-sm text-muted-foreground">
+              This account does not have administrator access.
+            </p>
+          </div>
         </main>
         <Footer />
       </div>
     );
   }
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "confirmed":
-        return <Badge className="bg-green-500">Confirmed</Badge>;
-      case "pending":
-        return <Badge className="bg-yellow-500">Pending</Badge>;
-      case "cancelled":
-        return <Badge className="bg-red-500">Cancelled</Badge>;
-      default:
-        return <Badge>{status}</Badge>;
-    }
-  };
+  const bookings = bookingsQuery.data ?? [];
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="brand-shell min-h-screen bg-background text-foreground">
       <Navbar />
+      <main className="container py-12 md:py-16">
+        <div className="mb-8">
+          <p className="eyebrow">Operations</p>
+          <h1 className="mt-4 text-4xl font-semibold tracking-tight">
+            {t("admin.title")}
+          </h1>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
+            Paid reservation rows are controlled by verified Stripe payment
+            events. Manual actions remain available only for legacy bookings.
+          </p>
+        </div>
 
-      <main className="flex-1">
-        <section className="py-20">
-          <div className="container">
-            <h1 className="text-4xl font-bold mb-8 text-primary">{t("admin.title")}</h1>
-
-            <Card className="border-border">
-              <CardHeader>
-                <CardTitle className="text-2xl">{t("admin.bookings.title")}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {bookingsLoading ? (
-                  <div className="flex justify-center py-8">
-                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                  </div>
-                ) : !bookings || bookings.length === 0 ? (
-                  <p className="text-center text-muted-foreground py-8">No bookings found</p>
-                ) : (
-                  <div className="overflow-x-auto">
-                    <table className="w-full">
-                      <thead>
-                        <tr className="border-b border-border">
-                          <th className="text-left p-4 font-semibold">ID</th>
-                          <th className="text-left p-4 font-semibold">Name</th>
-                          <th className="text-left p-4 font-semibold">Email</th>
-                          <th className="text-left p-4 font-semibold">Studio</th>
-                          <th className="text-left p-4 font-semibold">Date</th>
-                          <th className="text-left p-4 font-semibold">Time</th>
-                          <th className="text-left p-4 font-semibold">Status</th>
-                          <th className="text-left p-4 font-semibold">Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {bookings.map((booking) => (
-                          <tr key={booking.id} className="border-b border-border">
-                            <td className="p-4">{booking.id}</td>
-                            <td className="p-4">{booking.userName}</td>
-                            <td className="p-4">{booking.userEmail}</td>
-                            <td className="p-4">Studio {booking.studioId}</td>
-                            <td className="p-4">
-                              {new Date(booking.bookingDate).toLocaleDateString()}
-                            </td>
-                            <td className="p-4">
-                              {booking.startTime} - {booking.endTime}
-                            </td>
-                            <td className="p-4">{getStatusBadge(booking.status)}</td>
-                            <td className="p-4">
-                              <div className="flex gap-2">
-                                {booking.status === "pending" && (
-                                  <>
-                                    <Button
-                                      size="sm"
-                                      onClick={() =>
-                                        updateStatus.mutate({
-                                          id: booking.id,
-                                          status: "confirmed",
-                                        })
-                                      }
-                                      disabled={updateStatus.isPending}
-                                    >
-                                      <Check className="h-4 w-4" />
-                                    </Button>
-                                    <Button
-                                      size="sm"
-                                      variant="destructive"
-                                      onClick={() =>
-                                        updateStatus.mutate({
-                                          id: booking.id,
-                                          status: "cancelled",
-                                        })
-                                      }
-                                      disabled={updateStatus.isPending}
-                                    >
-                                      <X className="h-4 w-4" />
-                                    </Button>
-                                  </>
-                                )}
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
+        <section className="overflow-hidden rounded-[2rem] border border-border bg-card">
+          {bookingsQuery.isLoading ? (
+            <div className="flex items-center gap-2 p-8 text-sm text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin" /> Loading reservations
+            </div>
+          ) : bookingsQuery.error ? (
+            <p className="p-8 text-sm text-destructive">
+              {bookingsQuery.error.message}
+            </p>
+          ) : bookings.length === 0 ? (
+            <p className="p-8 text-sm text-muted-foreground">No bookings found.</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[980px] text-left text-sm">
+                <thead className="border-b border-border bg-muted/40 text-xs uppercase tracking-wide text-muted-foreground">
+                  <tr>
+                    <th className="px-5 py-4">Reference</th>
+                    <th className="px-5 py-4">Customer</th>
+                    <th className="px-5 py-4">Studio</th>
+                    <th className="px-5 py-4">Date</th>
+                    <th className="px-5 py-4">Time</th>
+                    <th className="px-5 py-4">Status</th>
+                    <th className="px-5 py-4">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {bookings.map(booking => {
+                    const stripeManaged = Boolean(booking.reservationId);
+                    return (
+                      <tr key={booking.id} className="border-b border-border/70 last:border-0">
+                        <td className="px-5 py-4 font-mono text-xs">
+                          {booking.reservationId || `legacy-${booking.id}`}
+                        </td>
+                        <td className="px-5 py-4">
+                          <div className="font-medium">{booking.userName}</div>
+                          <div className="text-xs text-muted-foreground">
+                            {booking.userEmail}
+                          </div>
+                        </td>
+                        <td className="px-5 py-4">Studio {booking.studioId}</td>
+                        <td className="px-5 py-4">
+                          {new Date(booking.bookingDate).toLocaleDateString()}
+                        </td>
+                        <td className="px-5 py-4">
+                          {booking.startTime}-{booking.endTime}
+                        </td>
+                        <td className="px-5 py-4">{statusBadge(booking.status)}</td>
+                        <td className="px-5 py-4">
+                          {stripeManaged ? (
+                            <span className="inline-flex items-center gap-2 text-xs text-muted-foreground">
+                              <LockKeyhole className="h-3.5 w-3.5" /> Stripe-managed
+                            </span>
+                          ) : booking.status === "pending" ? (
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                disabled={updateStatus.isPending}
+                                onClick={() =>
+                                  updateStatus.mutate({
+                                    id: booking.id,
+                                    status: "confirmed",
+                                  })
+                                }
+                              >
+                                <Check className="mr-1 h-4 w-4" /> Confirm
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                disabled={updateStatus.isPending}
+                                onClick={() =>
+                                  updateStatus.mutate({
+                                    id: booking.id,
+                                    status: "cancelled",
+                                  })
+                                }
+                              >
+                                <X className="mr-1 h-4 w-4" /> Cancel
+                              </Button>
+                            </div>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">No action</span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
         </section>
       </main>
-
       <Footer />
     </div>
   );

@@ -1,65 +1,99 @@
 import "dotenv/config";
-import express from "express";
-import { createServer } from "http";
-import net from "net";
+import { createServer } from "node:http";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
-import { registerOAuthRoutes } from "./oauth";
+import express from "express";
+import { stripeWebhookHandler } from "../stripe";
 import { appRouter } from "../routers";
+import { closeDatabase } from "../db";
 import { createContext } from "./context";
+import { ENV, validateRuntimeConfiguration } from "./env";
+import { registerOAuthRoutes } from "./oauth";
 import { serveStatic, setupVite } from "./vite";
 
-function isPortAvailable(port: number): Promise<boolean> {
-  return new Promise(resolve => {
-    const server = net.createServer();
-    server.listen(port, () => {
-      server.close(() => resolve(true));
-    });
-    server.on("error", () => resolve(false));
-  });
-}
-
-async function findAvailablePort(startPort: number = 3000): Promise<number> {
-  for (let port = startPort; port < startPort + 20; port++) {
-    if (await isPortAvailable(port)) {
-      return port;
-    }
+function configuredPort(): number {
+  const port = Number.parseInt(process.env.PORT || "3000", 10);
+  if (!Number.isInteger(port) || port < 1 || port > 65_535) {
+    throw new Error("PORT must be an integer between 1 and 65535.");
   }
-  throw new Error(`No available port found starting from ${startPort}`);
+  return port;
 }
 
-async function startServer() {
+async function startServer(): Promise<void> {
+  validateRuntimeConfiguration();
+
   const app = express();
-  const server = createServer(app);
-  // Configure body parser with larger size limit for file uploads
-  app.use(express.json({ limit: "50mb" }));
-  app.use(express.urlencoded({ limit: "50mb", extended: true }));
-  // OAuth callback under /api/oauth/callback
+  if (ENV.trustProxyHops > 0) app.set("trust proxy", ENV.trustProxyHops);
+  app.disable("x-powered-by");
+
+  app.use((_req, res, next) => {
+    res.setHeader("X-Content-Type-Options", "nosniff");
+    res.setHeader("X-Frame-Options", "SAMEORIGIN");
+    res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+    res.setHeader(
+      "Permissions-Policy",
+      "camera=(), microphone=(), geolocation=(), payment=(self)"
+    );
+    if (ENV.isProduction) {
+      res.setHeader("Strict-Transport-Security", "max-age=31536000");
+    }
+    next();
+  });
+  app.use("/api", (_req, res, next) => {
+    res.setHeader("Cache-Control", "no-store");
+    next();
+  });
+
+  // Stripe verifies the exact request bytes, so this must precede JSON parsing.
+  app.post(
+    "/api/stripe/webhook",
+    express.raw({ type: "application/json", limit: "1mb" }),
+    stripeWebhookHandler
+  );
+
+  app.use(express.json({ limit: "1mb" }));
+  app.use(express.urlencoded({ limit: "64kb", extended: false }));
+
   registerOAuthRoutes(app);
-  // tRPC API
   app.use(
     "/api/trpc",
-    createExpressMiddleware({
-      router: appRouter,
-      createContext,
-    })
+    createExpressMiddleware({ router: appRouter, createContext })
   );
-  // development mode uses Vite, production mode uses static files
-  if (process.env.NODE_ENV === "development") {
-    await setupVite(app, server);
-  } else {
-    serveStatic(app);
-  }
 
-  const preferredPort = parseInt(process.env.PORT || "3000");
-  const port = await findAvailablePort(preferredPort);
+  const server = createServer(app);
+  if (ENV.isProduction) serveStatic(app);
+  else await setupVite(app, server);
 
-  if (port !== preferredPort) {
-    console.log(`Port ${preferredPort} is busy, using port ${port} instead`);
-  }
+  server.requestTimeout = 30_000;
+  server.headersTimeout = 35_000;
+  server.keepAliveTimeout = 5_000;
 
-  server.listen(port, () => {
-    console.log(`Server running on http://localhost:${port}/`);
+  const port = configuredPort();
+  server.listen(port, "0.0.0.0", () => {
+    console.log(`Server listening on port ${port}`);
   });
+
+  let closing = false;
+  const shutdown = (signal: string) => {
+    if (closing) return;
+    closing = true;
+    console.log(`Received ${signal}; shutting down.`);
+
+    server.close(async error => {
+      await closeDatabase().catch(() => undefined);
+      if (error) {
+        console.error("HTTP server shutdown failed", { error: error.message });
+        process.exitCode = 1;
+      }
+    });
+  };
+
+  process.once("SIGTERM", () => shutdown("SIGTERM"));
+  process.once("SIGINT", () => shutdown("SIGINT"));
 }
 
-startServer().catch(console.error);
+startServer().catch(error => {
+  console.error("Server startup failed", {
+    error: error instanceof Error ? error.message : "Unknown error",
+  });
+  process.exitCode = 1;
+});

@@ -1,79 +1,145 @@
-import "dotenv/config";  // <-- Add this FIRST
-import { drizzle } from "drizzle-orm/postgres-js";
+import "dotenv/config";
 import postgres from "postgres";
-import { studios, timeSlots } from "./drizzle/schema";
 
-// Check if DATABASE_URL exists
-if (!process.env.DATABASE_URL) {
-  throw new Error("DATABASE_URL is not set in .env file");
+function readBoolean(value: string | undefined, fallback: boolean): boolean {
+  if (!value) return fallback;
+  return ["1", "true", "yes", "on"].includes(value.toLowerCase());
 }
 
-const client = postgres(process.env.DATABASE_URL);
-const db = drizzle(client);
+const databaseUrl = process.env.DATABASE_URL;
+if (!databaseUrl) throw new Error("DATABASE_URL is required.");
 
-async function seed() {
-  console.log("Seeding database...");
-  console.log("Connecting to:", process.env.DATABASE_URL?.substring(0, 50) + "..."); // Log partial URL for debugging
+const sql = postgres(databaseUrl, {
+  ssl: readBoolean(process.env.DATABASE_SSL, true) ? "require" : false,
+  max: 1,
+  prepare: false,
+});
 
-  // Create studios
-  const studioData = [
-    {
-      name: "Studio 4",
-      description: "Spacious dance studio perfect for group classes and rehearsals. Features mirrors, sound system, and professional flooring.",
-      hourlyRate: 5000,
-      image: "/studios/studio4.jpg",
-      isActive: true,
-    },
-    {
-      name: "Studio 5",
-      description: "Medium-sized studio ideal for private lessons and small group sessions. Equipped with mirrors and sound system.",
-      hourlyRate: 4000,
-      image: "/studios/studio5.jpg",
-      isActive: true,
-    },
-    {
-      name: "Studio 6",
-      description: "Intimate studio space perfect for one-on-one coaching and practice sessions. Professional equipment included.",
-      hourlyRate: 3500,
-      image: "/studios/studio6.jpg",
-      isActive: true,
-    },
-  ];
+type SqlExecutor = any;
 
-  console.log("Creating studios...");
-  await db.insert(studios).values(studioData);
-  console.log("Studios created successfully!");
+const studioSeeds = [
+  {
+    name: "Studio 5",
+    description:
+      "A bright private studio for rehearsals, lessons, and small groups.",
+    capacity: 12,
+    size: "Small",
+    hourlyRate: 1500,
+    groupHourlyRate: 2200,
+  },
+  {
+    name: "Studio 6",
+    description:
+      "A versatile mirrored studio for classes, practice, and rehearsals.",
+    capacity: 20,
+    size: "Medium",
+    hourlyRate: 1500,
+    groupHourlyRate: 2200,
+  },
+  {
+    name: "Studio 7",
+    description:
+      "A versatile mirrored studio that can be combined with Studio 6.",
+    capacity: 20,
+    size: "Medium",
+    hourlyRate: 1500,
+    groupHourlyRate: 2200,
+  },
+];
 
-  // Create time slots for each studio (Monday-Sunday, 9 AM - 10 PM)
-  const timeSlotData = [];
-  const studioIds = [1, 2, 3];
+async function upsertStudio(
+  tx: SqlExecutor,
+  seed: (typeof studioSeeds)[number]
+): Promise<number> {
+  const updated = (await tx`
+    UPDATE studios
+    SET
+      description = ${seed.description},
+      capacity = ${seed.capacity},
+      size = ${seed.size},
+      "hourlyRate" = ${seed.hourlyRate},
+      "groupHourlyRate" = ${seed.groupHourlyRate},
+      "isActive" = TRUE,
+      "updatedAt" = NOW()
+    WHERE id = (
+      SELECT id FROM studios WHERE name = ${seed.name} ORDER BY id LIMIT 1
+    )
+    RETURNING id
+  `) as Array<{ id: number }>;
+  if (updated[0]) return updated[0].id;
 
-  for (const studioId of studioIds) {
-    for (let day = 0; day <= 6; day++) {
-      for (let hour = 9; hour < 22; hour++) {
-        timeSlotData.push({
-          studioId,
-          dayOfWeek: day,
-          startTime: `${hour.toString().padStart(2, "0")}:00`,
-          endTime: `${(hour + 1).toString().padStart(2, "0")}:00`,
-          isAvailable: true,
-        });
+  const inserted = (await tx`
+    INSERT INTO studios (
+      name,
+      description,
+      capacity,
+      size,
+      "hourlyRate",
+      "groupHourlyRate",
+      "isActive",
+      "createdAt",
+      "updatedAt"
+    ) VALUES (
+      ${seed.name},
+      ${seed.description},
+      ${seed.capacity},
+      ${seed.size},
+      ${seed.hourlyRate},
+      ${seed.groupHourlyRate},
+      TRUE,
+      NOW(),
+      NOW()
+    )
+    RETURNING id
+  `) as Array<{ id: number }>;
+  return inserted[0].id;
+}
+
+async function main(): Promise<void> {
+  const studioIds = await sql.begin(async transaction => {
+    const tx = transaction as unknown as SqlExecutor;
+    const ids: number[] = [];
+
+    for (const seed of studioSeeds) ids.push(await upsertStudio(tx, seed));
+
+    for (const studioId of ids) {
+      await tx`DELETE FROM time_slots WHERE "studioId" = ${studioId}`;
+      for (let dayOfWeek = 0; dayOfWeek <= 6; dayOfWeek += 1) {
+        await tx`
+          INSERT INTO time_slots (
+            "studioId",
+            "dayOfWeek",
+            "startTime",
+            "endTime",
+            "isAvailable",
+            "createdAt",
+            "updatedAt"
+          ) VALUES (
+            ${studioId},
+            ${dayOfWeek},
+            '09:00',
+            '22:00',
+            TRUE,
+            NOW(),
+            NOW()
+          )
+        `;
       }
     }
-  }
 
-  console.log("Creating time slots...");
-  await db.insert(timeSlots).values(timeSlotData);
-  console.log("Time slots created successfully!");
+    return ids;
+  });
 
-  console.log("Database seeded successfully!");
-  
-  await client.end();
-  process.exit(0);
+  console.log(`Seeded ${studioIds.length} studios and their weekly availability.`);
 }
 
-seed().catch(async (error) => {
-  console.error("Error seeding database:", error);
-  await client.end();
-  process.exit(1);
-});
+main()
+  .catch(error => {
+    console.error("Database seed failed", {
+      error: error instanceof Error ? error.message : "Unknown error",
+    });
+    process.exitCode = 1;
+  })
+  .finally(async () => {
+    await sql.end({ timeout: 5 });
+  });
