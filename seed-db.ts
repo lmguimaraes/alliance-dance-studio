@@ -103,10 +103,10 @@ async function main(): Promise<void> {
     for (const seed of studioSeeds) ids.push(await upsertStudio(tx, seed));
 
     for (const studioId of ids) {
-      await tx`DELETE FROM time_slots WHERE "studioId" = ${studioId}`;
+      await tx`DELETE FROM "timeSlots" WHERE "studioId" = ${studioId}`;
       for (let dayOfWeek = 0; dayOfWeek <= 6; dayOfWeek += 1) {
         await tx`
-          INSERT INTO time_slots (
+          INSERT INTO "timeSlots" (
             "studioId",
             "dayOfWeek",
             "startTime",

@@ -10,6 +10,8 @@ import { ENV, validateRuntimeConfiguration } from "./env";
 import { registerOAuthRoutes } from "./oauth";
 import { serveStatic, setupVite } from "./vite";
 
+import { studioAvailabilityRouter } from "../availability";
+import { isMalformedRequestTarget } from "./requestTarget";
 function configuredPort(): number {
   const port = Number.parseInt(process.env.PORT || "3000", 10);
   if (!Number.isInteger(port) || port < 1 || port > 65_535) {
@@ -22,6 +24,24 @@ async function startServer(): Promise<void> {
   validateRuntimeConfiguration();
 
   const app = express();
+
+  app.disable("x-powered-by");
+
+  app.use((request, response, next) => {
+
+    if (isMalformedRequestTarget(request.originalUrl || request.url)) {
+
+      response.status(400).type("text/plain").send("Bad Request");
+
+      return;
+
+    }
+
+    next();
+
+  });
+
+  app.use("/api/studio-availability", studioAvailabilityRouter);
   if (ENV.trustProxyHops > 0) app.set("trust proxy", ENV.trustProxyHops);
   app.disable("x-powered-by");
 

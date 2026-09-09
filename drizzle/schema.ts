@@ -149,7 +149,7 @@ export type Booking = typeof bookings.$inferSelect;
 export type InsertBooking = typeof bookings.$inferInsert;
 
 export const timeSlots = pgTable(
-  "time_slots",
+  "timeSlots",
   {
     id: serial("id").primaryKey(),
     studioId: integer("studioId")

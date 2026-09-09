@@ -30,13 +30,13 @@ export function createFixedWindowRateLimiter(options: {
   }
 
   function prune(now: number): void {
-    for (const [key, bucket] of buckets) {
+    buckets.forEach((bucket, key) => {
       if (now - bucket.lastSeenAt >= windowMs) buckets.delete(key);
-    }
+    });
 
     if (buckets.size <= maxEntries) return;
 
-    const oldest = [...buckets.entries()]
+    const oldest = Array.from(buckets.entries())
       .sort((a, b) => a[1].lastSeenAt - b[1].lastSeenAt)
       .slice(0, buckets.size - maxEntries);
     for (const [key] of oldest) buckets.delete(key);

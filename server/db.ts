@@ -12,6 +12,7 @@ import {
   type InsertUser,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
+import {uniqueStudiosByName,} from "../shared/studioCatalog";
 
 let sqlClient: ReturnType<typeof postgres> | null = null;
 let database: ReturnType<typeof drizzle> | null = null;
@@ -80,7 +81,7 @@ export async function getUserByOpenId(openId: string) {
 }
 
 export async function getAllStudios() {
-  return getDb()
+  const rows = await getDb()
     .select({
       id: studios.id,
       name: studios.name,
@@ -95,6 +96,8 @@ export async function getAllStudios() {
     .from(studios)
     .where(eq(studios.isActive, true))
     .orderBy(studios.id);
+    
+    return uniqueStudiosByName(rows);
 }
 
 export async function getStudioById(id: number) {

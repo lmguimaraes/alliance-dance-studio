@@ -187,7 +187,7 @@ async function loadAvailability(
 ): Promise<TimeSegment[]> {
   const rows = (await sql`
     SELECT "studioId", "startTime", "endTime"
-    FROM time_slots
+    FROM "timeSlots"
     WHERE "studioId" IN ${sql(studioIds)}
       AND "dayOfWeek" = ${dayOfWeek}
       AND "isAvailable" = TRUE

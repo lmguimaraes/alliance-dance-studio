@@ -220,7 +220,7 @@ export function validateBookingWindow(input: {
 }
 
 export function normalizeStudioIds(studioIds: readonly number[]): number[] {
-  const normalized = [...new Set(studioIds)].sort((a, b) => a - b);
+  const normalized = Array.from(new Set(studioIds)).sort((a, b) => a - b);
 
   if (
     normalized.length < 1 ||

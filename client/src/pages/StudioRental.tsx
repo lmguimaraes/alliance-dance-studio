@@ -15,12 +15,14 @@ import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { trpc } from "@/lib/trpc";
 
+import StudioAvailabilityBoard from "../components/StudioAvailabilityBoard";
 const DEFAULT_RULES = {
   stepMinutes: 30,
   minimumMinutes: 60,
   maximumMinutes: 8 * 60,
   timeZone: "America/Toronto",
 } as const;
+import { normalizeStudioName, uniqueStudiosByName, } from "@shared/studioCatalog";
 
 type Audience = "private" | "group";
 
@@ -126,13 +128,25 @@ function durationLabel(minutes: number): string {
   return `${Number.isInteger(hours) ? hours : hours.toFixed(1)} h`;
 }
 
-function findStudioByName<T extends { name: string }>(
+function findStudioByName<
+  T extends { name: string }
+>(
   studios: T[],
   name: string
 ): T | undefined {
-  const target = name.trim().toLowerCase();
-  return studios.find(studio => studio.name.trim().toLowerCase() === target);
+  const target = normalizeStudioName(name);
+
+  return studios.find(
+    studio =>
+      normalizeStudioName(studio.name) ===
+      target
+  );
 }
+
+type StudioSelectedDetail = {
+  studioId: number;
+  date?: string;
+};
 
 export default function StudioRental() {
   const { t, i18n } = useTranslation();
@@ -165,7 +179,7 @@ export default function StudioRental() {
 
   const studiosQuery = trpc.studios.list.useQuery();
   const studioOptions = useMemo<StudioOption[]>(() => {
-    const studios = studiosQuery.data ?? [];
+    const studios = uniqueStudiosByName(studiosQuery.data ?? []);
     const singles = studios.map(studio => ({
       key: String(studio.id),
       studioIds: [studio.id],
@@ -198,10 +212,72 @@ export default function StudioRental() {
   }, [studiosQuery.data]);
 
   useEffect(() => {
-    if (!selectedStudioKey && studioOptions[0]) {
-      setSelectedStudioKey(studioOptions[0].key);
+    if (!studioOptions.length) {
+      if (selectedStudioKey) {
+        setSelectedStudioKey("");
+      }
+
+      return;
+    }
+
+    if (
+      !studioOptions.some(
+        option =>
+          option.key === selectedStudioKey
+      )
+    ) {
+      setSelectedStudioKey(
+        studioOptions[0].key
+      );
     }
   }, [selectedStudioKey, studioOptions]);
+
+  useEffect(() => {
+  const handleStudioSelected = (
+    event: Event
+  ) => {
+    const detail = (
+      event as CustomEvent<StudioSelectedDetail>
+    ).detail;
+
+    if (
+      !detail ||
+      !Number.isInteger(detail.studioId)
+    ) {
+      return;
+    }
+
+    const option = studioOptions.find(
+      candidate =>
+        candidate.studioIds.length === 1 &&
+        candidate.studioIds[0] ===
+          detail.studioId
+    );
+
+    if (!option) return;
+
+    setSelectedStudioKey(option.key);
+
+    if (
+      typeof detail.date === "string" &&
+      detail.date >= today &&
+      detail.date <= latestDate
+    ) {
+      setDate(detail.date);
+    }
+  };
+
+  window.addEventListener(
+    "alliance:studio-selected",
+    handleStudioSelected
+  );
+
+  return () =>
+    window.removeEventListener(
+      "alliance:studio-selected",
+      handleStudioSelected
+    );
+}, [latestDate, studioOptions, today]);
 
   const selectedStudio = studioOptions.find(
     option => option.key === selectedStudioKey
@@ -408,6 +484,7 @@ export default function StudioRental() {
     <div className="brand-shell min-h-screen bg-background text-foreground">
       <Navbar />
       <main>
+      <StudioAvailabilityBoard />
         <section className="relative overflow-hidden border-b border-border/70">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(212,175,55,0.16),_transparent_38%)]" />
           <div className="container relative py-16 md:py-24">
@@ -465,7 +542,7 @@ export default function StudioRental() {
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="grid gap-8 lg:grid-cols-[1.35fr_0.65fr]">
+            <form id="reservation-form" onSubmit={handleSubmit} className="grid gap-8 lg:grid-cols-[1.35fr_0.65fr]">
               <div className="space-y-8">
                 <section className="rounded-[2rem] border border-border bg-card/70 p-6 md:p-8">
                   <div className="flex items-center gap-3">
