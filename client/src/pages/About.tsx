@@ -42,28 +42,6 @@ export default function About() {
       <main className="flex-1">
         <section className="relative overflow-hidden border-b border-border/70 bg-gradient-to-br from-background via-background to-secondary/60">
           <div className="container grid gap-12 py-20 md:py-28 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
-            <div className="glass-panel relative overflow-hidden rounded-[2rem] p-8">
-              <div className="absolute -right-12 -top-12 h-40 w-40 rounded-full bg-primary/10 blur-3xl" />
-              <div className="relative rounded-[1.5rem] border border-border/70 bg-card p-8 text-center">
-                <img
-                  src={BRAND_LOGOS.danceCo.horizontal}
-                  alt="Alliance Dance Co."
-                  className="mx-auto max-h-44 w-auto object-contain"
-                />
-                <div className="mt-8 grid gap-3 sm:grid-cols-3">
-                  <div className="rounded-2xl bg-muted p-4">
-                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Create</p>
-                  </div>
-                  <div className="rounded-2xl bg-muted p-4">
-                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Perform</p>
-                  </div>
-                  <div className="rounded-2xl bg-muted p-4">
-                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Connect</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
             <div>
               <p className="eyebrow">Alliance Dance Co.</p>
               <h1 className="mt-5 max-w-4xl text-5xl font-semibold tracking-tight text-foreground md:text-7xl">

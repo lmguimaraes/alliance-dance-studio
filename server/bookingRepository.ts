@@ -1,5 +1,6 @@
 import { ENV } from "./_core/env";
 import { getSqlClient } from "./db";
+import { toPostgresTimestamp } from "./databaseValues";
 import {
   assertSupportedStudioCombination,
   BookingError,
@@ -283,6 +284,7 @@ export async function createReservationHold(
   const holdExpiresAt = new Date(
     input.sessionExpiresAt.getTime() + HOLD_GRACE_MINUTES * 60 * 1000
   );
+  const holdExpiresAtSql = toPostgresTimestamp(holdExpiresAt);
   const client = getSqlClient();
 
   return client.begin(async transaction => {
@@ -381,7 +383,7 @@ export async function createReservationHold(
         ${input.currency},
         'checkout_pending',
         ${input.cancelTokenHash},
-        ${holdExpiresAt},
+        ${holdExpiresAtSql}::timestamptz,
         NOW(),
         NOW()
       )

@@ -4,6 +4,11 @@ import { nanoid } from "nanoid";
 import Stripe from "stripe";
 import { ENV } from "./_core/env";
 import {
+  isStudioXCombination,
+  STUDIO_X_DESCRIPTION,
+  STUDIO_X_NAME,
+} from "../shared/studioCatalog";
+import {
   BookingError,
   CHECKOUT_SESSION_MINUTES,
 } from "./bookingPolicy";
@@ -112,6 +117,38 @@ export async function createStripeCheckout(input: {
     cancel_token: cancelToken,
   }).toString();
 
+  const lineItems =
+    isStudioXCombination(hold.lines.map(line => line.studioName))
+      ? [
+          {
+            quantity: 1,
+            price_data: {
+              currency: hold.currency,
+              unit_amount: hold.amountTotal,
+              product_data: {
+                name: `${STUDIO_X_NAME} rental`,
+                description:
+                  `${STUDIO_X_DESCRIPTION} ` +
+                  `${hold.date}, ${hold.startTime}-${hold.endTime} ` +
+                  `(${hold.audience}).`,
+              },
+            },
+          },
+        ]
+      : hold.lines.map(line => ({
+          quantity: 1,
+          price_data: {
+            currency: hold.currency,
+            unit_amount: line.lineTotal,
+            product_data: {
+              name: `${line.studioName} rental`,
+              description:
+                `${hold.date}, ${hold.startTime}-${hold.endTime} ` +
+                `(${hold.audience})`,
+            },
+          },
+        }));
+
   let session: Stripe.Checkout.Session;
   try {
     session = await stripe.checkout.sessions.create(
@@ -124,17 +161,7 @@ export async function createStripeCheckout(input: {
         payment_intent_data: {
           metadata: { reservationId },
         },
-        line_items: hold.lines.map(line => ({
-          quantity: 1,
-          price_data: {
-            currency: hold.currency,
-            unit_amount: line.lineTotal,
-            product_data: {
-              name: `${line.studioName} rental`,
-              description: `${hold.date}, ${hold.startTime}-${hold.endTime} (${hold.audience})`,
-            },
-          },
-        })),
+        line_items: lineItems,
         success_url: successUrlWithSession,
         cancel_url: cancelUrl.toString(),
         expires_at: expiresAtSeconds,

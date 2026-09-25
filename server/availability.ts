@@ -1,7 +1,12 @@
 import { Router } from "express";
 import { Pool, type QueryResultRow } from "pg";
-import { uniqueStudiosByName } from "../shared/studioCatalog";
-
+import {
+  getStudioXMembers,
+  STUDIO_X_DESCRIPTION,
+  STUDIO_X_NAME,
+  studioIdsKey,
+  uniqueStudiosByName,
+} from "../shared/studioCatalog";
 import { MAX_ADVANCE_DAYS } from "./bookingPolicy";
 
 const TIME_ZONE = "America/Toronto";
@@ -93,6 +98,35 @@ function mergeIntervals(values: Interval[]): Interval[] {
   return merged;
 }
 
+export function intersectIntervals(
+  left: readonly Interval[],
+  right: readonly Interval[]
+): Interval[] {
+  const first = mergeIntervals(left.map(interval => ({ ...interval })));
+  const second = mergeIntervals(right.map(interval => ({ ...interval })));
+  const result: Interval[] = [];
+  let firstIndex = 0;
+  let secondIndex = 0;
+
+  while (firstIndex < first.length && secondIndex < second.length) {
+    const start = Math.max(
+      first[firstIndex].start,
+      second[secondIndex].start
+    );
+    const end = Math.min(first[firstIndex].end, second[secondIndex].end);
+
+    if (start < end) result.push({ start, end });
+
+    if (first[firstIndex].end <= second[secondIndex].end) {
+      firstIndex += 1;
+    } else {
+      secondIndex += 1;
+    }
+  }
+
+  return mergeIntervals(result);
+}
+
 function contains(intervals: Interval[], start: number, end: number): boolean {
   return intervals.some((interval) => start >= interval.start && end <= interval.end);
 }
@@ -115,15 +149,8 @@ function buildSegments(
   const pastCutoff =
     pastBefore === null
       ? null
-      : Math.ceil(
-          pastBefore / MINUTE_STEP
-        ) * MINUTE_STEP;
-
-  if (
-    pastCutoff !== null &&
-    pastCutoff > range.start &&
-    pastCutoff < range.end
-  ) {
+      : Math.ceil(pastBefore / MINUTE_STEP) * MINUTE_STEP;
+  if (pastCutoff !== null && pastCutoff > range.start && pastCutoff < range.end) {
     boundaries.add(pastCutoff);
   }
 
@@ -167,11 +194,7 @@ studioAvailabilityRouter.get("/", async (request, response) => {
     return;
   }
   if (date < today || date > dateOffset(today, MAX_ADVANCE_DAYS)) {
-    response.status(400).json({
-      error:
-        `Availability can be viewed from today through the next ${MAX_ADVANCE_DAYS} days.`,
-    });
-
+    response.status(400).json({ error: `Availability can be viewed from today through the next ${MAX_ADVANCE_DAYS} days.` });
     return;
   }
 
@@ -184,7 +207,8 @@ studioAvailabilityRouter.get("/", async (request, response) => {
        WHERE is_active IS TRUE
        ORDER BY id
     `);
-    const studioIds = studiosResult.rows.map((studio) => studio.id);
+    const studioRows = uniqueStudiosByName(studiosResult.rows);
+    const studioIds = studioRows.map(studio => studio.id);
 
     if (!studioIds.length) {
       response.setHeader("Cache-Control", "no-store");
@@ -260,13 +284,17 @@ studioAvailabilityRouter.get("/", async (request, response) => {
       : { start: 540, end: 1320 };
     const pastBefore = date === today ? currentMinuteInToronto() : null;
 
-    const studios = studiosResult.rows.map((studio) => {
+    const studios = studioRows.map(studio => {
       const openingHours = mergeIntervals(schedule.get(studio.id) ?? []);
       const occupied = mergeIntervals(busy.get(studio.id) ?? []);
       const segments = buildSegments(openingHours, occupied, range, pastBefore);
       const windows = availableWindows(segments);
+
       return {
+        key: `studio-${studio.id}`,
         id: studio.id,
+        studioIds: [studio.id],
+        isCombination: false,
         name: studio.name,
         description: studio.description,
         capacity: studio.capacity,
@@ -279,9 +307,58 @@ studioAvailabilityRouter.get("/", async (request, response) => {
         segments,
         availableWindows: windows,
         nextAvailable: windows[0] ?? null,
-        availableMinutes: windows.reduce((total, window) => total + window.end - window.start, 0),
+        availableMinutes: windows.reduce(
+          (total, window) => total + window.end - window.start,
+          0
+        ),
       };
     });
+
+    const studioXMembers = getStudioXMembers(studioRows);
+    if (studioXMembers) {
+      const [studio6, studio7] = studioXMembers;
+      const memberIds = [studio6.id, studio7.id].sort((a, b) => a - b);
+
+      // Studio X is open only when both physical rooms are open.
+      const openingHours = intersectIntervals(
+        schedule.get(studio6.id) ?? [],
+        schedule.get(studio7.id) ?? []
+      );
+
+      // A reservation in either room makes the combined space unavailable.
+      const occupied = mergeIntervals([
+        ...(busy.get(studio6.id) ?? []),
+        ...(busy.get(studio7.id) ?? []),
+      ]);
+      const segments = buildSegments(openingHours, occupied, range, pastBefore);
+      const windows = availableWindows(segments);
+
+      studios.push({
+        key: `studio-x-${studioIdsKey(memberIds)}`,
+        id: memberIds[0],
+        studioIds: memberIds,
+        isCombination: true,
+        name: STUDIO_X_NAME,
+        description: STUDIO_X_DESCRIPTION,
+        capacity: (studio6.capacity ?? 0) + (studio7.capacity ?? 0),
+        size: "Studios 6 + 7 combined",
+        hourlyRateCents:
+          studio6.hourly_rate_cents + studio7.hourly_rate_cents,
+        groupHourlyRateCents:
+          studio6.group_hourly_rate_cents +
+          studio7.group_hourly_rate_cents,
+        imageUrl: null,
+        scheduleConfigured: openingHours.length > 0,
+        openingHours,
+        segments,
+        availableWindows: windows,
+        nextAvailable: windows[0] ?? null,
+        availableMinutes: windows.reduce(
+          (total, window) => total + window.end - window.start,
+          0
+        ),
+      });
+    }
 
     response.setHeader("Cache-Control", "no-store");
     response.json({

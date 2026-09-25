@@ -126,18 +126,6 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="border-y border-border/70 bg-card/40 py-12">
-          <div className="container grid gap-4 md:grid-cols-3">
-            {highlights.map((item) => (
-              <div key={item.value} className="rounded-3xl border border-border/70 bg-background/40 p-6">
-                <p className="text-sm font-semibold text-primary">{item.value}</p>
-                <h2 className="mt-3 text-lg font-semibold text-foreground">{item.label}</h2>
-                <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.detail}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
         <section className="py-20">
           <div className="container">
             <div className="max-w-2xl">

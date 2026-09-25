@@ -14,6 +14,14 @@ import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { trpc } from "@/lib/trpc";
+import {
+  getStudioXMembers,
+  isStudioXCombination,
+  STUDIO_X_DESCRIPTION,
+  STUDIO_X_NAME,
+  studioIdsKey,
+  uniqueStudiosByName,
+} from "@shared/studioCatalog";
 
 import StudioAvailabilityBoard from "../components/StudioAvailabilityBoard";
 const DEFAULT_RULES = {
@@ -22,7 +30,6 @@ const DEFAULT_RULES = {
   maximumMinutes: 8 * 60,
   timeZone: "America/Toronto",
 } as const;
-import { normalizeStudioName, uniqueStudiosByName, } from "@shared/studioCatalog";
 
 type Audience = "private" | "group";
 
@@ -128,23 +135,8 @@ function durationLabel(minutes: number): string {
   return `${Number.isInteger(hours) ? hours : hours.toFixed(1)} h`;
 }
 
-function findStudioByName<
-  T extends { name: string }
->(
-  studios: T[],
-  name: string
-): T | undefined {
-  const target = normalizeStudioName(name);
-
-  return studios.find(
-    studio =>
-      normalizeStudioName(studio.name) ===
-      target
-  );
-}
-
 type StudioSelectedDetail = {
-  studioId: number;
+  studioIds: number[];
   date?: string;
 };
 
@@ -190,18 +182,19 @@ export default function StudioRental() {
       groupHourlyRate: studio.groupHourlyRate ?? studio.hourlyRate,
     }));
 
-    const studio6 = findStudioByName(studios, "Studio 6");
-    const studio7 = findStudioByName(studios, "Studio 7");
-    if (!studio6 || !studio7) return singles;
+    const studioXMembers = getStudioXMembers(studios);
+    if (!studioXMembers) return singles;
 
+    const [studio6, studio7] = studioXMembers;
     const comboIds = [studio6.id, studio7.id].sort((a, b) => a - b);
+
     return [
       ...singles,
       {
-        key: comboIds.join("-"),
+        key: studioIdsKey(comboIds),
         studioIds: comboIds,
-        name: `${studio6.name} + ${studio7.name}`,
-        description: "Reserve both connected studios as one larger space.",
+        name: STUDIO_X_NAME,
+        description: STUDIO_X_DESCRIPTION,
         capacity: (studio6.capacity ?? 0) + (studio7.capacity ?? 0) || null,
         privateHourlyRate: studio6.hourlyRate + studio7.hourlyRate,
         groupHourlyRate:
@@ -213,71 +206,53 @@ export default function StudioRental() {
 
   useEffect(() => {
     if (!studioOptions.length) {
-      if (selectedStudioKey) {
-        setSelectedStudioKey("");
-      }
-
+      if (selectedStudioKey) setSelectedStudioKey("");
       return;
     }
 
-    if (
-      !studioOptions.some(
-        option =>
-          option.key === selectedStudioKey
-      )
-    ) {
-      setSelectedStudioKey(
-        studioOptions[0].key
-      );
+    if (!studioOptions.some(option => option.key === selectedStudioKey)) {
+      setSelectedStudioKey(studioOptions[0].key);
     }
   }, [selectedStudioKey, studioOptions]);
 
   useEffect(() => {
-  const handleStudioSelected = (
-    event: Event
-  ) => {
-    const detail = (
-      event as CustomEvent<StudioSelectedDetail>
-    ).detail;
+    const handleStudioSelected = (event: Event) => {
+      const detail = (event as CustomEvent<StudioSelectedDetail>).detail;
+      if (
+        !detail ||
+        !Array.isArray(detail.studioIds) ||
+        detail.studioIds.length === 0 ||
+        detail.studioIds.some(studioId => !Number.isInteger(studioId))
+      ) {
+        return;
+      }
 
-    if (
-      !detail ||
-      !Number.isInteger(detail.studioId)
-    ) {
-      return;
-    }
+      const selectedKey = studioIdsKey(detail.studioIds);
+      const option = studioOptions.find(
+        candidate => studioIdsKey(candidate.studioIds) === selectedKey
+      );
+      if (!option) return;
 
-    const option = studioOptions.find(
-      candidate =>
-        candidate.studioIds.length === 1 &&
-        candidate.studioIds[0] ===
-          detail.studioId
-    );
+      setSelectedStudioKey(option.key);
+      if (
+        typeof detail.date === "string" &&
+        detail.date >= today &&
+        detail.date <= latestDate
+      ) {
+        setDate(detail.date);
+      }
+    };
 
-    if (!option) return;
-
-    setSelectedStudioKey(option.key);
-
-    if (
-      typeof detail.date === "string" &&
-      detail.date >= today &&
-      detail.date <= latestDate
-    ) {
-      setDate(detail.date);
-    }
-  };
-
-  window.addEventListener(
-    "alliance:studio-selected",
-    handleStudioSelected
-  );
-
-  return () =>
-    window.removeEventListener(
+    window.addEventListener(
       "alliance:studio-selected",
       handleStudioSelected
     );
-}, [latestDate, studioOptions, today]);
+    return () =>
+      window.removeEventListener(
+        "alliance:studio-selected",
+        handleStudioSelected
+      );
+  }, [latestDate, studioOptions, today]);
 
   const selectedStudio = studioOptions.find(
     option => option.key === selectedStudioKey
@@ -516,7 +491,11 @@ export default function StudioRental() {
                         : "Payment processing"}
                     </h2>
                     <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                      {confirmation.studioNames.join(" + ")} · {formatDate(confirmation.date, i18n.language)} · {confirmation.startTime}-{confirmation.endTime}
+                      {isStudioXCombination(confirmation.studioNames)
+                        ? STUDIO_X_NAME
+                        : confirmation.studioNames.join(" + ")} ·{" "}
+                      {formatDate(confirmation.date, i18n.language)} ·{" "}
+                      {confirmation.startTime}-{confirmation.endTime}
                     </p>
                     <p className="mt-1 text-sm font-semibold text-primary">
                       {formatMoney(

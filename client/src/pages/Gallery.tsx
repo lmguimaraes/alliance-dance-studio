@@ -126,22 +126,6 @@ export default function Gallery() {
             </div>
           </div>
         </section>
-
-        <section className="pb-20">
-          <div className="container">
-            <div className="grid gap-5 md:grid-cols-3">
-              {["Editorial", "Minimal", "Movement-led"].map((word) => (
-                <div key={word} className="rounded-3xl border border-border bg-card p-6">
-                  <Sparkles className="h-5 w-5 text-primary" />
-                  <p className="mt-6 text-xl font-semibold text-foreground">{word}</p>
-                  <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                    A clean visual direction that gives the company identity room to breathe.
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
       </main>
 
       <Footer />
