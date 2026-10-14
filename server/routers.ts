@@ -10,6 +10,7 @@ import {
 } from "./bookingPolicy";
 import { getBookingSchedule } from "./bookingRepository";
 import * as db from "./db";
+import { getInstagramGallery } from "./instagram";
 import {
   createFixedWindowRateLimiter,
   RateLimitError,
@@ -32,9 +33,13 @@ const checkoutStatusLimiter = createFixedWindowRateLimiter({
   limit: 30,
   windowMs: 10 * 60 * 1000,
 });
-
-const bookingErrorCodes: Record<BookingErrorCode,
-  "BAD_REQUEST" | "NOT_FOUND" | "CONFLICT" | "PRECONDITION_FAILED" | "INTERNAL_SERVER_ERROR"
+const bookingErrorCodes: Record<
+  BookingErrorCode,
+  | "BAD_REQUEST"
+  | "NOT_FOUND"
+  | "CONFLICT"
+  | "PRECONDITION_FAILED"
+  | "INTERNAL_SERVER_ERROR"
 > = {
   BAD_REQUEST: "BAD_REQUEST",
   NOT_FOUND: "NOT_FOUND",
@@ -43,7 +48,10 @@ const bookingErrorCodes: Record<BookingErrorCode,
   INTERNAL_SERVER_ERROR: "INTERNAL_SERVER_ERROR",
 };
 
-function clientKey(req: { ip?: string; socket?: { remoteAddress?: string } }): string {
+function clientKey(req: {
+  ip?: string;
+  socket?: { remoteAddress?: string };
+}): string {
   return req.ip || req.socket?.remoteAddress || "unknown";
 }
 
@@ -63,7 +71,6 @@ async function runBookingAction<T>(action: () => Promise<T>): Promise<T> {
         message: error.message,
       });
     }
-
     console.error("Reservation operation failed", {
       error: error instanceof Error ? error.message : "Unknown error",
     });
@@ -95,6 +102,10 @@ export const appRouter = router({
     }),
   }),
 
+  instagram: router({
+    gallery: publicProcedure.query(() => getInstagramGallery()),
+  }),
+
   studios: router({
     list: publicProcedure.query(() => db.getAllStudios()),
     getById: publicProcedure
@@ -104,7 +115,6 @@ export const appRouter = router({
 
   bookings: router({
     list: adminProcedure.query(() => db.getAllBookings()),
-
     schedule: publicProcedure
       .input(
         z
@@ -120,7 +130,6 @@ export const appRouter = router({
           return getBookingSchedule(input);
         })
       ),
-
     createCheckout: publicProcedure
       .input(
         z
@@ -147,7 +156,6 @@ export const appRouter = router({
           });
         })
       ),
-
     confirmCheckout: publicProcedure
       .input(
         z
@@ -165,7 +173,6 @@ export const appRouter = router({
           return fulfillCheckoutSession(input.sessionId);
         })
       ),
-
     cancelCheckout: publicProcedure
       .input(
         z
@@ -189,7 +196,6 @@ export const appRouter = router({
           return cancelStripeCheckout(input);
         })
       ),
-
     updateStatus: adminProcedure
       .input(
         z
@@ -214,7 +220,6 @@ export const appRouter = router({
               "Stripe reservation status is payment-managed. Use a reviewed cancellation/refund workflow instead.",
           });
         }
-
         await db.updateBookingStatus(input.id, input.status);
         return { success: true } as const;
       }),
