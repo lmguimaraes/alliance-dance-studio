@@ -2,26 +2,46 @@ import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
 import type { RequestHandler } from "express";
 import { nanoid } from "nanoid";
 import Stripe from "stripe";
+import {
+  dateKeyToDate,
+  type Audience,
+  type RentalItemInput,
+} from "../shared/booking";
 import { ENV } from "./_core/env";
-import {
-  isStudioXCombination,
-  STUDIO_X_DESCRIPTION,
-  STUDIO_X_NAME,
-} from "../shared/studioCatalog";
-import {
-  BookingError,
-  CHECKOUT_SESSION_MINUTES,
-} from "./bookingPolicy";
 import {
   attachCheckoutSession,
   createReservationHold,
   expireReservationBySession,
-  getReservationForCancellation,
+  getReservationRecord,
   getReservationSummary,
   markReservationPaid,
   releaseReservationHold,
+  type OrderQuote,
   type ReservationSummary,
-} from "./bookingRepository";
+} from "./booking/orders";
+import { BookingError } from "./booking/rules";
+
+/** Stripe requires Checkout sessions to stay open for at least 30 minutes. */
+const CHECKOUT_SESSION_MINUTES = 31;
+
+export type CheckoutLocale = "en" | "fr" | "es";
+
+const lineItemText: Record<
+  CheckoutLocale,
+  { rental: string; private: string; group: string }
+> = {
+  en: { rental: "studio rental", private: "Private rate", group: "Group rate" },
+  fr: {
+    rental: "location de studio",
+    private: "Tarif privé",
+    group: "Tarif de groupe",
+  },
+  es: {
+    rental: "alquiler de estudio",
+    private: "Tarifa privada",
+    group: "Tarifa de grupo",
+  },
+};
 
 let stripeClient: Stripe | null = null;
 
@@ -32,16 +52,12 @@ function getStripe(): Stripe {
       "Stripe is not configured on the server."
     );
   }
-  if (
-    ENV.stripeTestModeOnly &&
-    !ENV.stripeSecretKey.startsWith("sk_test_")
-  ) {
+  if (ENV.stripeTestModeOnly && !ENV.stripeSecretKey.startsWith("sk_test_")) {
     throw new BookingError(
       "PRECONDITION_FAILED",
       "This deployment only accepts a Stripe test-mode secret key."
     );
   }
-
   stripeClient ??= new Stripe(ENV.stripeSecretKey);
   return stripeClient;
 }
@@ -75,79 +91,88 @@ function getReservationId(session: Stripe.Checkout.Session): string {
   return reservationId;
 }
 
-function studioRentalUrl(): URL {
-  return new URL("/studio-rental", ENV.appUrl);
+function checkoutPageUrl(): URL {
+  return new URL("/studio-rental/checkout", ENV.appUrl);
 }
 
+function formatDate(dateKey: string, locale: CheckoutLocale): string {
+  return new Intl.DateTimeFormat(`${locale}-CA`, {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(dateKeyToDate(dateKey));
+}
+
+function lineItems(
+  quote: OrderQuote,
+  locale: CheckoutLocale
+): Stripe.Checkout.SessionCreateParams.LineItem[] {
+  const text = lineItemText[locale];
+  return quote.items.map(item => {
+    const first = item.occurrences[0];
+    const dates = item.occurrences
+      .map(o => formatDate(o.date, locale))
+      .join(", ");
+    const rate = quote.audience === "group" ? text.group : text.private;
+    return {
+      quantity: item.occurrences.length,
+      price_data: {
+        currency: quote.currency,
+        unit_amount: item.occurrenceAmount,
+        product_data: {
+          name: `${item.spaceName}, ${text.rental}`,
+          description: `${dates}. ${first.startTime}–${first.endTime}. ${rate}.`,
+        },
+      },
+    };
+  });
+}
+
+export type CheckoutResult =
+  | { status: "redirect"; checkoutUrl: string }
+  | { status: "unavailable"; quote: OrderQuote };
+
 export async function createStripeCheckout(input: {
-  studioIds: number[];
-  date: string;
-  startTime: string;
-  endTime: string;
-  audience: "private" | "group";
-  userName: string;
-  userEmail: string;
-  userPhone?: string;
-  specialRequests?: string;
-}): Promise<{ checkoutUrl: string }> {
+  items: RentalItemInput[];
+  audience: Audience;
+  customerName: string;
+  customerEmail: string;
+  customerPhone?: string;
+  notes?: string;
+  locale: CheckoutLocale;
+}): Promise<CheckoutResult> {
   const stripe = getStripe();
   const reservationId = nanoid(24);
   const cancelToken = randomBytes(24).toString("base64url");
   const expiresAtSeconds =
     Math.floor(Date.now() / 1000) + CHECKOUT_SESSION_MINUTES * 60;
-  const sessionExpiresAt = new Date(expiresAtSeconds * 1000);
 
   const hold = await createReservationHold({
-    ...input,
     id: reservationId,
+    items: input.items,
+    audience: input.audience,
+    customerName: input.customerName,
+    customerEmail: input.customerEmail,
+    customerPhone: input.customerPhone,
+    notes: input.notes,
     currency: ENV.stripeCurrency,
     cancelTokenHash: hashCancellationToken(cancelToken),
-    sessionExpiresAt,
+    sessionExpiresAt: new Date(expiresAtSeconds * 1000),
   });
+  if (hold.status === "unavailable") return hold;
 
-  const successUrl = studioRentalUrl();
+  const successUrl = checkoutPageUrl();
   successUrl.searchParams.set("checkout", "success");
-  const successUrlWithSession =
-    `${successUrl.toString()}&session_id={CHECKOUT_SESSION_ID}`;
+  const successUrlWithSession = `${successUrl.toString()}&session_id={CHECKOUT_SESSION_ID}`;
 
-  const cancelUrl = studioRentalUrl();
+  const cancelUrl = checkoutPageUrl();
   cancelUrl.searchParams.set("checkout", "cancelled");
   cancelUrl.hash = new URLSearchParams({
     reservation_id: reservationId,
     cancel_token: cancelToken,
   }).toString();
-
-  const lineItems =
-    isStudioXCombination(hold.lines.map(line => line.studioName))
-      ? [
-          {
-            quantity: 1,
-            price_data: {
-              currency: hold.currency,
-              unit_amount: hold.amountTotal,
-              product_data: {
-                name: `${STUDIO_X_NAME} rental`,
-                description:
-                  `${STUDIO_X_DESCRIPTION} ` +
-                  `${hold.date}, ${hold.startTime}-${hold.endTime} ` +
-                  `(${hold.audience}).`,
-              },
-            },
-          },
-        ]
-      : hold.lines.map(line => ({
-          quantity: 1,
-          price_data: {
-            currency: hold.currency,
-            unit_amount: line.lineTotal,
-            product_data: {
-              name: `${line.studioName} rental`,
-              description:
-                `${hold.date}, ${hold.startTime}-${hold.endTime} ` +
-                `(${hold.audience})`,
-            },
-          },
-        }));
 
   let session: Stripe.Checkout.Session;
   try {
@@ -155,17 +180,15 @@ export async function createStripeCheckout(input: {
       {
         mode: "payment",
         payment_method_types: ["card"],
-        customer_email: input.userEmail,
+        customer_email: input.customerEmail,
         client_reference_id: reservationId,
         metadata: { reservationId },
-        payment_intent_data: {
-          metadata: { reservationId },
-        },
-        line_items: lineItems,
+        payment_intent_data: { metadata: { reservationId } },
+        line_items: lineItems(hold.quote, input.locale),
         success_url: successUrlWithSession,
         cancel_url: cancelUrl.toString(),
         expires_at: expiresAtSeconds,
-        locale: "auto",
+        locale: input.locale,
         submit_type: "book",
       },
       { idempotencyKey: `studio-reservation:${reservationId}` }
@@ -198,7 +221,7 @@ export async function createStripeCheckout(input: {
     throw error;
   }
 
-  return { checkoutUrl: session.url };
+  return { status: "redirect", checkoutUrl: session.url };
 }
 
 export async function fulfillCheckoutSession(
@@ -209,9 +232,8 @@ export async function fulfillCheckoutSession(
   const reservationId = getReservationId(session);
 
   if (session.payment_status !== "paid") {
-    if (session.status === "expired") {
+    if (session.status === "expired")
       await expireReservationBySession(session.id);
-    }
     return getReservationSummary(reservationId);
   }
 
@@ -235,7 +257,7 @@ export async function cancelStripeCheckout(input: {
   reservationId: string;
   cancelToken: string;
 }): Promise<ReservationSummary> {
-  const reservation = await getReservationForCancellation(input.reservationId);
+  const reservation = await getReservationRecord(input.reservationId);
   if (
     !reservation ||
     !tokenMatches(input.cancelToken, reservation.cancelTokenHash)
@@ -246,9 +268,8 @@ export async function cancelStripeCheckout(input: {
     );
   }
 
-  if (reservation.status === "paid") {
+  if (reservation.status === "paid")
     return getReservationSummary(input.reservationId);
-  }
 
   if (reservation.stripeCheckoutSessionId) {
     const stripe = getStripe();
@@ -266,9 +287,8 @@ export async function cancelStripeCheckout(input: {
       );
     }
 
-    if (session.payment_status === "paid") {
+    if (session.payment_status === "paid")
       return fulfillCheckoutSession(session.id);
-    }
 
     if (session.status === "complete") {
       // A completed session can still have an asynchronous payment in flight.
@@ -291,15 +311,12 @@ export async function cancelStripeCheckout(input: {
           );
         }
       }
-
-      if (session.payment_status === "paid") {
+      if (session.payment_status === "paid")
         return fulfillCheckoutSession(session.id);
-      }
     }
 
     if (session.status !== "expired") {
-      // A session that is still open or complete may still accept/settle payment.
-      // Releasing the database hold here would reintroduce double-booking risk.
+      // An open or complete session may still settle; keep the hold.
       throw new BookingError(
         "PRECONDITION_FAILED",
         "Checkout could not be cancelled safely. Please retry shortly."
@@ -342,23 +359,36 @@ export const stripeWebhookHandler: RequestHandler = async (req, res) => {
   }
 
   try {
-    switch (event.type) {
+    const session = event.type.startsWith("checkout.session.")
+      ? (event.data.object as Stripe.Checkout.Session)
+      : null;
+    // Class-pass Payment Links share the Stripe account; only studio
+    // reservations carry a reservation reference.
+    const isReservation = Boolean(
+      session &&
+      (session.metadata?.reservationId || session.client_reference_id)
+    );
+
+    switch (isReservation ? event.type : "ignored") {
       case "checkout.session.completed":
       case "checkout.session.async_payment_succeeded":
-        await fulfillCheckoutSession(
-          (event.data.object as Stripe.Checkout.Session).id
-        );
+        await fulfillCheckoutSession((session as Stripe.Checkout.Session).id);
         break;
       case "checkout.session.expired":
       case "checkout.session.async_payment_failed":
         await expireReservationBySession(
-          (event.data.object as Stripe.Checkout.Session).id
+          (session as Stripe.Checkout.Session).id
         );
         break;
       default:
         break;
     }
   } catch (error) {
+    if (error instanceof BookingError && error.code === "NOT_FOUND") {
+      // Sessions from other integrations on the same Stripe account.
+      res.status(200).json({ received: true, ignored: true });
+      return;
+    }
     console.error("Stripe webhook processing failed", {
       eventId: event.id,
       eventType: event.type,

@@ -1,3 +1,5 @@
+import { randomBytes } from "node:crypto";
+
 function readBoolean(value: string | undefined, fallback: boolean): boolean {
   if (value == null || value.trim() === "") return fallback;
 
@@ -18,22 +20,6 @@ function readNonNegativeInteger(
     throw new Error(`Invalid non-negative integer environment value: ${value}`);
   }
   return parsed;
-}
-
-function normalizeOptionalUrl(
-  value: string | undefined,
-  variableName: string
-): string {
-  const candidate = value?.trim();
-  if (!candidate) return "";
-
-  try {
-    const url = new URL(candidate);
-    if (!["http:", "https:"].includes(url.protocol)) throw new Error();
-    return candidate.replace(/\/+$/, "");
-  } catch {
-    throw new Error(`${variableName} must be an absolute HTTP(S) URL`);
-  }
 }
 
 function normalizeAppUrl(value: string | undefined): string {
@@ -63,32 +49,38 @@ function normalizeCurrency(value: string | undefined): string {
   return currency;
 }
 
+const isProduction = process.env.NODE_ENV === "production";
+const configuredSessionSecret = (
+  process.env.ADMIN_SESSION_SECRET ||
+  process.env.JWT_SECRET ||
+  ""
+).trim();
+
 export const ENV = {
-  appId: process.env.VITE_APP_ID ?? "",
-  cookieSecret: process.env.JWT_SECRET ?? "",
+  isProduction,
+  appUrl: normalizeAppUrl(process.env.APP_URL),
   databaseUrl: process.env.DATABASE_URL ?? "",
   databaseSsl: readBoolean(process.env.DATABASE_SSL, true),
-  oAuthServerUrl: normalizeOptionalUrl(
-    process.env.OAUTH_SERVER_URL,
-    "OAUTH_SERVER_URL"
-  ),
-  oauthPortalUrl: normalizeOptionalUrl(
-    process.env.OAUTH_PORTAL_URL ?? process.env.VITE_OAUTH_PORTAL_URL,
-    "OAUTH_PORTAL_URL"
-  ),
-  ownerOpenId: process.env.OWNER_OPEN_ID ?? "",
-  isProduction: process.env.NODE_ENV === "production",
-  appUrl: normalizeAppUrl(process.env.APP_URL),
+  trustProxyHops: readNonNegativeInteger(process.env.TRUST_PROXY_HOPS, 0),
+
+  /** Admin panel password. Change it with ADMIN_PASSWORD before launch. */
+  adminPassword: (process.env.ADMIN_PASSWORD ?? "").trim() || "0000",
+  adminPasswordIsDefault: !(process.env.ADMIN_PASSWORD ?? "").trim(),
+  /**
+   * Signs admin session cookies. Development falls back to a per-process
+   * random secret, so admin sessions end when the dev server restarts.
+   */
+  sessionSecret:
+    configuredSessionSecret.length >= 32
+      ? configuredSessionSecret
+      : isProduction
+        ? configuredSessionSecret
+        : randomBytes(48).toString("base64url"),
+
   stripeSecretKey: process.env.STRIPE_SECRET_KEY ?? "",
   stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET ?? "",
   stripeCurrency: normalizeCurrency(process.env.STRIPE_CURRENCY),
   stripeTestModeOnly: readBoolean(process.env.STRIPE_TEST_MODE_ONLY, true),
-  trustProxyHops: readNonNegativeInteger(process.env.TRUST_PROXY_HOPS, 0),
-
-  // Kept for compatibility with optional Manus helper modules. The cleanup
-  // script removes those unused helpers from this project.
-  forgeApiUrl: process.env.BUILT_IN_FORGE_API_URL ?? "",
-  forgeApiKey: process.env.BUILT_IN_FORGE_API_KEY ?? "",
 };
 
 export function validateRuntimeConfiguration(): void {
@@ -96,11 +88,10 @@ export function validateRuntimeConfiguration(): void {
 
   const errors: string[] = [];
   if (!ENV.databaseUrl) errors.push("DATABASE_URL is required");
-  if (!ENV.appId) errors.push("VITE_APP_ID is required");
-  if (!ENV.oAuthServerUrl) errors.push("OAUTH_SERVER_URL is required");
-  if (!ENV.oauthPortalUrl) errors.push("OAUTH_PORTAL_URL is required");
-  if (ENV.cookieSecret.length < 32) {
-    errors.push("JWT_SECRET must contain at least 32 characters");
+  if (ENV.sessionSecret.length < 32) {
+    errors.push(
+      "JWT_SECRET (or ADMIN_SESSION_SECRET) must contain at least 32 characters"
+    );
   }
   if (!ENV.appUrl.startsWith("https://")) {
     errors.push("APP_URL must use HTTPS in production");
@@ -112,5 +103,11 @@ export function validateRuntimeConfiguration(): void {
 
   if (errors.length > 0) {
     throw new Error(`Invalid production configuration: ${errors.join("; ")}`);
+  }
+
+  if (ENV.adminPasswordIsDefault) {
+    console.warn(
+      "ADMIN_PASSWORD is not set; the admin panel uses the default password. Set ADMIN_PASSWORD before launch."
+    );
   }
 }

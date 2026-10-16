@@ -1,15 +1,14 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  normalizeInstagramMedia,
-  parsePinnedMediaIds,
-} from "./instagram";
+import { normalizeInstagramMedia, parsePinnedMediaIds } from "./instagram";
 
 describe("parsePinnedMediaIds", () => {
   it("keeps at most three unique numeric IDs", () => {
-    expect(
-      parsePinnedMediaIds(" 11,22,11,not-an-id,33,44 ")
-    ).toEqual(["11", "22", "33"]);
+    expect(parsePinnedMediaIds(" 11,22,11,not-an-id,33,44 ")).toEqual([
+      "11",
+      "22",
+      "33",
+    ]);
   });
 });
 

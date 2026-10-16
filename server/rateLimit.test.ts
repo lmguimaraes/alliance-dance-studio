@@ -1,8 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  createFixedWindowRateLimiter,
-  RateLimitError,
-} from "./rateLimit";
+import { createFixedWindowRateLimiter, RateLimitError } from "./rateLimit";
 
 describe("fixed-window rate limiter", () => {
   it("limits a key and resets after the window", () => {
@@ -18,5 +15,13 @@ describe("fixed-window rate limiter", () => {
     limiter.consume("a", 0);
     expect(() => limiter.consume("b", 0)).not.toThrow();
     expect(() => limiter.consume("a", 1)).toThrow(RateLimitError);
+  });
+
+  it("can check a key without counting a request", () => {
+    const limiter = createFixedWindowRateLimiter({ limit: 1, windowMs: 1000 });
+    expect(() => limiter.assertAvailable("a", 0)).not.toThrow();
+    limiter.consume("a", 0);
+    expect(() => limiter.assertAvailable("a", 1)).toThrow(RateLimitError);
+    expect(() => limiter.assertAvailable("a", 1000)).not.toThrow();
   });
 });

@@ -1,0 +1,53 @@
+.contact {
+  display: grid;
+  gap: 3rem;
+}
+
+.contact-details {
+  display: grid;
+  align-content: start;
+  gap: 1rem;
+}
+
+.contact-details__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--color-ivory);
+  font-size: var(--text-lg);
+  text-decoration: none;
+}
+
+a.contact-details__item:hover {
+  color: var(--color-gold);
+}
+
+.contact-details__item svg {
+  width: 20px;
+  height: 20px;
+  color: var(--color-gold);
+}
+
+.contact-form {
+  display: grid;
+  gap: 1.25rem;
+  max-width: 40rem;
+}
+
+.contact-form__row {
+  display: grid;
+  gap: 1.25rem;
+}
+
+@media (min-width: 640px) {
+  .contact-form__row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 960px) {
+  .contact {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+    column-gap: 5rem;
+  }
+}

@@ -8,7 +8,9 @@ describe("isMalformedRequestTarget", () => {
   });
 
   it("allows valid encoded paths", () => {
-    expect(isMalformedRequestTarget("/studio-rental?date=2026-09-09")).toBe(false);
+    expect(isMalformedRequestTarget("/studio-rental?date=2026-09-09")).toBe(
+      false
+    );
     expect(isMalformedRequestTarget("/files/My%20Studio.pdf")).toBe(false);
   });
 });

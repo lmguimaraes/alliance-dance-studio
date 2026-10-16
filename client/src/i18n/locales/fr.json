@@ -1,143 +1,517 @@
 {
   "nav": {
-    "home": "Accueil",
-    "about": "À Propos",
+    "home": "Accueil Alliance Dance",
+    "main": "Principal",
+    "footer": "Pied de page",
+    "discover": "Découvrir",
     "classes": "Cours",
-    "studioRental": "Location de Studio",
-    "gallery": "Galerie",
-    "contact": "Contact"
+    "rental": "Location de studio",
+    "contact": "Contact",
+    "admin": "Admin",
+    "language": "Langue",
+    "openMenu": "Ouvrir le menu",
+    "closeMenu": "Fermer le menu",
+    "skipToContent": "Aller au contenu"
   },
-  "home": {
-    "hero": {
-      "title": "Bienvenue à Alliance Dance Studio",
-      "subtitle": "Découvrez l'art de la danse latine dans le studio de danse premier de Montréal",
-      "bookStudio": "Réserver un Studio",
-      "viewClasses": "Voir les Cours"
-    },
-    "overview": {
-      "title": "À Propos d'Alliance",
-      "description": "Alliance Dance Studio est la destination premier de Montréal pour la danse latine. Nous offrons une instruction professionnelle, des installations de pointe et une communauté vibrante de danseurs."
-    },
-    "instagram": {
-      "title": "Suivez-nous sur Instagram",
-      "viewProfile": "Voir le Profil"
-    }
-  },
-  "studioRental": {
-    "title": "Location de Studio",
-    "subtitle": "Réservez l'un de nos studios de danse professionnels",
-    "selectStudio": "Sélectionner un Studio",
-    "selectDate": "Sélectionner la Date",
-    "selectTime": "Sélectionner l'Heure",
-    "bookingForm": {
-      "title": "Informations de Réservation",
-      "name": "Nom Complet",
-      "email": "Courriel",
-      "phone": "Numéro de Téléphone",
-      "specialRequests": "Demandes Spéciales (Optionnel)",
-      "submit": "Réserver le Studio",
-      "submitting": "Réservation...",
-      "success": "Réservation soumise avec succès! Nous vous contacterons bientôt.",
-      "error": "Échec de la soumission de la réservation. Veuillez réessayer."
-    },
-    "availability": {
-      "available": "Disponible",
-      "booked": "Réservé",
-      "unavailable": "Non Disponible"
-    },
-    "price": {
-      "perHour": "par heure",
-      "total": "Total"
-    },
-    "labels": {
-    "startTime": "Heure de début (15 min)",
-    "endTime": "Heure de fin (par pas de 30 min)",
-    "bookingSummary": "Résumé de la réservation",
-    "studio": "Studio",
-    "date": "Date",
-    "time": "Heure"
-   },
-  "actions": {
-    "change": "Modifier"
-  },
-  "messages": {
-    "selectStudioFirst": "Veuillez d'abord sélectionner un studio",
-    "selectDate": "Veuillez sélectionner une date",
-    "availableTimeSlots": "Créneaux disponibles",
-    "noStartTimes": "Aucune heure de début disponible pour cette date.",
-    "noDurations": "Aucune durée valide à partir de cette heure de début.",
-    "selectDateAndTimeSlot": "Veuillez sélectionner une date et un créneau horaire",
-    "selectDateStartDuration": "Veuillez sélectionner une date, une heure de début et une durée"
+  "common": {
+    "close": "Fermer",
+    "cancel": "Annuler",
+    "retry": "Réessayer",
+    "loading": "Chargement",
+    "optional": "(facultatif)",
+    "today": "Aujourd'hui",
+    "previousWeek": "Semaine précédente",
+    "nextWeek": "Semaine suivante"
   },
   "errors": {
-    "missingSelectionOld": "Veuillez sélectionner un studio, une date et un créneau horaire",
-    "missingSelection": "Veuillez sélectionner un studio, une date, une heure de début et une durée",
-    "requiredFields": "Veuillez remplir tous les champs obligatoires"
-  }
+    "loadTitle": "Le chargement a échoué.",
+    "loadBody": "Vérifiez votre connexion et réessayez.",
+    "tooMany": "Trop de tentatives. Attendez quelques minutes et réessayez.",
+    "crashTitle": "Une erreur est survenue",
+    "crashBody": "Rechargez la page pour continuer.",
+    "reload": "Recharger la page"
   },
-  "about": {
-    "title": "À Propos",
-    "history": {
-      "title": "Notre Histoire",
-      "content": "Alliance Dance Studio a été fondé avec une passion pour la danse latine et un engagement envers l'excellence."
+  "home": {
+    "meta": "Alliance Dance réunit une compagnie de danse, des cours et la location de studios à Montréal.",
+    "hero": {
+      "title": "Une marque de danse. Plusieurs façons de bouger.",
+      "intro": "Alliance Dance réunit la compagnie, les cours et le studio sous une même marque moderne pour les danseurs, les créateurs et la communauté de Montréal.",
+      "classes": "Voir les cours",
+      "rental": "Location de studio"
     },
-    "mission": {
-      "title": "Notre Mission",
-      "content": "Fournir une instruction de danse de classe mondiale et créer une communauté accueillante pour les danseurs de tous niveaux."
+    "pillars": {
+      "label": "Les portes d'entrée d'Alliance",
+      "train": {
+        "word": "Apprendre",
+        "label": "Des cours pour tous les niveaux"
+      },
+      "perform": {
+        "word": "Se produire",
+        "label": "Alliance Dance Co."
+      },
+      "create": {
+        "word": "Créer",
+        "label": "Location de studio"
+      },
+      "belong": {
+        "word": "Rassembler",
+        "label": "Notre communauté montréalaise"
+      }
     },
-    "team": {
-      "title": "Notre Équipe",
-      "content": "Nos instructeurs sont des professionnels expérimentés dédiés à vous aider à atteindre vos objectifs de danse."
+    "cta": {
+      "title": "Trouvez la partie d'Alliance qui convient à votre projet, votre entraînement ou votre répétition.",
+      "action": "Contacter Alliance"
+    }
+  },
+  "discover": {
+    "sections": {
+      "directors": {
+        "label": "Direction",
+        "title": "Direction",
+        "intro": "Les personnes qui mènent la direction artistique et créative d'Alliance.",
+        "empty": "Les profils de la direction seront publiés ici."
+      },
+      "company": {
+        "label": "Compagnie",
+        "title": "Alliance Dance Co.",
+        "intro": "Le pilier artistique d'Alliance : la scène, la direction de création et la culture de répétition derrière notre travail."
+      },
+      "dancers": {
+        "label": "Danseurs",
+        "title": "Danseurs",
+        "intro": "Les artistes qui se produisent avec Alliance Dance Co.",
+        "empty": "Les profils des danseurs seront publiés ici."
+      },
+      "story": {
+        "label": "Notre histoire",
+        "title": "Qui sommes-nous",
+        "intro": "Alliance est une marque de danse montréalaise centrée sur les danses latines : une compagnie qui se produit, une académie qui enseigne et un studio où les danseurs répètent et créent."
+      },
+      "awards": {
+        "label": "Prix",
+        "title": "Prix",
+        "intro": "Les résultats et distinctions obtenus par les danseurs et les équipes d'Alliance.",
+        "empty": "Les prix seront affichés ici."
+      },
+      "teams": {
+        "label": "Équipes",
+        "title": "Équipes",
+        "intro": "Nos équipes de spectacle et de compétition.",
+        "empty": "Les profils des équipes seront publiés ici."
+      },
+      "gallery": {
+        "label": "Galerie",
+        "title": "Galerie",
+        "intro": "Nos derniers moments sur Instagram et un aperçu de nos studios."
+      }
+    },
+    "followInstagram": "Suivre @{{handle}}",
+    "profile": {
+      "instagram": "Instagram",
+      "website": "Site web"
+    },
+    "company": {
+      "focus": {
+        "direction": {
+          "title": "Direction de création",
+          "text": "Un langage visuel et chorégraphique pour les spectacles, les événements et les projets qui demandent une voix de danse précise."
+        },
+        "work": {
+          "title": "Travail de compagnie",
+          "text": "Un lieu pour les artistes, les répétitions et les chorégraphies qui font vivre l'identité d'Alliance Dance Co."
+        },
+        "community": {
+          "title": "Communauté",
+          "text": "Un pont entre la scène, le studio et les cours, pour que chaque partie d'Alliance reste liée."
+        }
+      },
+      "collaborate": "Travailler avec la compagnie",
+      "meetDancers": "Rencontrer les danseurs"
+    },
+    "story": {
+      "history": "Alliance est née d'une passion pour les danses latines et d'un engagement envers l'excellence.",
+      "mission": "Notre mission : offrir un enseignement de la danse de calibre mondial et une communauté accueillante pour les danseurs de tous les niveaux.",
+      "familyTitle": "Une famille, quatre noms",
+      "family": {
+        "alliance": {
+          "name": "Alliance",
+          "role": "La marque qui réunit tout."
+        },
+        "company": {
+          "name": "Alliance Dance Co.",
+          "role": "Scène, direction de création et travail de compagnie."
+        },
+        "academy": {
+          "name": "Alliance Academy",
+          "role": "Cours et entraînement pour tous les niveaux."
+        },
+        "studio": {
+          "name": "Alliance Studio",
+          "role": "Des studios pour les répétitions, les cours privés et la location."
+        }
+      }
+    },
+    "gallery": {
+      "instagramTitle": "Sur Instagram",
+      "instagramEmpty": "Voyez nos dernières publications sur Instagram :",
+      "openPost": "Ouvrir la publication sur Instagram",
+      "openReel": "Ouvrir le reel sur Instagram",
+      "studiosTitle": "Nos studios",
+      "bookStudio": "Réserver un studio"
     }
   },
   "classes": {
-    "title": "Cours de Danse",
-    "subtitle": "Explorez notre gamme diversifiée de cours de danse latine",
-    "schedule": "Horaire des Cours",
-    "instructors": "Nos Instructeurs"
+    "title": "Trouver un cours",
+    "intro": "Des cours chaque semaine pour tous les niveaux. Choisissez un jour, puis achetez une carte pour participer.",
+    "scheduleTitle": "Horaire des cours",
+    "chooseDay": "Choisir un jour",
+    "timeZoneNote": "Les heures sont indiquées à l'heure de Montréal.",
+    "filters": {
+      "style": "Type de cours",
+      "level": "Niveau",
+      "instructor": "Professeur",
+      "allStyles": "Tous les cours",
+      "allLevels": "Tous les niveaux",
+      "allInstructors": "Tous les professeurs",
+      "clear": "Effacer les filtres"
+    },
+    "levels": {
+      "beginner": "Débutant",
+      "intermediate": "Intermédiaire",
+      "advanced": "Avancé",
+      "open": "Tous niveaux"
+    },
+    "buyPass": "Acheter une carte",
+    "empty": "Aucun cours ce jour-là.",
+    "emptyFiltered": "Aucun cours ne correspond à ces filtres ce jour-là.",
+    "nextClass": "Prochain cours : {{date}}",
+    "passes": {
+      "title": "Cartes",
+      "intro": "Choisissez une carte et payez en toute sécurité avec Stripe.",
+      "pickTitle": "Choisir une carte",
+      "buy": "Acheter",
+      "buyNamed": "Acheter : {{name}}",
+      "stripeNote": "Le paiement s'ouvre dans un nouvel onglet sur Stripe.",
+      "categories": {
+        "classes": "Cartes de cours",
+        "rehearsal": "Répétition libre"
+      }
+    }
   },
-  "gallery": {
-    "title": "Galerie",
-    "subtitle": "Explorez notre studio et notre communauté"
+  "rental": {
+    "title": "Location de studio",
+    "intro": "Choisissez un studio, une heure de début et une heure de fin, puis ajoutez-le à votre panier.",
+    "chooseDay": "Choisir une date",
+    "timeZoneNote": "Les heures sont indiquées à l'heure de Montréal. Les réservations commencent à l'heure ou à la demi-heure, de 1 à 8 heures.",
+    "type": {
+      "label": "Type de location",
+      "private": "Privée",
+      "group": "Groupe"
+    },
+    "legend": {
+      "label": "Légende"
+    },
+    "slot": {
+      "available": "Disponible",
+      "selected": "Sélectionné",
+      "booked": "Réservé",
+      "in_cart": "Dans votre panier",
+      "closed": "Fermé",
+      "past": "Passé"
+    },
+    "grid": {
+      "label": "Heures du {{name}}"
+    },
+    "combined": "Studios 6 et 7 réunis",
+    "capacity_one": "Jusqu'à {{count}} personne",
+    "capacity_many": "Jusqu'à {{count}} personnes",
+    "capacity_other": "Jusqu'à {{count}} personnes",
+    "perHour": "l'heure",
+    "closedDay": "Fermé ce jour-là.",
+    "noStudios": "Aucun studio n'est réservable pour le moment.",
+    "loadFailed": "Les disponibilités n'ont pas pu être chargées.",
+    "selection": {
+      "pickStart": "Choisissez une heure de début.",
+      "pickEnd": "Choisissez maintenant une heure de fin. Le minimum est de 1 heure.",
+      "endBeforeStart": "La fin ne peut pas précéder le début : {{time}} devient votre nouvelle heure de début.",
+      "blocked": "Cette plage comprend des heures non disponibles. Choisissez une fin au plus tard à {{time}}.",
+      "tooLong": "Une réservation peut durer jusqu'à {{hours}} heures.",
+      "lost": "Cette plage vient d'être réservée. Choisissez une autre heure.",
+      "clear": "Effacer"
+    },
+    "repeat": {
+      "label": "Nombre de semaines",
+      "once": "Réserve cette date seulement.",
+      "weeks_one": "{{count}} semaine",
+      "weeks_many": "{{count}} semaines",
+      "weeks_other": "{{count}} semaines",
+      "until": "Chaque semaine jusqu'au {{date}}"
+    },
+    "addToCart": "Ajouter au panier",
+    "addToCartAmount": "Ajouter au panier, {{amount}}",
+    "added": "{{name}} ajouté à votre panier",
+    "cartFull": "Votre panier est plein. Passez à la caisse ou retirez une réservation.",
+    "cartConflict": "Cette plage chevauche une réservation déjà dans votre panier le {{date}}.",
+    "checkFailed": "Les disponibilités n'ont pas pu être vérifiées. Réessayez.",
+    "problems": {
+      "unavailable_one": "Non disponible le {{dates}}. Choisissez moins de semaines ou une autre heure.",
+      "unavailable_many": "Non disponible les {{dates}}. Choisissez moins de semaines ou une autre heure.",
+      "unavailable_other": "Non disponible les {{dates}}. Choisissez moins de semaines ou une autre heure.",
+      "tooFar": "Dates trop éloignées pour réserver : {{dates}}. Choisissez moins de semaines.",
+      "past": "Cette heure est déjà commencée. Choisissez une heure plus tard."
+    }
+  },
+  "cart": {
+    "title": "Votre panier",
+    "open_one": "Ouvrir le panier, {{count}} réservation",
+    "open_many": "Ouvrir le panier, {{count}} réservations",
+    "open_other": "Ouvrir le panier, {{count}} réservations",
+    "count_one": "{{count}} réservation",
+    "count_many": "{{count}} réservations",
+    "count_other": "{{count}} réservations",
+    "empty": "Votre panier est vide. Choisissez un studio et une heure pour commencer.",
+    "browseStudios": "Réserver un studio",
+    "estimatedTotal": "Total estimé",
+    "finalPriceNote": "Le prix final est confirmé au paiement.",
+    "checkout": "Passer à la caisse",
+    "clear": "Vider le panier",
+    "remove": "Retirer",
+    "removeItem": "Retirer {{name}}",
+    "view": "Voir le panier",
+    "weeklyUntil_one": "Chaque semaine, {{count}} date jusqu'au {{date}}",
+    "weeklyUntil_many": "Chaque semaine, {{count}} dates jusqu'au {{date}}",
+    "weeklyUntil_other": "Chaque semaine, {{count}} dates jusqu'au {{date}}"
+  },
+  "checkout": {
+    "title": "Paiement",
+    "booking": "Votre réservation",
+    "details": "Vos coordonnées",
+    "summary": "Récapitulatif",
+    "addMore": "Ajouter une autre réservation",
+    "total": "Total",
+    "privateRate": "Tarif privé",
+    "groupRate": "Tarif de groupe",
+    "pay": "Payer avec Stripe",
+    "redirecting": "Ouverture de Stripe",
+    "stripeNote": "Vous paierez sur la page sécurisée de Stripe. Vos heures sont retenues pendant 30 minutes le temps du paiement.",
+    "empty": "Votre panier est vide.",
+    "quoteFailed": "Les prix n'ont pas pu être confirmés. Réessayez dans un instant.",
+    "resolveProblems": "Retirez les réservations qui ne sont plus disponibles pour continuer.",
+    "unavailable": "Certaines heures viennent d'être réservées. Retirez-les pour continuer.",
+    "failed": "Le paiement n'a pas pu démarrer. Réessayez.",
+    "form": {
+      "name": "Nom complet",
+      "email": "Courriel",
+      "phone": "Téléphone",
+      "notes": "Note pour le studio"
+    },
+    "problems": {
+      "invalid": "ce studio n'est plus disponible",
+      "past": "cette heure est passée",
+      "too_far": "trop éloigné pour réserver",
+      "closed": "en dehors des heures d'ouverture",
+      "booked": "déjà réservé",
+      "overlap": "chevauche une autre réservation de votre panier"
+    },
+    "confirming": {
+      "title": "Confirmation du paiement",
+      "intro": "Un instant, nous confirmons votre paiement auprès de Stripe."
+    },
+    "confirmed": {
+      "title": "Réservation confirmée",
+      "intro": "Votre plage de studio est réservée. Conservez votre référence pour toute question.",
+      "reference": "Référence",
+      "total": "Payé",
+      "help": "Un changement à faire ? Écrivez à",
+      "bookAnother": "Réserver une autre plage"
+    },
+    "processing": {
+      "title": "Paiement en cours",
+      "intro": "Stripe traite encore votre paiement. Vos heures restent retenues et votre réservation sera confirmée dès que le paiement sera accepté."
+    },
+    "cancelled": {
+      "title": "Paiement annulé",
+      "body": "Aucun montant n'a été prélevé et votre panier est conservé."
+    },
+    "confirmFailed": {
+      "title": "Votre paiement n'a pas encore pu être confirmé",
+      "body": "Si vous avez été débité, votre réservation est en sécurité. Écrivez à {{email}} et nous la confirmerons."
+    }
   },
   "contact": {
-    "title": "Contactez-nous",
-    "subtitle": "Entrez en contact avec Alliance Dance Studio",
+    "title": "Contact",
+    "intro": "Cours, location de studio, collaborations ou événements : écrivez-nous et nous vous répondrons.",
     "form": {
       "name": "Nom",
       "email": "Courriel",
+      "topic": "Sujet",
       "message": "Message",
-      "submit": "Envoyer le Message",
-      "success": "Message envoyé avec succès!",
-      "error": "Échec de l'envoi du message. Veuillez réessayer."
+      "submit": "Rédiger le courriel",
+      "hint": "Ouvre un brouillon dans votre application de courriel."
     },
-    "info": {
-      "address": "Adresse",
-      "phone": "Téléphone",
-      "email": "Courriel",
-      "hours": "Heures"
+    "topics": {
+      "general": "Question générale",
+      "classes": "Cours",
+      "rental": "Location de studio",
+      "company": "Alliance Dance Co.",
+      "events": "Événements et partenariats"
     }
+  },
+  "notFound": {
+    "title": "Page introuvable",
+    "body": "Cette page n'existe pas ou a été déplacée.",
+    "home": "Aller à l'accueil"
   },
   "admin": {
-    "title": "Tableau de Bord Admin",
-    "bookings": {
-      "title": "Réservations",
-      "pending": "En Attente",
-      "confirmed": "Confirmé",
-      "cancelled": "Annulé",
-      "actions": "Actions",
-      "confirm": "Confirmer",
-      "cancel": "Annuler"
-    }
-  },
-  "common": {
-    "loading": "Chargement...",
-    "error": "Une erreur s'est produite",
-    "retry": "Réessayer",
-    "cancel": "Annuler",
+    "title": "Admin",
+    "viewSite": "Voir le site",
+    "signOut": "Se déconnecter",
+    "defaultPassword": "Le panneau d'administration utilise le mot de passe par défaut. Définissez ADMIN_PASSWORD sur le serveur avant le lancement.",
     "save": "Enregistrer",
-    "delete": "Supprimer",
+    "saved": "Enregistré",
     "edit": "Modifier",
-    "close": "Fermer"
+    "delete": "Supprimer",
+    "actions": "Actions",
+    "choose": "Choisir…",
+    "hidden": "Masqué",
+    "tabs": {
+      "bookings": "Réservations",
+      "classes": "Cours",
+      "passes": "Cartes",
+      "discover": "Découvrir",
+      "studios": "Studios"
+    },
+    "login": {
+      "title": "Admin",
+      "password": "Mot de passe",
+      "submit": "Se connecter",
+      "incorrect": "Mot de passe incorrect."
+    },
+    "errors": {
+      "session": "Votre session a expiré. Reconnectez-vous.",
+      "conflict": "Cette plage chevauche une autre réservation ou un cours dans le même studio.",
+      "notFound": "Cet élément n'existe plus. Actualisez la liste.",
+      "invalid": "Certaines valeurs ne sont pas valides. Vérifiez le formulaire.",
+      "generic": "La modification n'a pas pu être enregistrée. Réessayez."
+    },
+    "bookings": {
+      "add": "Ajouter une réservation",
+      "edit": "Modifier la réservation",
+      "created": "Réservation ajoutée",
+      "range": "Dates",
+      "ranges": {
+        "upcoming": "À venir",
+        "past": "Passées",
+        "all": "Toutes"
+      },
+      "allStatuses": "Tous les statuts",
+      "search": "Rechercher un nom, un courriel ou une référence",
+      "empty": "Aucune réservation ne correspond.",
+      "time": "Heure",
+      "date": "Date",
+      "start": "Début",
+      "end": "Fin",
+      "studio": "Studio",
+      "customer": "Client",
+      "status": "Statut",
+      "payment": "Paiement",
+      "amount": "Montant",
+      "amountDollars": "Montant ($)",
+      "amountDefault": "Tarif privé si vide",
+      "combined": "Studio X (studios 6 et 7)",
+      "cancel": "Annuler",
+      "statuses": {
+        "confirmed": "Confirmée",
+        "pending": "En attente",
+        "cancelled": "Annulée"
+      },
+      "payments": {
+        "paid": "Payée en ligne",
+        "checkout_pending": "Paiement en cours",
+        "expired": "Paiement expiré",
+        "cancelled": "Paiement annulé"
+      },
+      "sources": {
+        "staff": "Ajoutée par l'équipe",
+        "legacy": "Ancien système de réservation"
+      },
+      "paidOnline": "Payée en ligne avec Stripe. Vous pouvez déplacer ou annuler cette réservation; les remboursements se font dans le tableau de bord Stripe.",
+      "confirmDelete": "Supprimer cette réservation ? Cette action est définitive.",
+      "confirmCancel": "Annuler cette réservation ?",
+      "confirmCancelPaid": "Annuler cette réservation payée ? Effectuez le remboursement éventuel dans le tableau de bord Stripe."
+    },
+    "classes": {
+      "add": "Ajouter un cours",
+      "edit": "Modifier le cours",
+      "help": "Les cours se répètent chaque semaine le même jour. Un cours associé à un studio bloque ce studio pour la location à la même heure.",
+      "empty": "Aucun cours pour l'instant.",
+      "day": "Jour",
+      "time": "Heure de début",
+      "class": "Cours",
+      "title": "Nom du cours",
+      "style": "Type de cours",
+      "level": "Niveau",
+      "duration": "Minutes",
+      "instructor": "Professeur",
+      "instagram": "Instagram du professeur",
+      "photo": "URL de la photo du professeur",
+      "studio": "Studio",
+      "noStudio": "Aucun studio",
+      "studioHint": "Facultatif. Bloque le studio pour la location pendant le cours.",
+      "dates": "Période",
+      "startsOn": "Première date",
+      "endsOn": "Dernière date",
+      "ongoing": "Chaque semaine",
+      "visible": "Afficher dans l'horaire",
+      "confirmDelete": "Supprimer ce cours ? Pour le suspendre, décochez plutôt « Afficher dans l'horaire »."
+    },
+    "passes": {
+      "add": "Ajouter une carte",
+      "edit": "Modifier la carte",
+      "help": "Les cartes renvoient vers des liens de paiement Stripe. Créez le lien dans Stripe, puis collez-le ici.",
+      "empty": "Aucune carte pour l'instant.",
+      "name": "Nom",
+      "details": "Détails",
+      "category": "Catégorie",
+      "price": "Prix",
+      "priceDollars": "Prix ($)",
+      "order": "Ordre",
+      "stripeUrl": "Lien de paiement Stripe",
+      "stripeHint": "Commence par https://buy.stripe.com/",
+      "visible": "Afficher sur la page des cours",
+      "confirmDelete": "Supprimer cette carte ?"
+    },
+    "discover": {
+      "add": "Ajouter une fiche",
+      "edit": "Modifier la fiche",
+      "help": "Profils et prix affichés dans Découvrir. Ajoutez le texte en français et en espagnol si possible; l'anglais est utilisé s'ils sont vides.",
+      "empty": "Rien dans cette section pour l'instant.",
+      "section": "Section",
+      "name": "Nom",
+      "role": "Rôle",
+      "bio": "Biographie",
+      "award": "Prix ou événement",
+      "result": "Résultat",
+      "details": "Détails",
+      "year": "Année",
+      "image": "URL de la photo",
+      "link": "Lien (Instagram ou site web)",
+      "published": "Publié",
+      "confirmDelete": "Supprimer cette fiche ?"
+    },
+    "studios": {
+      "help": "Tarifs, capacité, photos et heures d'ouverture utilisés pour la location et la galerie.",
+      "privateRate": "Tarif privé à l'heure ($)",
+      "groupRate": "Tarif de groupe à l'heure ($)",
+      "capacity": "Capacité",
+      "size": "Taille",
+      "image": "URL de la photo",
+      "hours": "Heures d'ouverture",
+      "noHours": "Fermé tous les jours.",
+      "opens": "Ouverture",
+      "closes": "Fermeture",
+      "addHours": "Ajouter des heures",
+      "active": "Disponible à la réservation"
+    }
   }
 }

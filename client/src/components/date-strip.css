@@ -1,0 +1,97 @@
+.date-strip {
+  display: grid;
+  gap: 1rem;
+}
+
+.date-strip__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 40px;
+}
+
+.date-strip__month {
+  font-family: var(--font-display);
+  font-size: 1.375rem;
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.date-strip__week {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.date-strip__days {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.25rem;
+}
+
+.date-strip__day {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 0.4rem;
+  padding: 0.25rem 0 0.6rem;
+  border: 0;
+  background: none;
+  color: var(--color-ivory);
+}
+
+.date-strip__weekday {
+  color: var(--color-stone);
+  font-size: var(--text-xs);
+  text-transform: capitalize;
+}
+
+.date-strip__number {
+  display: grid;
+  place-items: center;
+  width: clamp(2.4rem, 9vw, 3.25rem);
+  aspect-ratio: 1;
+  border: 1px solid var(--color-line-strong);
+  border-radius: 50%;
+  font-size: var(--text-base);
+  font-variant-numeric: tabular-nums;
+  transition:
+    border-color var(--duration-fast) ease,
+    background-color var(--duration-fast) ease;
+}
+
+.date-strip__day:not(:disabled):hover .date-strip__number {
+  border-color: var(--color-gold);
+}
+
+.date-strip__day--today::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  width: 5px;
+  height: 5px;
+  background: var(--color-burgundy-bright);
+}
+
+.date-strip__day--selected .date-strip__number {
+  border-color: var(--color-gold);
+  background: var(--color-gold);
+  color: var(--color-black);
+  font-weight: 500;
+}
+
+.date-strip__day:disabled {
+  opacity: 0.3;
+}
+
+.date-strip__day:focus-visible {
+  outline: none;
+}
+
+.date-strip__day:focus-visible .date-strip__number {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 3px;
+}

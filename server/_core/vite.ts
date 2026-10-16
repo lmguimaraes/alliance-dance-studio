@@ -1,44 +1,61 @@
 import express, { type Express } from "express";
-import fs from "fs";
-import { type Server } from "http";
-import { nanoid } from "nanoid";
-import path from "path";
-import { createServer as createViteServer } from "vite";
-import viteConfig from "../../vite.config";
+import fs from "node:fs";
+import { type Server } from "node:http";
+import path from "node:path";
 
-export async function setupVite(app: Express, server: Server) {
-  const serverOptions = {
-    ...(viteConfig.server ?? {}),
-    middlewareMode: true,
-    hmr: { server },
-    allowedHosts: true as const,
-  };
+/** Development: Vite middleware with hot reload. */
+export async function setupVite(app: Express, server: Server): Promise<void> {
+  // Loaded lazily so production never needs Vite installed.
+  const { createServer: createViteServer } = await import("vite");
   const vite = await createViteServer({
-    ...viteConfig,
-    configFile: false,
-    server: serverOptions,
+    configFile: path.resolve(import.meta.dirname, "../..", "vite.config.ts"),
+    server: {
+      middlewareMode: true,
+      hmr: { server },
+      allowedHosts: true,
+    },
     appType: "custom",
   });
 
   app.use(vite.middlewares);
   app.use("*", async (req, res, next) => {
-    const url = req.originalUrl;
     try {
-      const clientTemplate = path.resolve(import.meta.dirname, "../..", "client", "index.html");
-      let template = await fs.promises.readFile(clientTemplate, "utf-8");
-      template = template.replace(`src="/src/main.tsx"`, `src="/src/main.tsx?v=${nanoid()}"`);
-      const page = await vite.transformIndexHtml(url, template);
+      const templatePath = path.resolve(
+        import.meta.dirname,
+        "../..",
+        "client",
+        "index.html"
+      );
+      const template = await fs.promises.readFile(templatePath, "utf-8");
+      const page = await vite.transformIndexHtml(req.originalUrl, template);
       res.status(200).set({ "Content-Type": "text/html" }).end(page);
-    } catch (e) {
-      vite.ssrFixStacktrace(e as Error);
-      next(e);
+    } catch (error) {
+      vite.ssrFixStacktrace(error as Error);
+      next(error);
     }
   });
 }
 
-export function serveStatic(app: Express) {
-  const distPath = process.env.NODE_ENV === "development" ? path.resolve(import.meta.dirname, "../..", "dist", "public") : path.resolve(import.meta.dirname, "public");
-  if (!fs.existsSync(distPath)) console.error(`Could not find the build directory: ${distPath}, make sure to build the client first`);
-  app.use(express.static(distPath));
-  app.use("*", (_req, res) => { res.sendFile(path.resolve(distPath, "index.html")); });
+/** Production: hashed assets are cached for a year, HTML is always revalidated. */
+export function serveStatic(app: Express): void {
+  const distPath = path.resolve(import.meta.dirname, "public");
+  if (!fs.existsSync(distPath)) {
+    console.error(
+      `Build directory not found: ${distPath}. Run "pnpm build" first.`
+    );
+  }
+
+  app.use(
+    "/assets",
+    express.static(path.join(distPath, "assets"), {
+      immutable: true,
+      maxAge: "1y",
+      fallthrough: false,
+    })
+  );
+  app.use(express.static(distPath, { index: false, maxAge: "1h" }));
+  app.use("*", (_req, res) => {
+    res.setHeader("Cache-Control", "no-cache");
+    res.sendFile(path.resolve(distPath, "index.html"));
+  });
 }

@@ -6,6 +6,7 @@ const MAX_CACHE_TTL_SECONDS = 24 * 60 * 60;
 const REQUEST_TIMEOUT_MS = 8_000;
 const STALE_CACHE_WINDOW_MS = 6 * 60 * 60 * 1000;
 const GRAPH_BASE_URL = "https://graph.instagram.com";
+const RECENT_POST_LIMIT = 9;
 
 export type InstagramGalleryPost = {
   id: string;
@@ -98,10 +99,7 @@ function readGraphVersion(value: string | undefined): string {
 function readCacheTtlMs(value: string | undefined): number {
   const parsed = Number.parseInt(readString(value), 10);
   const seconds = Number.isInteger(parsed)
-    ? Math.min(
-        MAX_CACHE_TTL_SECONDS,
-        Math.max(MIN_CACHE_TTL_SECONDS, parsed)
-      )
+    ? Math.min(MAX_CACHE_TTL_SECONDS, Math.max(MIN_CACHE_TTL_SECONDS, parsed))
     : DEFAULT_CACHE_TTL_SECONDS;
 
   return seconds * 1000;
@@ -127,9 +125,7 @@ const config = {
   accessToken: readString(process.env.INSTAGRAM_ACCESS_TOKEN),
   userId: readString(process.env.INSTAGRAM_USER_ID),
   username: readUsername(process.env.INSTAGRAM_USERNAME),
-  pinnedMediaIds: parsePinnedMediaIds(
-    process.env.INSTAGRAM_PINNED_MEDIA_IDS
-  ),
+  pinnedMediaIds: parsePinnedMediaIds(process.env.INSTAGRAM_PINNED_MEDIA_IDS),
   graphVersion: readGraphVersion(process.env.INSTAGRAM_GRAPH_API_VERSION),
   cacheTtlMs: readCacheTtlMs(process.env.INSTAGRAM_CACHE_TTL_SECONDS),
 };
@@ -170,9 +166,7 @@ function graphErrorMessage(payload: unknown, status: number): string {
   const message = payload.error.message;
   const codeText = typeof code === "number" ? `, code ${code}` : "";
   const messageText =
-    typeof message === "string" && message.trim()
-      ? `: ${message.trim()}`
-      : "";
+    typeof message === "string" && message.trim() ? `: ${message.trim()}` : "";
 
   return `Instagram API request failed with HTTP ${status}${codeText}${messageText}`;
 }
@@ -273,9 +267,7 @@ function childPreviewUrl(media: RawInstagramMedia): string {
   return "";
 }
 
-function normalizeMediaType(
-  value: unknown
-): InstagramGalleryPost["mediaType"] {
+function normalizeMediaType(value: unknown): InstagramGalleryPost["mediaType"] {
   const mediaType = readString(value).toUpperCase();
   if (mediaType === "VIDEO" || mediaType === "REELS") return "video";
   if (mediaType.includes("CAROUSEL")) return "carousel";
@@ -299,12 +291,7 @@ export function normalizeInstagramMedia(
   const permalink = readInstagramPermalink(media.permalink);
   const timestamp = readString(media.timestamp);
 
-  if (
-    !id ||
-    !permalink ||
-    !timestamp ||
-    Number.isNaN(Date.parse(timestamp))
-  ) {
+  if (!id || !permalink || !timestamp || Number.isNaN(Date.parse(timestamp))) {
     return null;
   }
 
@@ -406,7 +393,7 @@ async function loadLiveGallery(): Promise<InstagramGalleryResponse> {
     .map(media => normalizeInstagramMedia(media, identity.username))
     .filter((post): post is InstagramGalleryPost => post !== null)
     .sort(sortNewestFirst)
-    .slice(0, 3);
+    .slice(0, RECENT_POST_LIMIT);
   const username = identity.username || config.username;
 
   return {

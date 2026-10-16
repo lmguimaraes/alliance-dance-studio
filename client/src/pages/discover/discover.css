@@ -1,0 +1,417 @@
+.discover-nav {
+  padding-top: 1.5rem;
+}
+
+.discover-nav__list {
+  display: flex;
+  gap: 0.25rem 1.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--color-line);
+  scrollbar-width: none;
+}
+
+.discover-nav__list::-webkit-scrollbar {
+  display: none;
+}
+
+.discover-nav__link {
+  position: relative;
+  display: inline-block;
+  padding-block: 0.35rem;
+  color: var(--color-stone);
+  font-size: var(--text-sm);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.discover-nav__link:hover {
+  color: var(--color-ivory);
+}
+
+.discover-nav__link--active {
+  color: var(--color-ivory);
+}
+
+.discover-nav__link--active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -0.75rem;
+  height: 2px;
+  background: var(--color-burgundy-bright);
+}
+
+.discover-section {
+  display: grid;
+  gap: var(--section-gap);
+}
+
+.discover-loading {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+}
+
+.discover-loading .skeleton {
+  aspect-ratio: 4 / 5;
+}
+
+/* Directors, dancers and teams ------------------------------------------- */
+
+.profile-grid {
+  display: grid;
+  gap: 2.5rem 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+}
+
+.profile-card {
+  display: grid;
+  align-content: start;
+  gap: 0.5rem;
+}
+
+.profile-card__portrait {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 4 / 5;
+  margin-bottom: 0.75rem;
+  overflow: hidden;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.profile-card__portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.15);
+}
+
+.profile-card__initials {
+  font-family: var(--font-display);
+  font-size: 4rem;
+  font-weight: 300;
+  letter-spacing: 0.04em;
+  background: var(--gradient-gold);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.profile-card__name {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.profile-card__role {
+  color: var(--color-gold);
+  font-size: var(--text-sm);
+}
+
+.profile-card__bio {
+  color: var(--color-stone);
+  font-size: var(--text-sm);
+}
+
+.profile-card__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  justify-self: start;
+  margin-top: 0.25rem;
+  color: var(--color-ivory);
+  font-size: var(--text-sm);
+  text-decoration: none;
+}
+
+.profile-card__link:hover {
+  color: var(--color-gold);
+}
+
+.profile-card__link svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Awards ------------------------------------------------------------------- */
+
+.awards-list {
+  border-top: 1px solid var(--color-line);
+}
+
+.award-row {
+  display: grid;
+  grid-template-columns: 4.5rem 1fr;
+  gap: 1.5rem;
+  padding-block: 1.5rem;
+  border-bottom: 1px solid var(--color-line);
+}
+
+.award-row__year {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 300;
+  color: var(--color-gold);
+}
+
+.award-row__title {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  line-height: 1.15;
+  text-transform: uppercase;
+}
+
+.award-row__title a {
+  text-decoration: none;
+}
+
+.award-row__title a:hover {
+  color: var(--color-gold);
+}
+
+.award-row__result {
+  margin-top: 0.25rem;
+  color: var(--color-ivory);
+}
+
+.award-row__detail {
+  margin-top: 0.25rem;
+  color: var(--color-stone);
+  font-size: var(--text-sm);
+}
+
+/* Company and story -------------------------------------------------------- */
+
+.company,
+.story {
+  display: grid;
+  gap: 3rem;
+}
+
+.focus-list {
+  display: grid;
+  gap: 2rem;
+  border-top: 1px solid var(--color-line);
+  padding-top: 2rem;
+}
+
+.focus-list__title {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.focus-list__text {
+  max-width: 46ch;
+  margin-top: 0.5rem;
+  color: var(--color-stone);
+}
+
+@media (min-width: 900px) {
+  .focus-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.story__text {
+  display: grid;
+  gap: 1.25rem;
+  max-width: 60ch;
+  font-size: var(--text-lg);
+}
+
+.brand-family {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.brand-family__list {
+  border-top: 1px solid var(--color-line);
+}
+
+.brand-family__item {
+  display: grid;
+  gap: 0.25rem 2rem;
+  padding-block: 1.25rem;
+  border-bottom: 1px solid var(--color-line);
+  text-decoration: none;
+}
+
+.brand-family__name {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  transition: color var(--duration-fast) ease;
+}
+
+.brand-family__role {
+  color: var(--color-stone);
+}
+
+.brand-family__item:hover .brand-family__name {
+  color: var(--color-gold);
+}
+
+@media (min-width: 720px) {
+  .brand-family__item {
+    grid-template-columns: 18rem 1fr;
+    align-items: baseline;
+  }
+}
+
+/* Gallery ------------------------------------------------------------------ */
+
+.gallery {
+  display: grid;
+  gap: var(--section-gap);
+}
+
+.gallery-block {
+  display: grid;
+  gap: 1.75rem;
+}
+
+.gallery-block__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.gallery-block__empty {
+  color: var(--color-stone);
+}
+
+.instagram-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.instagram-tile {
+  position: relative;
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: var(--color-surface);
+}
+
+.instagram-tile a {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.instagram-tile img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition:
+    transform 600ms var(--ease-out),
+    opacity var(--duration-base) ease;
+}
+
+.instagram-tile a:hover img,
+.instagram-tile a:focus-visible img {
+  transform: scale(1.04);
+  opacity: 0.85;
+}
+
+.instagram-tile a:focus-visible {
+  outline-offset: -3px;
+}
+
+.instagram-tile__fallback {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  color: var(--color-stone-dim);
+}
+
+.instagram-tile__type {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  color: var(--color-ivory);
+  filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.7));
+}
+
+.instagram-tile__type svg {
+  width: 18px;
+  height: 18px;
+}
+
+.studio-photos {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+}
+
+.studio-photo {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.studio-photo.skeleton {
+  aspect-ratio: 4 / 3;
+}
+
+.studio-photo__frame {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  background:
+    radial-gradient(
+      circle at 30% 20%,
+      var(--color-burgundy-wash),
+      transparent 60%
+    ),
+    var(--color-surface);
+}
+
+.studio-photo__frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.studio-photo__monogram {
+  font-family: var(--font-display);
+  font-size: clamp(4rem, 12vw, 6.5rem);
+  font-weight: 300;
+  line-height: 1;
+  background: var(--gradient-gold);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.studio-photo__name {
+  font-family: var(--font-display);
+  font-size: 1.375rem;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.studio-photo__facts {
+  color: var(--color-stone);
+  font-size: var(--text-sm);
+}

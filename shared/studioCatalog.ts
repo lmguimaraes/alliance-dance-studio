@@ -5,9 +5,6 @@ export type StudioIdentity = {
 
 export const STUDIO_X_NAME = "Studio X";
 
-export const STUDIO_X_DESCRIPTION =
-  "Studio 6 and Studio 7 together as one connected space.";
-
 /**
  * Treat differently cased or spaced versions of a studio name as the same
  * physical studio without changing the customer-facing value.
@@ -36,12 +33,6 @@ export function uniqueStudiosByName<T extends StudioIdentity>(
   }
 
   return Array.from(unique.values()).sort((a, b) => a.id - b.id);
-}
-
-export function studioIdsKey(studioIds: readonly number[]): string {
-  return Array.from(new Set(studioIds))
-    .sort((a, b) => a - b)
-    .join("-");
 }
 
 export function getStudioXMembers<T extends StudioIdentity>(

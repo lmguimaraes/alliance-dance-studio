@@ -1,38 +1,27 @@
-import { trpc } from "@/lib/trpc";
-import { UNAUTHED_ERR_MSG } from "@shared/const";
+import "@fontsource-variable/antonio";
+import "@fontsource-variable/jost";
+import "./styles/tokens.css";
+import "./styles/base.css";
+import "./styles/layout.css";
+import "./styles/controls.css";
+import "./components/date-strip.css";
+import "./i18n/config";
+
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { httpBatchLink, TRPCClientError } from "@trpc/client";
+import { httpBatchLink } from "@trpc/client";
 import { createRoot } from "react-dom/client";
 import superjson from "superjson";
 import App from "./App";
-import { getLoginUrl } from "./const";
-import "./index.css";
-import "./i18n/config";
+import { trpc } from "./lib/trpc";
 
-function isUnauthorized(error: unknown): boolean {
-  if (!(error instanceof TRPCClientError)) return false;
-  return error.data?.code === "UNAUTHORIZED" || error.message === UNAUTHED_ERR_MSG;
-}
-
-function handleApiError(error: unknown): void {
-  if (isUnauthorized(error) && typeof window !== "undefined") {
-    window.location.assign(getLoginUrl());
-    return;
-  }
-
-  if (import.meta.env.DEV) console.error("API request failed", error);
-}
-
-const queryClient = new QueryClient();
-queryClient.getQueryCache().subscribe(event => {
-  if (event.type === "updated" && event.action.type === "error") {
-    handleApiError(event.query.state.error);
-  }
-});
-queryClient.getMutationCache().subscribe(event => {
-  if (event.type === "updated" && event.action.type === "error") {
-    handleApiError(event.mutation.state.error);
-  }
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+      staleTime: 30_000,
+    },
+  },
 });
 
 const trpcClient = trpc.createClient({
@@ -40,12 +29,11 @@ const trpcClient = trpc.createClient({
     httpBatchLink({
       url: "/api/trpc",
       transformer: superjson,
-      fetch(input, init) {
-        return globalThis.fetch(input, {
+      fetch: (input, init) =>
+        globalThis.fetch(input, {
           ...(init ?? {}),
-          credentials: "include",
-        });
-      },
+          credentials: "same-origin",
+        }),
     }),
   ],
 });

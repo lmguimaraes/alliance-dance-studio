@@ -3,9 +3,7 @@ import {
   getStudioXMembers,
   isStudioXCombination,
   normalizeStudioName,
-  STUDIO_X_DESCRIPTION,
   STUDIO_X_NAME,
-  studioIdsKey,
   uniqueStudiosByName,
 } from "./studioCatalog";
 
@@ -36,18 +34,11 @@ describe("studio catalog normalization", () => {
 
     expect(members?.map(studio => studio.id)).toEqual([16, 17]);
     expect(STUDIO_X_NAME).toBe("Studio X");
-    expect(STUDIO_X_DESCRIPTION).toContain(
-      "Studio 6 and Studio 7 together"
-    );
   });
 
   it("recognizes only the Studio 6 and Studio 7 combination", () => {
     expect(isStudioXCombination(["Studio 7", "Studio 6"])).toBe(true);
     expect(isStudioXCombination(["Studio 5", "Studio 6"])).toBe(false);
     expect(isStudioXCombination(["Studio 6"])).toBe(false);
-  });
-
-  it("creates stable selection keys", () => {
-    expect(studioIdsKey([17, 16, 17])).toBe("16-17");
   });
 });

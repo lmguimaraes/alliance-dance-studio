@@ -1,0 +1,141 @@
+.home-hero {
+  padding-block: clamp(3.5rem, 10vw, 8rem) clamp(3rem, 7vw, 5.5rem);
+}
+
+.home-hero__layout {
+  display: grid;
+  gap: 2rem;
+}
+
+.home-hero__title {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: var(--display-hero);
+  line-height: 0.92;
+  letter-spacing: 0.005em;
+  text-transform: uppercase;
+  background: var(--gradient-gold);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  /* Room for descenders such as the tail of Q, which background-clip would cut. */
+  padding-bottom: 0.16em;
+  margin-bottom: -0.12em;
+}
+
+.home-hero__line {
+  display: block;
+  text-wrap: balance;
+}
+
+.home-hero__body {
+  display: grid;
+  gap: 2rem;
+}
+
+.home-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+@media (min-width: 900px) {
+  .home-hero__layout {
+    grid-template-columns: 1fr minmax(0, 27rem);
+    row-gap: 3rem;
+  }
+
+  .home-hero__title {
+    grid-column: 1 / -1;
+  }
+
+  .home-hero__beat {
+    align-self: end;
+    margin-bottom: 1.1rem;
+  }
+}
+
+/* Four ways into Alliance, in one compact strip. */
+.pillars-strip {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.pillars-strip__item {
+  display: grid;
+  align-content: start;
+  gap: 0.35rem;
+  padding: 1.5rem 1.25rem 1.5rem 0;
+  border-top: 1px solid var(--color-line);
+  text-decoration: none;
+}
+
+.pillars-strip__item:nth-child(even) {
+  padding-left: 1.25rem;
+  border-left: 1px solid var(--color-line);
+}
+
+.pillars-strip__item:nth-child(n + 3) {
+  border-bottom: 1px solid var(--color-line);
+}
+
+.pillars-strip__word {
+  font-family: var(--font-display);
+  font-size: clamp(1.9rem, 4.5vw, 2.75rem);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--color-ivory);
+  transition: color var(--duration-fast) ease;
+}
+
+.pillars-strip__label {
+  color: var(--color-stone);
+  font-size: var(--text-sm);
+}
+
+.pillars-strip__item:hover .pillars-strip__word,
+.pillars-strip__item:focus-visible .pillars-strip__word {
+  color: var(--color-gold);
+}
+
+@media (min-width: 720px) {
+  .pillars-strip {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .pillars-strip__item,
+  .pillars-strip__item:nth-child(even) {
+    padding: 2rem 1.5rem;
+    border-top: 1px solid var(--color-line);
+    border-bottom: 1px solid var(--color-line);
+    border-left: 0;
+  }
+
+  .pillars-strip__item:first-child {
+    padding-left: 0;
+  }
+
+  .pillars-strip__item + .pillars-strip__item {
+    border-left: 1px solid var(--color-line);
+  }
+}
+
+.home-cta {
+  display: grid;
+  gap: 2rem;
+  justify-items: start;
+  padding-top: var(--section-gap);
+}
+
+.home-cta__title {
+  max-width: 22ch;
+}
+
+@media (min-width: 900px) {
+  .home-cta {
+    grid-template-columns: 1fr auto;
+    align-items: end;
+  }
+}

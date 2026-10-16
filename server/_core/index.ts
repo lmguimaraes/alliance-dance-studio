@@ -2,16 +2,14 @@ import "dotenv/config";
 import { createServer } from "node:http";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import express from "express";
-import { stripeWebhookHandler } from "../stripe";
-import { appRouter } from "../routers";
 import { closeDatabase } from "../db";
+import { appRouter } from "../routers";
+import { stripeWebhookHandler } from "../stripe";
 import { createContext } from "./context";
 import { ENV, validateRuntimeConfiguration } from "./env";
-import { registerOAuthRoutes } from "./oauth";
+import { isMalformedRequestTarget } from "./requestTarget";
 import { serveStatic, setupVite } from "./vite";
 
-import { studioAvailabilityRouter } from "../availability";
-import { isMalformedRequestTarget } from "./requestTarget";
 function configuredPort(): number {
   const port = Number.parseInt(process.env.PORT || "3000", 10);
   if (!Number.isInteger(port) || port < 1 || port > 65_535) {
@@ -20,30 +18,33 @@ function configuredPort(): number {
   return port;
 }
 
+const CONTENT_SECURITY_POLICY = [
+  "default-src 'self'",
+  "script-src 'self'",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: https:",
+  "font-src 'self' data:",
+  "connect-src 'self'",
+  "frame-ancestors 'self'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "object-src 'none'",
+].join("; ");
+
 async function startServer(): Promise<void> {
   validateRuntimeConfiguration();
 
   const app = express();
-
   app.disable("x-powered-by");
+  if (ENV.trustProxyHops > 0) app.set("trust proxy", ENV.trustProxyHops);
 
   app.use((request, response, next) => {
-
     if (isMalformedRequestTarget(request.originalUrl || request.url)) {
-
       response.status(400).type("text/plain").send("Bad Request");
-
       return;
-
     }
-
     next();
-
   });
-
-  app.use("/api/studio-availability", studioAvailabilityRouter);
-  if (ENV.trustProxyHops > 0) app.set("trust proxy", ENV.trustProxyHops);
-  app.disable("x-powered-by");
 
   app.use((_req, res, next) => {
     res.setHeader("X-Content-Type-Options", "nosniff");
@@ -55,6 +56,7 @@ async function startServer(): Promise<void> {
     );
     if (ENV.isProduction) {
       res.setHeader("Strict-Transport-Security", "max-age=31536000");
+      res.setHeader("Content-Security-Policy", CONTENT_SECURITY_POLICY);
     }
     next();
   });
@@ -71,13 +73,13 @@ async function startServer(): Promise<void> {
   );
 
   app.use(express.json({ limit: "1mb" }));
-  app.use(express.urlencoded({ limit: "64kb", extended: false }));
-
-  registerOAuthRoutes(app);
   app.use(
     "/api/trpc",
     createExpressMiddleware({ router: appRouter, createContext })
   );
+  app.use("/api", (_req, res) => {
+    res.status(404).json({ error: "Not found" });
+  });
 
   const server = createServer(app);
   if (ENV.isProduction) serveStatic(app);
@@ -97,7 +99,6 @@ async function startServer(): Promise<void> {
     if (closing) return;
     closing = true;
     console.log(`Received ${signal}; shutting down.`);
-
     server.close(async error => {
       await closeDatabase().catch(() => undefined);
       if (error) {

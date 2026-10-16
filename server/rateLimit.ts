@@ -12,7 +12,10 @@ type Bucket = {
 };
 
 export type RateLimiter = {
+  /** Counts one request and throws once the limit is exceeded. */
   consume: (key: string, now?: number) => void;
+  /** Throws if the key is already at its limit, without counting a request. */
+  assertAvailable: (key: string, now?: number) => void;
   clear: () => void;
 };
 
@@ -65,6 +68,14 @@ export function createFixedWindowRateLimiter(options: {
       }
 
       current.count += 1;
+    },
+    assertAvailable(key: string, now: number = Date.now()): void {
+      const current = buckets.get(key.trim() || "unknown");
+      if (!current || now - current.windowStartedAt >= windowMs) return;
+      if (current.count >= limit) {
+        const remaining = windowMs - (now - current.windowStartedAt);
+        throw new RateLimitError(Math.max(1, Math.ceil(remaining / 1000)));
+      }
     },
     clear(): void {
       buckets.clear();

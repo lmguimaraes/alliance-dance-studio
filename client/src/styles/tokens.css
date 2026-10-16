@@ -1,0 +1,59 @@
+/*
+ * Alliance Dance design tokens.
+ * Black and gold from the Alliance identity, burgundy from Alliance Dance Co.
+ */
+:root {
+  color-scheme: dark;
+
+  /* Colour */
+  --color-black: #000000;
+  --color-surface: #0c0b09;
+  --color-surface-raised: #15130f;
+  --color-line: #29241d;
+  --color-line-strong: #43392b;
+  --color-ivory: #f5efe4;
+  --color-stone: #aaa194;
+  --color-stone-dim: #8a8275;
+  --color-gold: #e6b325;
+  --color-gold-light: #f7df7a;
+  --color-gold-deep: #c98a1f;
+  --color-gold-wash: rgba(230, 179, 37, 0.12);
+  --color-burgundy: #7f0d1d;
+  --color-burgundy-bright: #b4283f;
+  --color-burgundy-wash: rgba(127, 13, 29, 0.32);
+  --color-error: #ef9aa6;
+  --gradient-gold: linear-gradient(
+    180deg,
+    #f9e76e 0%,
+    #eab51c 55%,
+    #d3871f 100%
+  );
+
+  /* Type */
+  --font-display:
+    "Antonio Variable", "Arial Narrow", "Helvetica Neue", sans-serif;
+  --font-body: "Jost Variable", "Futura", "Avenir Next", system-ui, sans-serif;
+  --text-xs: 0.8125rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.3125rem;
+  --display-hero: clamp(3.25rem, 9.5vw, 7rem);
+  --display-title: clamp(2.75rem, 7.5vw, 5.25rem);
+  --display-section: clamp(1.9rem, 4vw, 2.75rem);
+
+  /* Space and shape */
+  --page-width: 1200px;
+  --gutter: clamp(1.25rem, 4vw, 2.5rem);
+  --section-gap: clamp(3.5rem, 9vw, 7rem);
+  --header-height: 72px;
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-pill: 999px;
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --duration-fast: 140ms;
+  --duration-base: 240ms;
+}
