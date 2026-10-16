@@ -29,8 +29,23 @@ const sql = postgres(databaseUrl, {
   onnotice: () => undefined,
 });
 
-function checksum(source) {
-  return createHash("sha256").update(source).digest("hex");
+function sha256(text) {
+  return createHash("sha256").update(text).digest("hex");
+}
+
+// Git on Windows may check migrations out with CRLF line endings, and earlier
+// runs may have recorded either form. Line endings never change what a
+// migration does, so both forms count as the same file. New runs record LF.
+function checksums(source) {
+  const lf = source.replace(/\r\n/g, "\n");
+  return {
+    recorded: sha256(lf),
+    accepted: new Set([
+      sha256(source),
+      sha256(lf),
+      sha256(lf.replace(/\n/g, "\r\n")),
+    ]),
+  };
 }
 
 async function resolveHistoryTable() {
@@ -71,14 +86,14 @@ try {
         path.join(migrationsDirectory, file),
         "utf8"
       );
-      const digest = checksum(source);
+      const digest = checksums(source);
       const applied = await sql.unsafe(
         `SELECT checksum FROM ${historyTable} WHERE id = $1`,
         [file]
       );
 
       if (applied.length) {
-        if (applied[0].checksum !== digest) {
+        if (!digest.accepted.has(applied[0].checksum)) {
           throw new Error(
             `Migration checksum mismatch for ${file}; never edit an applied migration`
           );
@@ -92,7 +107,7 @@ try {
         await transaction.unsafe(source).simple();
         await transaction.unsafe(
           `INSERT INTO ${historyTable} (id, checksum) VALUES ($1, $2)`,
-          [file, digest]
+          [file, digest.recorded]
         );
       });
       console.log(`[database] ${file}: applied`);
