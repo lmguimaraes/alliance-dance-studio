@@ -176,7 +176,7 @@ async function loadOpening(
 }
 
 /** Wall-clock date and minute of an instant in the studio's time zone. */
-export function studioClock(instant: Date): {
+function studioClock(instant: Date): {
   dateKey: string;
   minutes: number;
 } {

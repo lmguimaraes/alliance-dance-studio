@@ -4,12 +4,11 @@ import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 import { Link } from "wouter";
 import { Loader2, LockKeyhole } from "lucide-react";
-import type { OccurrenceProblem } from "@shared/booking";
+import type { Audience, OccurrenceProblem } from "@shared/booking";
 import PageHeader from "@/components/PageHeader";
 import { useCart } from "@/features/cart/CartContext";
 import CartItemSummary from "@/features/cart/CartItemSummary";
 import { toRentalItems } from "@/features/cart/cartModel";
-import RentalTypeToggle from "@/features/cart/RentalTypeToggle";
 import { BRAND, PATHS } from "@/lib/brand";
 import { currentLanguage, useFormat } from "@/lib/format";
 import { trpc } from "@/lib/trpc";
@@ -25,6 +24,7 @@ type Summary = {
   customerEmail: string;
   items: {
     spaceName: string;
+    audience: Audience;
     date: string;
     startTime: string;
     endTime: string;
@@ -196,7 +196,7 @@ export default function CheckoutPage() {
 
   const items = useMemo(() => toRentalItems(cart.items), [cart.items]);
   const quoteQuery = trpc.rental.quote.useQuery(
-    { items, audience: cart.audience },
+    { items },
     {
       enabled: items.length > 0 && returnState.kind !== "confirmed",
       staleTime: 0,
@@ -214,7 +214,6 @@ export default function CheckoutPage() {
     try {
       const result = await checkout.mutateAsync({
         items,
-        audience: cart.audience,
         customerName: contact.name,
         customerEmail: contact.email,
         customerPhone: contact.phone || null,
@@ -225,10 +224,7 @@ export default function CheckoutPage() {
         window.location.assign(result.checkoutUrl);
         return;
       }
-      utils.rental.quote.setData(
-        { items, audience: cart.audience },
-        result.quote
-      );
+      utils.rental.quote.setData({ items }, result.quote);
       setSubmitError(t("checkout.unavailable"));
     } catch (error) {
       setSubmitError(
@@ -295,7 +291,6 @@ export default function CheckoutPage() {
               <h2 id="checkout-booking-title" className="checkout__heading">
                 {t("checkout.booking")}
               </h2>
-              <RentalTypeToggle />
               <ul className="order-lines" role="list">
                 {cart.items.map((item, index) => {
                   const quoted = quoteMatchesCart
@@ -447,11 +442,6 @@ export default function CheckoutPage() {
                   </strong>
                 )}
               </div>
-              <p className="order-summary__rate">
-                {cart.audience === "group"
-                  ? t("checkout.groupRate")
-                  : t("checkout.privateRate")}
-              </p>
               {quoteQuery.error && (
                 <p className="field__error" role="alert">
                   {t("checkout.quoteFailed")}

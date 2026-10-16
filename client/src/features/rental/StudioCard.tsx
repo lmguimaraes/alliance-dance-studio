@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { Loader2 } from "lucide-react";
+import { ChevronDown, Loader2 } from "lucide-react";
 import {
   addDays,
   daysBetween,
@@ -9,6 +9,8 @@ import {
   SLOT_MINUTES,
   type Audience,
 } from "@shared/booking";
+
+const AUDIENCES: Audience[] = ["private", "group"];
 import { cx } from "@/lib/cx";
 import { useFormat } from "@/lib/format";
 import type { RangeSelection } from "./rangeSelection";
@@ -36,10 +38,13 @@ type StudioCardProps = {
   selection: RangeSelection;
   previewEndIndex: number | null;
   weeks: number;
+  extrasOpen: boolean;
   notice: string | null;
   isAdding: boolean;
   onPick: (index: number) => void;
   onHover: (index: number | null) => void;
+  onAudienceChange: (audience: Audience) => void;
+  onExtrasToggle: () => void;
   onWeeksChange: (weeks: number) => void;
   onAdd: () => void;
   onClear: () => void;
@@ -56,10 +61,13 @@ export default function StudioCard({
   selection,
   previewEndIndex,
   weeks,
+  extrasOpen,
   notice,
   isAdding,
   onPick,
   onHover,
+  onAudienceChange,
+  onExtrasToggle,
   onWeeksChange,
   onAdd,
   onClear,
@@ -69,7 +77,9 @@ export default function StudioCard({
   const isActive = selection.spaceKey === space.key;
   const startIndex = isActive ? selection.startIndex : null;
   const endIndex = isActive ? selection.endIndex : null;
-  const rate = audience === "group" ? space.groupHourlyRate : space.hourlyRate;
+  const rateFor = (option: Audience) =>
+    option === "group" ? space.groupHourlyRate : space.hourlyRate;
+  const rate = rateFor(audience);
   const isOpen = slots.some(status => status !== "closed");
   const hasRange = startIndex !== null && endIndex !== null;
 
@@ -143,46 +153,100 @@ export default function StudioCard({
             {notice && <p className="selection-summary__notice">{notice}</p>}
           </div>
 
-          {startIndex !== null && (
-            <div className="repeat-picker">
-              <span className="repeat-picker__label" id={`${space.key}-repeat`}>
-                {t("rental.repeat.label")}
+          {hasRange && (
+            <div className="audience-picker">
+              <span
+                className="audience-picker__label"
+                id={`${space.key}-audience`}
+              >
+                {t("rental.audience.label")}
               </span>
               <div
                 className="segmented"
                 role="radiogroup"
-                aria-labelledby={`${space.key}-repeat`}
+                aria-labelledby={`${space.key}-audience`}
               >
-                {Array.from(
-                  { length: MAX_REPEAT_WEEKS },
-                  (_, index) => index + 1
-                ).map(count => {
-                  const lastDate = addDays(date, (count - 1) * 7);
-                  const tooFar =
-                    daysBetween(today, lastDate) > LAST_BOOKABLE_DAY;
-                  return (
-                    <button
-                      key={count}
-                      type="button"
-                      role="radio"
-                      aria-checked={weeks === count}
-                      className="segmented__option"
-                      disabled={tooFar}
-                      aria-label={t("rental.repeat.weeks", { count })}
-                      onClick={() => onWeeksChange(count)}
-                    >
-                      {count}
-                    </button>
-                  );
-                })}
+                {AUDIENCES.map(option => (
+                  <button
+                    key={option}
+                    type="button"
+                    role="radio"
+                    aria-checked={audience === option}
+                    className="segmented__option"
+                    onClick={() => onAudienceChange(option)}
+                  >
+                    {t(`rental.audience.${option}`)}
+                    <span className="audience-picker__rate tabular">
+                      {t("rental.ratePerHour", {
+                        amount: format.money(rateFor(option), currency),
+                      })}
+                    </span>
+                  </button>
+                ))}
               </div>
-              <p className="repeat-picker__hint">
-                {weeks > 1
-                  ? t("rental.repeat.until", {
-                      date: format.monthDay(addDays(date, (weeks - 1) * 7)),
-                    })
-                  : t("rental.repeat.once")}
-              </p>
+            </div>
+          )}
+
+          {hasRange && (
+            <div className="extra-options">
+              <button
+                type="button"
+                className="extra-options__toggle"
+                aria-expanded={extrasOpen}
+                aria-controls={`${space.key}-extras`}
+                onClick={onExtrasToggle}
+              >
+                {t("rental.extraOptions")}
+                <ChevronDown
+                  className="extra-options__chevron"
+                  aria-hidden="true"
+                />
+              </button>
+              {extrasOpen && (
+                <div id={`${space.key}-extras`} className="repeat-picker">
+                  <span
+                    className="repeat-picker__label"
+                    id={`${space.key}-repeat`}
+                  >
+                    {t("rental.repeat.label")}
+                  </span>
+                  <div
+                    className="segmented"
+                    role="radiogroup"
+                    aria-labelledby={`${space.key}-repeat`}
+                  >
+                    {Array.from(
+                      { length: MAX_REPEAT_WEEKS },
+                      (_, index) => index + 1
+                    ).map(count => {
+                      const lastDate = addDays(date, (count - 1) * 7);
+                      const tooFar =
+                        daysBetween(today, lastDate) > LAST_BOOKABLE_DAY;
+                      return (
+                        <button
+                          key={count}
+                          type="button"
+                          role="radio"
+                          aria-checked={weeks === count}
+                          className="segmented__option"
+                          disabled={tooFar}
+                          aria-label={t("rental.repeat.weeks", { count })}
+                          onClick={() => onWeeksChange(count)}
+                        >
+                          {count}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <p className="repeat-picker__hint">
+                    {weeks > 1
+                      ? t("rental.repeat.until", {
+                          date: format.monthDay(addDays(date, (weeks - 1) * 7)),
+                        })
+                      : t("rental.repeat.once")}
+                  </p>
+                </div>
+              )}
             </div>
           )}
 

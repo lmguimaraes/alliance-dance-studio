@@ -149,6 +149,7 @@ const rentalItems = z
     z
       .object({
         studioIds,
+        audience,
         date: dateKey,
         startTime,
         endTime,
@@ -310,7 +311,7 @@ export const appRouter = router({
         })
       ),
     quote: publicProcedure
-      .input(z.object({ items: rentalItems, audience }).strict())
+      .input(z.object({ items: rentalItems }).strict())
       .query(({ input, ctx }) =>
         run(() => {
           limiters.quote.consume(clientKey(ctx.req));
@@ -322,7 +323,6 @@ export const appRouter = router({
         z
           .object({
             items: rentalItems,
-            audience,
             customerName: z.string().trim().min(2).max(120),
             customerEmail: z.string().trim().email().max(254),
             customerPhone: optionalText(40),

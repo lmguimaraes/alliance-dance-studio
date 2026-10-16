@@ -203,11 +203,15 @@
     "intro": "Elige un estudio, una hora de inicio y una de fin, y añádelo a tu carrito.",
     "chooseDay": "Elegir una fecha",
     "timeZoneNote": "Los horarios se muestran en hora de Montreal. Las reservas empiezan en punto o a la media hora y duran de 1 a 8 horas.",
-    "type": {
+    "audience": {
       "label": "Tipo de alquiler",
       "private": "Privado",
-      "group": "Grupo"
+      "group": "Grupo",
+      "privateRental": "Alquiler privado",
+      "groupRental": "Alquiler en grupo"
     },
+    "ratePerHour": "{{amount}}/h",
+    "extraOptions": "Opciones adicionales",
     "legend": {
       "label": "Leyenda"
     },
@@ -240,7 +244,7 @@
       "clear": "Borrar"
     },
     "repeat": {
-      "label": "Número de semanas",
+      "label": "Repetir cada semana",
       "once": "Reserva solo esta fecha.",
       "weeks_one": "{{count}} semana",
       "weeks_many": "{{count}} semanas",
@@ -289,8 +293,6 @@
     "summary": "Resumen del pedido",
     "addMore": "Añadir otra reserva",
     "total": "Total",
-    "privateRate": "Tarifa privada",
-    "groupRate": "Tarifa de grupo",
     "pay": "Pagar con Stripe",
     "redirecting": "Abriendo Stripe",
     "stripeNote": "Pagarás en la página segura de Stripe. Tus horarios quedan reservados durante 30 minutos mientras pagas.",

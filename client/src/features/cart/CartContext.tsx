@@ -7,7 +7,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { studioNow, type Audience } from "@shared/booking";
+import { studioNow } from "@shared/booking";
 import {
   addItem,
   EMPTY_CART,
@@ -17,14 +17,14 @@ import {
   type CartState,
 } from "./cartModel";
 
-const STORAGE_KEY = "alliance.cart.v1";
+// v2: private or group is stored on each item.
+const STORAGE_KEY = "alliance.cart.v2";
 
 type CartContextValue = {
   cart: CartState;
   add: (item: Omit<CartItem, "id">) => AddResult;
   remove: (id: string) => void;
   clear: () => void;
-  setAudience: (audience: Audience) => void;
   isOpen: boolean;
   open: () => void;
   close: () => void;
@@ -83,11 +83,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
       add,
       remove: id =>
         setCart(current => ({
-          ...current,
           items: current.items.filter(item => item.id !== id),
         })),
-      clear: () => setCart(current => ({ ...current, items: [] })),
-      setAudience: audience => setCart(current => ({ ...current, audience })),
+      clear: () => setCart(EMPTY_CART),
       isOpen,
       open: () => setIsOpen(true),
       close: () => setIsOpen(false),

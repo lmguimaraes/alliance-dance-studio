@@ -4,7 +4,7 @@ import type { CookieOptions, Request, Response } from "express";
 import { jwtVerify, SignJWT } from "jose";
 import { ENV } from "../_core/env";
 
-export const ADMIN_COOKIE = "alliance_admin";
+const ADMIN_COOKIE = "alliance_admin";
 const SESSION_HOURS = 8;
 const AUDIENCE = "alliance-admin";
 

@@ -6,13 +6,13 @@ import { lastDateOf, type CartItem } from "./cartModel";
 type Props = {
   item: Pick<
     CartItem,
-    "spaceName" | "date" | "startTime" | "endTime" | "weeks"
+    "spaceName" | "audience" | "date" | "startTime" | "endTime" | "weeks"
   >;
   amount: number | null;
   currency?: string;
 };
 
-/** Studio, date, time and weekly repeat of one cart line. */
+/** Studio, rate, date, time and weekly repeat of one cart line. */
 export default function CartItemSummary({ item, amount, currency }: Props) {
   const { t } = useTranslation();
   const format = useFormat();
@@ -28,6 +28,9 @@ export default function CartItemSummary({ item, amount, currency }: Props) {
           </span>
         )}
       </div>
+      <p className="cart-item__audience">
+        {t(`rental.audience.${item.audience}Rental`)}
+      </p>
       <p className="cart-item__when">{format.fullDate(item.date)}</p>
       <p className="cart-item__when tabular">
         {format.timeRange(item.startTime, item.endTime)}

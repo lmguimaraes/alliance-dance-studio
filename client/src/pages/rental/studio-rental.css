@@ -8,14 +8,6 @@
   gap: 1.25rem;
 }
 
-.rental-toolbar__row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem 2rem;
-}
-
 .rental-toolbar__note {
   color: var(--color-stone-dim);
   font-size: var(--text-xs);
@@ -251,9 +243,68 @@
   font-size: var(--text-sm);
 }
 
+/* Private or group: shown once a time range is picked. */
+.audience-picker {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.audience-picker__label {
+  color: var(--color-stone);
+  font-size: var(--text-sm);
+}
+
+.audience-picker .segmented {
+  justify-self: start;
+}
+
+.audience-picker__rate {
+  margin-left: 0.45rem;
+  font-size: var(--text-xs);
+  opacity: 0.75;
+}
+
+/* Weekly repeats stay out of the way until asked for. */
+.extra-options {
+  display: grid;
+  justify-items: start;
+  gap: 0.9rem;
+}
+
+.extra-options__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 32px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-stone);
+  font-size: var(--text-sm);
+  text-decoration: underline;
+  text-decoration-color: var(--color-line-strong);
+  text-underline-offset: 0.25em;
+}
+
+.extra-options__toggle:hover {
+  color: var(--color-ivory);
+}
+
+.extra-options__chevron {
+  width: 16px;
+  height: 16px;
+  transition: transform var(--duration-fast) ease;
+}
+
+.extra-options__toggle[aria-expanded="true"] .extra-options__chevron {
+  transform: rotate(180deg);
+}
+
 .repeat-picker {
   display: grid;
   gap: 0.6rem;
+  padding-left: 1rem;
+  border-left: 1px solid var(--color-burgundy);
 }
 
 .repeat-picker .segmented {

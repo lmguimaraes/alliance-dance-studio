@@ -41,6 +41,8 @@ export type OccurrenceProblem =
 
 export type RentalItemInput = {
   studioIds: number[];
+  /** Private or group rate, chosen per booking. */
+  audience: Audience;
   date: string;
   startTime: string;
   endTime: string;

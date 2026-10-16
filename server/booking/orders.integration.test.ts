@@ -33,7 +33,6 @@ describe.skipIf(!TEST_DATABASE_URL)("booking flow (PostgreSQL)", () => {
     return {
       id,
       items,
-      audience: "private" as const,
       customerName: "Integration Test",
       customerEmail: "integration@example.com",
       currency: "cad",
@@ -87,13 +86,13 @@ describe.skipIf(!TEST_DATABASE_URL)("booking flow (PostgreSQL)", () => {
       items: [
         {
           studioIds: [studio6],
+          audience: "private",
           date,
           startTime: "10:00",
           endTime: "12:00",
           weeks: 3,
         },
       ],
-      audience: "private",
       currency: "cad",
     });
     expect(quote.available).toBe(true);
@@ -106,6 +105,7 @@ describe.skipIf(!TEST_DATABASE_URL)("booking flow (PostgreSQL)", () => {
       holdInput([
         {
           studioIds: [studio6],
+          audience: "private",
           date,
           startTime: "10:00",
           endTime: "12:00",
@@ -119,6 +119,7 @@ describe.skipIf(!TEST_DATABASE_URL)("booking flow (PostgreSQL)", () => {
       holdInput([
         {
           studioIds: [studio6, studio7],
+          audience: "private",
           date: addDays(date, -7),
           startTime: "11:00",
           endTime: "13:00",
@@ -151,6 +152,7 @@ describe.skipIf(!TEST_DATABASE_URL)("booking flow (PostgreSQL)", () => {
   it("lets only one of two simultaneous holds win", async () => {
     const item = {
       studioIds: [studio5],
+      audience: "private" as const,
       date,
       startTime: "15:00",
       endTime: "16:00",
@@ -170,6 +172,7 @@ describe.skipIf(!TEST_DATABASE_URL)("booking flow (PostgreSQL)", () => {
     const input = holdInput([
       {
         studioIds: [studio6, studio7],
+        audience: "private",
         date,
         startTime: "18:00",
         endTime: "19:00",
@@ -182,7 +185,6 @@ describe.skipIf(!TEST_DATABASE_URL)("booking flow (PostgreSQL)", () => {
     await m.orders.releaseReservationHold(input.id);
     const again = await m.orders.quoteOrder({
       items: input.items,
-      audience: "private",
       currency: "cad",
     });
     expect(again.available).toBe(true);
@@ -198,8 +200,66 @@ describe.skipIf(!TEST_DATABASE_URL)("booking flow (PostgreSQL)", () => {
     });
     expect(summary.status).toBe("paid");
     expect(summary.items).toEqual([
-      { spaceName: "Studio X", date, startTime: "18:00", endTime: "19:00" },
+      {
+        spaceName: "Studio X",
+        audience: "private",
+        date,
+        startTime: "18:00",
+        endTime: "19:00",
+      },
     ]);
+  });
+
+  it("prices and records private and group bookings in one order", async () => {
+    const input = holdInput([
+      {
+        studioIds: [studio5],
+        audience: "private",
+        date,
+        startTime: "19:00",
+        endTime: "20:00",
+        weeks: 1,
+      },
+      {
+        studioIds: [studio6],
+        audience: "group",
+        date,
+        startTime: "19:00",
+        endTime: "21:00",
+        weeks: 2,
+      },
+    ]);
+    const held = await m.orders.createReservationHold(input);
+    expect(held.status).toBe("held");
+    expect(held.quote.items.map(item => item.audience)).toEqual([
+      "private",
+      "group",
+    ]);
+    expect(held.quote.total).toBe(1500 + 2 * 4400);
+
+    const sql = m.db.getSql();
+    const [reservation] = await sql<{ audience: string | null }[]>`
+      SELECT audience FROM reservations WHERE id = ${input.id}
+    `;
+    expect(reservation.audience).toBeNull();
+    const bookings = await sql<{ studioId: number; audience: string }[]>`
+      SELECT "studioId", audience FROM bookings
+      WHERE "reservationId" = ${input.id}
+      ORDER BY "bookingDate", "studioId"
+    `;
+    expect(bookings).toEqual([
+      { studioId: studio5, audience: "private" },
+      { studioId: studio6, audience: "group" },
+      { studioId: studio6, audience: "group" },
+    ]);
+
+    const summary = await m.orders.getReservationSummary(input.id);
+    expect(summary.items.map(item => item.audience)).toEqual([
+      "private",
+      "group",
+      "group",
+    ]);
+    await m.orders.releaseReservationHold(input.id);
   });
 
   it("treats classes and legacy bookings as busy", async () => {
@@ -229,6 +289,7 @@ describe.skipIf(!TEST_DATABASE_URL)("booking flow (PostgreSQL)", () => {
       items: [
         {
           studioIds: [studio7],
+          audience: "private",
           date,
           startTime: "20:00",
           endTime: "21:00",
@@ -236,13 +297,13 @@ describe.skipIf(!TEST_DATABASE_URL)("booking flow (PostgreSQL)", () => {
         },
         {
           studioIds: [studio5],
+          audience: "private",
           date,
           startTime: "09:00",
           endTime: "10:00",
           weeks: 1,
         },
       ],
-      audience: "group",
       currency: "cad",
     });
     expect(quote.items.map(item => item.occurrences[0].problem)).toEqual([

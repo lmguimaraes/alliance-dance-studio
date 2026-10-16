@@ -36,10 +36,7 @@ export function runsOn(item: ScheduledClass, date: string): boolean {
   );
 }
 
-export function matchesFilters(
-  item: ScheduledClass,
-  filters: ClassFilters
-): boolean {
+function matchesFilters(item: ScheduledClass, filters: ClassFilters): boolean {
   return (
     (!filters.style || item.style === filters.style) &&
     (!filters.level || item.level === filters.level) &&

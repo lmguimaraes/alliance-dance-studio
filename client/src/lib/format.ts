@@ -13,7 +13,7 @@ export function currentLanguage(language: string | undefined): Language {
 }
 
 /** Canadian English and French; neutral Spanish. */
-export function localeTag(language: Language): string {
+function localeTag(language: Language): string {
   return language === "es" ? "es" : `${language}-CA`;
 }
 
@@ -24,7 +24,7 @@ function timeAsDate(time: string): Date {
 
 export type Formatters = ReturnType<typeof createFormatters>;
 
-export function createFormatters(language: Language) {
+function createFormatters(language: Language) {
   const locale = localeTag(language);
   const dateFormat = (options: Intl.DateTimeFormatOptions) =>
     new Intl.DateTimeFormat(locale, { ...options, timeZone: "UTC" });

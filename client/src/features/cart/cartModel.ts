@@ -19,6 +19,7 @@ export type CartItem = {
   spaceKey: string;
   studioIds: number[];
   spaceName: string;
+  audience: Audience;
   /** First date of the weekly series. */
   date: string;
   startTime: string;
@@ -30,15 +31,14 @@ export type CartItem = {
 };
 
 export type CartState = {
-  audience: Audience;
   items: CartItem[];
 };
 
-export const EMPTY_CART: CartState = { audience: "private", items: [] };
+export const EMPTY_CART: CartState = { items: [] };
 
 export type Occurrence = { date: string; studioIds: number[] } & Interval;
 
-export function occurrencesOf(
+function occurrencesOf(
   item: Pick<CartItem, "date" | "weeks" | "startTime" | "endTime" | "studioIds">
 ): Occurrence[] {
   const start = timeToMinutes(item.startTime);
@@ -51,7 +51,7 @@ export function occurrencesOf(
   }));
 }
 
-export function occurrenceCount(items: readonly CartItem[]): number {
+function occurrenceCount(items: readonly CartItem[]): number {
   return items.reduce((total, item) => total + item.weeks, 0);
 }
 
@@ -94,26 +94,15 @@ export function cartIntervalsFor(
     .map(({ start, end }) => ({ start, end }));
 }
 
-export function itemOccurrenceAmount(
-  item: CartItem,
-  audience: Audience
-): number {
+export function itemAmount(item: CartItem): number {
   const minutes = timeToMinutes(item.endTime) - timeToMinutes(item.startTime);
-  return priceForMinutes(
-    audience === "group" ? item.groupHourlyRate : item.hourlyRate,
-    minutes
-  );
-}
-
-export function itemAmount(item: CartItem, audience: Audience): number {
-  return itemOccurrenceAmount(item, audience) * item.weeks;
+  const rate =
+    item.audience === "group" ? item.groupHourlyRate : item.hourlyRate;
+  return priceForMinutes(rate, minutes) * item.weeks;
 }
 
 export function cartTotal(state: CartState): number {
-  return state.items.reduce(
-    (total, item) => total + itemAmount(item, state.audience),
-    0
-  );
+  return state.items.reduce((total, item) => total + itemAmount(item), 0);
 }
 
 export function lastDateOf(item: Pick<CartItem, "date" | "weeks">): string {
@@ -121,13 +110,16 @@ export function lastDateOf(item: Pick<CartItem, "date" | "weeks">): string {
 }
 
 export function toRentalItems(items: readonly CartItem[]): RentalItemInput[] {
-  return items.map(({ studioIds, date, startTime, endTime, weeks }) => ({
-    studioIds,
-    date,
-    startTime,
-    endTime,
-    weeks,
-  }));
+  return items.map(
+    ({ studioIds, audience, date, startTime, endTime, weeks }) => ({
+      studioIds,
+      audience,
+      date,
+      startTime,
+      endTime,
+      weeks,
+    })
+  );
 }
 
 export type AddResult =
@@ -159,6 +151,7 @@ function readItem(value: unknown): CartItem | null {
     typeof item.id !== "string" ||
     typeof item.spaceKey !== "string" ||
     typeof item.spaceName !== "string" ||
+    (item.audience !== "private" && item.audience !== "group") ||
     typeof item.date !== "string" ||
     !isDateKey(item.date) ||
     typeof item.startTime !== "string" ||
@@ -181,6 +174,7 @@ function readItem(value: unknown): CartItem | null {
     spaceKey: item.spaceKey,
     studioIds: studioIds as number[],
     spaceName: item.spaceName,
+    audience: item.audience,
     date: item.date,
     startTime: item.startTime,
     endTime: item.endTime,
@@ -194,15 +188,14 @@ function readItem(value: unknown): CartItem | null {
 export function restoreCart(raw: unknown, today: string): CartState {
   if (typeof raw !== "object" || raw === null) return EMPTY_CART;
   const value = raw as Record<string, unknown>;
-  const audience: Audience = value.audience === "group" ? "group" : "private";
   const items = (Array.isArray(value.items) ? value.items : [])
     .map(readItem)
     .filter((item): item is CartItem => item !== null && item.date >= today);
 
   const kept: CartItem[] = [];
   for (const item of items) {
-    const result = addItem({ audience, items: kept }, item);
+    const result = addItem({ items: kept }, item);
     if (result.ok) kept.push(item);
   }
-  return { audience, items: kept };
+  return { items: kept };
 }

@@ -27,7 +27,7 @@ import {
   type Occurrence,
 } from "./rules";
 
-export const HOLD_GRACE_MINUTES = 10;
+const HOLD_GRACE_MINUTES = 10;
 
 export type ReservationStatus =
   | "checkout_pending"
@@ -45,6 +45,7 @@ export type QuotedOccurrence = {
 
 export type QuotedItem = {
   itemIndex: number;
+  audience: Audience;
   spaceKey: string;
   spaceName: string;
   studioIds: number[];
@@ -56,7 +57,6 @@ export type QuotedItem = {
 
 export type OrderQuote = {
   currency: string;
-  audience: Audience;
   items: QuotedItem[];
   total: number;
   available: boolean;
@@ -95,7 +95,6 @@ function studioRate(studio: StudioRow, audience: Audience): number {
 async function priceOrder(
   sql: SqlExecutor,
   items: readonly RentalItemInput[],
-  audience: Audience,
   now: Date
 ): Promise<PricedOccurrence[]> {
   const occurrences = expandItems(items);
@@ -120,6 +119,7 @@ async function priceOrder(
       };
     }
     const minutes = occurrence.end - occurrence.start;
+    const { audience } = items[occurrence.itemIndex];
     const lines = occurrence.studioIds.map(studioId => {
       const studio = studios.find(row => row.id === studioId) as StudioRow;
       return {
@@ -149,14 +149,14 @@ async function priceOrder(
 function toQuote(
   items: readonly RentalItemInput[],
   priced: readonly PricedOccurrence[],
-  audience: Audience,
   currency: string
 ): OrderQuote {
-  const quotedItems: QuotedItem[] = items.map((_item, itemIndex) => {
+  const quotedItems: QuotedItem[] = items.map(({ audience }, itemIndex) => {
     const occurrences = priced.filter(o => o.itemIndex === itemIndex);
     const first = occurrences[0];
     return {
       itemIndex,
+      audience,
       spaceKey: first.space.key,
       spaceName: first.space.name,
       studioIds: first.studioIds,
@@ -178,7 +178,6 @@ function toQuote(
 
   return {
     currency,
-    audience,
     items: quotedItems,
     total: priced.reduce((total, o) => total + o.amount, 0),
     available: priced.every(o => o.problem === null),
@@ -187,17 +186,21 @@ function toQuote(
 
 export async function quoteOrder(input: {
   items: RentalItemInput[];
-  audience: Audience;
   currency: string;
   now?: Date;
 }): Promise<OrderQuote> {
   const priced = await priceOrder(
     getSql(),
     input.items,
-    input.audience,
     input.now ?? new Date()
   );
-  return toQuote(input.items, priced, input.audience, input.currency);
+  return toQuote(input.items, priced, input.currency);
+}
+
+/** The rate every item shares, or null when the order mixes both. */
+function sharedAudience(items: readonly RentalItemInput[]): Audience | null {
+  const audiences = new Set(items.map(item => item.audience));
+  return audiences.size === 1 ? items[0].audience : null;
 }
 
 export async function expireStaleReservations(sql: SqlExecutor): Promise<void> {
@@ -232,7 +235,6 @@ export async function lockStudioDates(
 export type CreateHoldInput = {
   id: string;
   items: RentalItemInput[];
-  audience: Audience;
   customerName: string;
   customerEmail: string;
   customerPhone?: string;
@@ -268,13 +270,8 @@ export async function createReservationHold(
     );
     await expireStaleReservations(sql);
 
-    const priced = await priceOrder(
-      sql,
-      input.items,
-      input.audience,
-      input.now ?? new Date()
-    );
-    const quote = toQuote(input.items, priced, input.audience, input.currency);
+    const priced = await priceOrder(sql, input.items, input.now ?? new Date());
+    const quote = toQuote(input.items, priced, input.currency);
     if (!quote.available) return { status: "unavailable" as const, quote };
     if (quote.total <= 0) {
       throw new BookingError(
@@ -290,7 +287,7 @@ export async function createReservationHold(
         "createdAt", "updatedAt"
       ) VALUES (
         ${input.id}, ${input.customerName}, ${input.customerEmail},
-        ${input.customerPhone ?? null}, ${input.audience}, ${input.notes ?? null},
+        ${input.customerPhone ?? null}, ${sharedAudience(input.items)}, ${input.notes ?? null},
         ${quote.total}, ${input.currency}, 'checkout_pending', ${input.cancelTokenHash},
         ${holdExpiresAt.toISOString()}::timestamptz, NOW(), NOW()
       )
@@ -302,13 +299,14 @@ export async function createReservationHold(
           INSERT INTO bookings (
             "reservationId", "studioId", "userName", "userEmail", "userPhone",
             "bookingDate", "startTime", "endTime", duration, "totalPrice", status,
-            "specialRequests", "createdAt", "updatedAt"
+            audience, "specialRequests", "createdAt", "updatedAt"
           ) VALUES (
             ${input.id}, ${line.studioId}, ${input.customerName}, ${input.customerEmail},
             ${input.customerPhone ?? null}, ${occurrence.date}::date + TIME '12:00',
             ${minutesToTime(occurrence.start)}, ${minutesToTime(occurrence.end)},
             ${occurrence.end - occurrence.start}, ${line.amount}, 'pending',
-            ${input.notes ?? null}, NOW(), NOW()
+            ${input.items[occurrence.itemIndex].audience}, ${input.notes ?? null},
+            NOW(), NOW()
           )
         `;
       }
@@ -384,10 +382,10 @@ export type ReservationSummary = {
   status: ReservationStatus;
   amountTotal: number;
   currency: string;
-  audience: Audience;
   customerEmail: string;
   items: {
     spaceName: string;
+    audience: Audience;
     date: string;
     startTime: string;
     endTime: string;
@@ -413,7 +411,8 @@ export async function getReservationSummary(
     }[]
   >`
     SELECT
-      r.id, r.status, r."amountTotal", r.currency, r.audience, r."userEmail",
+      r.id, r.status, r."amountTotal", r.currency, r."userEmail",
+      COALESCE(b.audience, r.audience, 'private') AS audience,
       to_char(b."bookingDate", 'YYYY-MM-DD') AS date,
       b."startTime", b."endTime", s.name AS "studioName"
     FROM reservations AS r
@@ -427,14 +426,21 @@ export async function getReservationSummary(
 
   const grouped = new Map<
     string,
-    { date: string; startTime: string; endTime: string; names: string[] }
+    {
+      date: string;
+      startTime: string;
+      endTime: string;
+      audience: Audience;
+      names: string[];
+    }
   >();
   for (const row of rows) {
-    const key = `${row.date}|${row.startTime}|${row.endTime}`;
+    const key = `${row.date}|${row.startTime}|${row.endTime}|${row.audience}`;
     const entry = grouped.get(key) ?? {
       date: row.date,
       startTime: row.startTime,
       endTime: row.endTime,
+      audience: row.audience,
       names: [],
     };
     entry.names.push(row.studioName);
@@ -447,12 +453,12 @@ export async function getReservationSummary(
     status: first.status,
     amountTotal: first.amountTotal,
     currency: first.currency,
-    audience: first.audience,
     customerEmail: first.userEmail,
     items: Array.from(grouped.values()).map(entry => ({
       spaceName: isStudioXCombination(entry.names)
         ? STUDIO_X_NAME
         : entry.names.join(" + "),
+      audience: entry.audience,
       date: entry.date,
       startTime: entry.startTime,
       endTime: entry.endTime,

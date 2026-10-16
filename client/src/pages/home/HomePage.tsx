@@ -70,13 +70,15 @@ export default function HomePage() {
         ))}
       </nav>
 
-      <section className="container home-cta" aria-labelledby="home-cta-title">
-        <h2 id="home-cta-title" className="section-title home-cta__title">
-          {t("home.cta.title")}
-        </h2>
-        <Link href={PATHS.contact} className="button button--primary">
-          {t("home.cta.action")}
-        </Link>
+      <section className="home-cta" aria-labelledby="home-cta-title">
+        <div className="container home-cta__inner">
+          <h2 id="home-cta-title" className="section-title home-cta__title">
+            {t("home.cta.title")}
+          </h2>
+          <Link href={PATHS.contact} className="button button--primary">
+            {t("home.cta.action")}
+          </Link>
+        </div>
       </section>
     </>
   );

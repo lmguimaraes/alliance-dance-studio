@@ -18,6 +18,7 @@ describe("expandItem", () => {
     const occurrences = expandItem(
       {
         studioIds: [7, 6],
+        audience: "private",
         date: "2026-10-15",
         startTime: "10:00",
         endTime: "12:00",
@@ -40,6 +41,7 @@ describe("expandItem", () => {
   it("rejects malformed requests", () => {
     const base = {
       studioIds: [1],
+      audience: "private" as const,
       date: "2026-10-16",
       startTime: "10:00",
       endTime: "11:00",
@@ -61,11 +63,15 @@ describe("expandItem", () => {
     expect(() => expandItem({ ...base, date: "2026-02-30" }, 0)).toThrow(
       BookingError
     );
+    expect(() =>
+      expandItem({ ...base, audience: "vip" as unknown as "group" }, 0)
+    ).toThrow(BookingError);
   });
 
   it("caps the size of an order", () => {
     const item = {
       studioIds: [1],
+      audience: "private" as const,
       date: "2026-10-16",
       startTime: "10:00",
       endTime: "11:00",
@@ -81,6 +87,7 @@ describe("evaluateOccurrence", () => {
   const at = (date: string, start: number, end: number) => ({
     itemIndex: 0,
     studioIds: [1],
+    audience: "private",
     date,
     start,
     end,

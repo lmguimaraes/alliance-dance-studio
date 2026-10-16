@@ -203,11 +203,15 @@
     "intro": "Pick a studio, choose a start and an end time, and add it to your cart.",
     "chooseDay": "Choose a date",
     "timeZoneNote": "Times are shown in Montreal time. Bookings start on the hour or half hour, from 1 to 8 hours.",
-    "type": {
+    "audience": {
       "label": "Rental type",
       "private": "Private",
-      "group": "Group"
+      "group": "Group",
+      "privateRental": "Private rental",
+      "groupRental": "Group rental"
     },
+    "ratePerHour": "{{amount}}/h",
+    "extraOptions": "Extra options",
     "legend": {
       "label": "Legend"
     },
@@ -239,7 +243,7 @@
       "clear": "Clear"
     },
     "repeat": {
-      "label": "Number of weeks",
+      "label": "Repeat weekly",
       "once": "Books this date only.",
       "weeks_one": "{{count}} week",
       "weeks_other": "{{count}} weeks",
@@ -283,8 +287,6 @@
     "summary": "Order summary",
     "addMore": "Add another booking",
     "total": "Total",
-    "privateRate": "Private rate",
-    "groupRate": "Group rate",
     "pay": "Pay with Stripe",
     "redirecting": "Opening Stripe",
     "stripeNote": "You'll pay on Stripe's secure checkout. Your times are held for 30 minutes while you pay.",

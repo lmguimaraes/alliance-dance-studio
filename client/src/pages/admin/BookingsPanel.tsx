@@ -2,7 +2,7 @@ import { useMemo, useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
-import { studioNow } from "@shared/booking";
+import { studioNow, type Audience } from "@shared/booking";
 import Dialog from "@/components/Dialog";
 import { useFormat } from "@/lib/format";
 import { trpc } from "@/lib/trpc";
@@ -25,6 +25,7 @@ type Booking = {
   startTime: string;
   endTime: string;
   status: Status;
+  audience: Audience | null;
   customerName: string;
   customerEmail: string;
   customerPhone: string | null;
@@ -290,7 +291,14 @@ export default function BookingsPanel({
                     <td className="tabular">
                       {format.timeRange(booking.startTime, booking.endTime)}
                     </td>
-                    <td>{booking.studioName}</td>
+                    <td>
+                      <div>{booking.studioName}</div>
+                      {booking.audience && (
+                        <div className="admin-table__sub">
+                          {t(`rental.audience.${booking.audience}`)}
+                        </div>
+                      )}
+                    </td>
                     <td>
                       <div>{booking.customerName}</div>
                       <div className="admin-table__sub">

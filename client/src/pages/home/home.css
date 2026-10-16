@@ -1,5 +1,31 @@
 .home-hero {
+  position: relative;
+  isolation: isolate;
+  overflow: clip;
   padding-block: clamp(3.5rem, 10vw, 8rem) clamp(3rem, 7vw, 5.5rem);
+}
+
+/* A single stage beam crossing the headline from the top left. */
+.home-hero::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: -40%;
+  left: -20%;
+  width: 95%;
+  height: 160%;
+  background: linear-gradient(
+    118deg,
+    transparent 36%,
+    rgba(168, 38, 60, 0.38) 44%,
+    rgba(113, 19, 35, 0.14) 51%,
+    transparent 60%
+  );
+  filter: blur(24px);
+  /* Fade out before the edge of the hero so the beam has no hard end. */
+  -webkit-mask-image: linear-gradient(180deg, #000 40%, transparent 78%);
+  mask-image: linear-gradient(180deg, #000 40%, transparent 78%);
+  pointer-events: none;
 }
 
 .home-hero__layout {
@@ -68,6 +94,12 @@
   padding: 1.5rem 1.25rem 1.5rem 0;
   border-top: 1px solid var(--color-line);
   text-decoration: none;
+  transition: background-color var(--duration-base) ease;
+}
+
+.pillars-strip__item:hover,
+.pillars-strip__item:focus-visible {
+  background-color: var(--color-burgundy-wash);
 }
 
 .pillars-strip__item:nth-child(even) {
@@ -122,11 +154,29 @@
   }
 }
 
+/* Closing call to action on a lit stage floor. */
 .home-cta {
+  margin-top: var(--section-gap);
+  padding-block: clamp(4rem, 10vw, 7rem);
+  background:
+    radial-gradient(
+      ellipse 75% 38% at 50% 78%,
+      rgba(168, 38, 60, 0.5),
+      transparent 75%
+    ),
+    linear-gradient(
+      180deg,
+      transparent,
+      var(--color-burgundy-deep) 30%,
+      var(--color-burgundy) 78%,
+      var(--color-burgundy-deep)
+    );
+}
+
+.home-cta__inner {
   display: grid;
   gap: 2rem;
   justify-items: start;
-  padding-top: var(--section-gap);
 }
 
 .home-cta__title {
@@ -134,8 +184,13 @@
 }
 
 @media (min-width: 900px) {
-  .home-cta {
+  .home-cta__inner {
     grid-template-columns: 1fr auto;
     align-items: end;
   }
+}
+
+/* The call to action already ends on the stage edge. */
+.site-main:has(.home-cta) + .site-footer {
+  margin-top: 0;
 }

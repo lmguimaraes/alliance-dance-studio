@@ -203,11 +203,15 @@
     "intro": "Choisissez un studio, une heure de début et une heure de fin, puis ajoutez-le à votre panier.",
     "chooseDay": "Choisir une date",
     "timeZoneNote": "Les heures sont indiquées à l'heure de Montréal. Les réservations commencent à l'heure ou à la demi-heure, de 1 à 8 heures.",
-    "type": {
+    "audience": {
       "label": "Type de location",
       "private": "Privée",
-      "group": "Groupe"
+      "group": "Groupe",
+      "privateRental": "Location privée",
+      "groupRental": "Location de groupe"
     },
+    "ratePerHour": "{{amount}}/h",
+    "extraOptions": "Options supplémentaires",
     "legend": {
       "label": "Légende"
     },
@@ -240,7 +244,7 @@
       "clear": "Effacer"
     },
     "repeat": {
-      "label": "Nombre de semaines",
+      "label": "Répéter chaque semaine",
       "once": "Réserve cette date seulement.",
       "weeks_one": "{{count}} semaine",
       "weeks_many": "{{count}} semaines",
@@ -289,8 +293,6 @@
     "summary": "Récapitulatif",
     "addMore": "Ajouter une autre réservation",
     "total": "Total",
-    "privateRate": "Tarif privé",
-    "groupRate": "Tarif de groupe",
     "pay": "Payer avec Stripe",
     "redirecting": "Ouverture de Stripe",
     "stripeNote": "Vous paierez sur la page sécurisée de Stripe. Vos heures sont retenues pendant 30 minutes le temps du paiement.",

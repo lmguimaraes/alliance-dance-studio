@@ -11,13 +11,13 @@ import {
   minutesToTime,
   SLOT_MINUTES,
   studioNow,
+  type Audience,
   type OccurrenceProblem,
 } from "@shared/booking";
 import DateStrip from "@/components/DateStrip";
 import PageHeader from "@/components/PageHeader";
 import { useCart } from "@/features/cart/CartContext";
 import { cartIntervalsFor, cartTotal } from "@/features/cart/cartModel";
-import RentalTypeToggle from "@/features/cart/RentalTypeToggle";
 import {
   EMPTY_SELECTION,
   previewEnd,
@@ -53,7 +53,10 @@ export default function StudioRentalPage() {
     spaceKey: string;
     index: number;
   } | null>(null);
+  // Remembered between selections: most people book at one rate.
+  const [audience, setAudience] = useState<Audience>("private");
   const [weeks, setWeeks] = useState(1);
+  const [extrasOpen, setExtrasOpen] = useState(false);
   const [message, setMessage] = useState<CardMessage | null>(null);
   const [isAdding, setIsAdding] = useState(false);
 
@@ -98,10 +101,16 @@ export default function StudioRentalPage() {
     if (nothingLeft && day.spaces.length > 0) setDate(addDays(today, 1));
   }, [day, today]);
 
+  // Weekly repeats are opt-in for each selection.
+  function resetExtras() {
+    setWeeks(1);
+    setExtrasOpen(false);
+  }
+
   // A new date starts a new selection.
   useEffect(() => {
     dispatch({ type: "clear" });
-    setWeeks(1);
+    resetExtras();
     setMessage(null);
   }, [date]);
 
@@ -116,6 +125,7 @@ export default function StudioRentalPage() {
     );
     if (reconciled !== selection) {
       dispatch({ type: "clear" });
+      resetExtras();
       if (!announcedLoss.current) {
         announcedLoss.current = true;
         setMessage({
@@ -167,7 +177,7 @@ export default function StudioRentalPage() {
   }
 
   function pick(spaceKey: string, index: number) {
-    if (selection.spaceKey !== spaceKey) setWeeks(1);
+    if (selection.spaceKey !== spaceKey) resetExtras();
     setMessage(null);
     dispatch({
       type: "pick",
@@ -197,6 +207,7 @@ export default function StudioRentalPage() {
     );
     const item = {
       studioIds: space.studioIds,
+      audience,
       date,
       startTime,
       endTime,
@@ -206,10 +217,7 @@ export default function StudioRentalPage() {
     setIsAdding(true);
     setMessage(null);
     try {
-      const quote = await utils.rental.quote.fetch({
-        items: [item],
-        audience: cart.audience,
-      });
+      const quote = await utils.rental.quote.fetch({ items: [item] });
       const problems = quote.items[0].occurrences.filter(
         occurrence => occurrence.problem
       );
@@ -243,7 +251,7 @@ export default function StudioRentalPage() {
       }
 
       dispatch({ type: "clear" });
-      setWeeks(1);
+      resetExtras();
       toast.success(t("rental.added", { name: space.name }), {
         action: { label: t("cart.view"), onClick: openCart },
       });
@@ -272,27 +280,24 @@ export default function StudioRentalPage() {
             onSelect={setDate}
             label={t("rental.chooseDay")}
           />
-          <div className="rental-toolbar__row">
-            <RentalTypeToggle />
-            <ul
-              className="availability-legend"
-              role="list"
-              aria-label={t("rental.legend.label")}
-            >
-              <li className="availability-legend__item availability-legend__item--available">
-                {t("rental.slot.available")}
-              </li>
-              <li className="availability-legend__item availability-legend__item--selected">
-                {t("rental.slot.selected")}
-              </li>
-              <li className="availability-legend__item availability-legend__item--booked">
-                {t("rental.slot.booked")}
-              </li>
-              <li className="availability-legend__item availability-legend__item--in-cart">
-                {t("rental.slot.in_cart")}
-              </li>
-            </ul>
-          </div>
+          <ul
+            className="availability-legend"
+            role="list"
+            aria-label={t("rental.legend.label")}
+          >
+            <li className="availability-legend__item availability-legend__item--available">
+              {t("rental.slot.available")}
+            </li>
+            <li className="availability-legend__item availability-legend__item--selected">
+              {t("rental.slot.selected")}
+            </li>
+            <li className="availability-legend__item availability-legend__item--booked">
+              {t("rental.slot.booked")}
+            </li>
+            <li className="availability-legend__item availability-legend__item--in-cart">
+              {t("rental.slot.in_cart")}
+            </li>
+          </ul>
           <p className="rental-toolbar__note">{t("rental.timeZoneNote")}</p>
         </div>
 
@@ -326,7 +331,7 @@ export default function StudioRentalPage() {
                 today={today}
                 rangeStart={day.range.start}
                 slots={slotsBySpace.get(space.key) ?? []}
-                audience={cart.audience}
+                audience={audience}
                 currency={day.currency}
                 selection={selection}
                 previewEndIndex={
@@ -341,6 +346,7 @@ export default function StudioRentalPage() {
                     : null
                 }
                 weeks={selection.spaceKey === space.key ? weeks : 1}
+                extrasOpen={selection.spaceKey === space.key && extrasOpen}
                 notice={
                   message?.spaceKey === space.key
                     ? message.text
@@ -355,10 +361,17 @@ export default function StudioRentalPage() {
                     index === null ? null : { spaceKey: space.key, index }
                   )
                 }
+                onAudienceChange={setAudience}
+                onExtrasToggle={() => {
+                  // Closing the options drops the repeat.
+                  if (extrasOpen) setWeeks(1);
+                  setExtrasOpen(!extrasOpen);
+                }}
                 onWeeksChange={setWeeks}
                 onAdd={() => void addSelection()}
                 onClear={() => {
                   dispatch({ type: "clear" });
+                  resetExtras();
                   setMessage(null);
                 }}
               />

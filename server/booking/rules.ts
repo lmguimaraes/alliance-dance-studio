@@ -73,6 +73,9 @@ export function expandItem(
   ) {
     throw new BookingError("BAD_REQUEST", "Times must use the HH:MM format.");
   }
+  if (item.audience !== "private" && item.audience !== "group") {
+    throw new BookingError("BAD_REQUEST", "Choose a private or group rental.");
+  }
   if (
     !Number.isInteger(item.weeks) ||
     item.weeks < 1 ||
@@ -123,7 +126,7 @@ export function expandItems(items: readonly RentalItemInput[]): Occurrence[] {
   return occurrences;
 }
 
-export function normalizeStudioIds(studioIds: readonly number[]): number[] {
+function normalizeStudioIds(studioIds: readonly number[]): number[] {
   const normalized = Array.from(new Set(studioIds)).sort((a, b) => a - b);
   if (
     normalized.length < 1 ||

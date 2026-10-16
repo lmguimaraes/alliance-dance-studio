@@ -11,10 +11,24 @@ html {
   scroll-padding-top: calc(var(--header-height) + 1rem);
 }
 
+/*
+ * The stage: a burgundy light falls on the top of every page and scrolls away
+ * with the title. A low floor light and a faint film grain stay with the
+ * screen, so burgundy is present wherever you are on the page.
+ */
 body {
   margin: 0;
   min-height: 100vh;
-  background: var(--color-black);
+  background-color: var(--color-black);
+  background-image:
+    radial-gradient(
+      ellipse 60% 640px at 24% -160px,
+      var(--color-burgundy-light),
+      rgba(113, 19, 35, 0.16) 55%,
+      transparent 82%
+    ),
+    linear-gradient(180deg, var(--color-burgundy-deep), transparent 960px);
+  background-repeat: no-repeat;
   color: var(--color-ivory);
   font-family: var(--font-body);
   font-size: var(--text-base);
@@ -23,6 +37,28 @@ body {
   font-feature-settings: "kern", "liga";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+body::before {
+  background: radial-gradient(
+    ellipse 90% 38% at 50% 114%,
+    var(--color-burgundy-light),
+    transparent 72%
+  );
+}
+
+body::after {
+  background-image: var(--texture-grain);
+  opacity: 0.045;
 }
 
 h1,

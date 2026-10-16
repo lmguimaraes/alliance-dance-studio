@@ -75,6 +75,7 @@ describe.skipIf(!TEST_DATABASE_URL)(
     let db: typeof import("./db");
     let orders: typeof import("./booking/orders");
     let studio5 = 0;
+    let studio6 = 0;
     const date = addDays(studioNow().dateKey, 12);
     const reservationIds = () =>
       Array.from(fake.sessions.values()).map(
@@ -82,7 +83,6 @@ describe.skipIf(!TEST_DATABASE_URL)(
       );
 
     const customer = {
-      audience: "private" as const,
       customerName: "Stripe Test",
       customerEmail: "stripe@example.com",
       locale: "fr" as const,
@@ -97,10 +97,13 @@ describe.skipIf(!TEST_DATABASE_URL)(
       stripe = await import("./stripe");
       db = await import("./db");
       orders = await import("./booking/orders");
-      const [row] = await db.getSql()<{ id: number }[]>`
-      SELECT id FROM studios WHERE name = 'Studio 5' AND "isActive" ORDER BY id LIMIT 1
-    `;
-      studio5 = row.id;
+      const rows = await db.getSql()<{ id: number; name: string }[]>`
+        SELECT DISTINCT ON (name) id, name FROM studios
+        WHERE name IN ('Studio 5', 'Studio 6') AND "isActive"
+        ORDER BY name, id
+      `;
+      studio5 = rows.find(row => row.name === "Studio 5")!.id;
+      studio6 = rows.find(row => row.name === "Studio 6")!.id;
     });
 
     afterAll(async () => {
@@ -120,10 +123,19 @@ describe.skipIf(!TEST_DATABASE_URL)(
         items: [
           {
             studioIds: [studio5],
+            audience: "private",
             date,
             startTime: "10:00",
             endTime: "12:00",
             weeks: 3,
+          },
+          {
+            studioIds: [studio6],
+            audience: "group",
+            date,
+            startTime: "10:00",
+            endTime: "11:00",
+            weeks: 1,
           },
         ],
       });
@@ -131,11 +143,21 @@ describe.skipIf(!TEST_DATABASE_URL)(
 
       const { params, options } = fake.createCalls.at(-1)!;
       expect(params.locale).toBe("fr");
-      expect(params.line_items).toHaveLength(1);
+      expect(params.line_items).toHaveLength(2);
       expect(params.line_items[0]).toMatchObject({
         quantity: 3,
         price_data: { unit_amount: 3000 },
       });
+      expect(params.line_items[0].price_data.product_data.description).toMatch(
+        /Tarif privé\.$/
+      );
+      expect(params.line_items[1]).toMatchObject({
+        quantity: 1,
+        price_data: { unit_amount: 2200 },
+      });
+      expect(params.line_items[1].price_data.product_data.description).toMatch(
+        /Tarif de groupe\.$/
+      );
       expect(params.success_url).toBe(
         "https://alliance.example/studio-rental/checkout?checkout=success&session_id={CHECKOUT_SESSION_ID}"
       );
@@ -148,13 +170,13 @@ describe.skipIf(!TEST_DATABASE_URL)(
         items: [
           {
             studioIds: [studio5],
+            audience: "private",
             date: addDays(date, 7),
             startTime: "11:00",
             endTime: "13:00",
             weeks: 1,
           },
         ],
-        audience: "private",
         currency: "cad",
       });
       expect(quote.items[0].occurrences[0].problem).toBe("booked");
@@ -167,6 +189,7 @@ describe.skipIf(!TEST_DATABASE_URL)(
         items: [
           {
             studioIds: [studio5],
+            audience: "private",
             date,
             startTime: "11:00",
             endTime: "12:00",
@@ -186,8 +209,13 @@ describe.skipIf(!TEST_DATABASE_URL)(
 
       const summary = await stripe.fulfillCheckoutSession(session.id);
       expect(summary.status).toBe("paid");
-      expect(summary.items).toHaveLength(3);
-      expect(summary.amountTotal).toBe(9000);
+      expect(summary.items.map(item => item.audience)).toEqual([
+        "private",
+        "group",
+        "private",
+        "private",
+      ]);
+      expect(summary.amountTotal).toBe(9000 + 2200);
     });
 
     it("cancels an open session and releases the hold", async () => {
@@ -196,6 +224,7 @@ describe.skipIf(!TEST_DATABASE_URL)(
         items: [
           {
             studioIds: [studio5],
+            audience: "private",
             date,
             startTime: "15:00",
             endTime: "16:00",
@@ -224,13 +253,13 @@ describe.skipIf(!TEST_DATABASE_URL)(
         items: [
           {
             studioIds: [studio5],
+            audience: "private",
             date,
             startTime: "15:00",
             endTime: "16:00",
             weeks: 1,
           },
         ],
-        audience: "private",
         currency: "cad",
       });
       expect(quote.available).toBe(true);
@@ -296,6 +325,7 @@ describe.skipIf(!TEST_DATABASE_URL)(
         items: [
           {
             studioIds: [studio5],
+            audience: "private",
             date,
             startTime: "18:00",
             endTime: "19:00",

@@ -6,7 +6,6 @@ import { useFormat } from "@/lib/format";
 import { useCart } from "./CartContext";
 import { cartTotal, itemAmount } from "./cartModel";
 import CartItemSummary from "./CartItemSummary";
-import RentalTypeToggle from "./RentalTypeToggle";
 import "./cart.css";
 
 export default function CartDrawer() {
@@ -64,27 +63,21 @@ export default function CartDrawer() {
           </Link>
         </div>
       ) : (
-        <div className="cart-drawer__content">
-          <RentalTypeToggle />
-          <ul className="cart-list" role="list">
-            {cart.items.map(item => (
-              <li key={item.id} className="cart-item">
-                <CartItemSummary
-                  item={item}
-                  amount={itemAmount(item, cart.audience)}
-                />
-                <button
-                  type="button"
-                  className="button button--quiet cart-item__remove"
-                  onClick={() => remove(item.id)}
-                  aria-label={t("cart.removeItem", { name: item.spaceName })}
-                >
-                  {t("cart.remove")}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
+        <ul className="cart-list" role="list">
+          {cart.items.map(item => (
+            <li key={item.id} className="cart-item">
+              <CartItemSummary item={item} amount={itemAmount(item)} />
+              <button
+                type="button"
+                className="button button--quiet cart-item__remove"
+                onClick={() => remove(item.id)}
+                aria-label={t("cart.removeItem", { name: item.spaceName })}
+              >
+                {t("cart.remove")}
+              </button>
+            </li>
+          ))}
+        </ul>
       )}
     </Dialog>
   );

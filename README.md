@@ -6,15 +6,15 @@ Built with React 19 and Vite on the front end, and Express, tRPC and PostgreSQL 
 
 ## Pages
 
-| Path | What it does |
-| --- | --- |
-| `/` | Home: hero and the four ways into Alliance |
-| `/discover/:section` | Directors, Company, Dancers, Our story, Awards, Teams, Gallery (Instagram feed and studios) |
-| `/classes` | Weekly schedule by day with class type, level and instructor filters; pass purchase through Stripe Payment Links |
-| `/studio-rental` | Live studio availability. Pick a start and end time on a studio, repeat it weekly for up to 4 weeks, add it to the cart |
-| `/studio-rental/checkout` | Booking summary with live prices, customer details, payment with Stripe Checkout, confirmation |
-| `/contact` | Contact details and an email form |
-| `/admin` | Admin panel (password) |
+| Path                      | What it does                                                                                                                                                                        |
+| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/`                       | Home: hero and the four ways into Alliance                                                                                                                                          |
+| `/discover/:section`      | Directors, Company, Dancers, Our story, Awards, Teams, Gallery (Instagram feed and studios)                                                                                         |
+| `/classes`                | Weekly schedule by day with class type, level and instructor filters; pass purchase through Stripe Payment Links                                                                    |
+| `/studio-rental`          | Live studio availability. Pick a start and end time on a studio, choose private or group, optionally repeat it weekly for up to 4 weeks (under "Extra options"), add it to the cart |
+| `/studio-rental/checkout` | Booking summary with live prices, customer details, payment with Stripe Checkout, confirmation                                                                                      |
+| `/contact`                | Contact details and an email form                                                                                                                                                   |
+| `/admin`                  | Admin panel (password)                                                                                                                                                              |
 
 `/about` and `/gallery` redirect to their Discover sections.
 
@@ -32,11 +32,12 @@ pnpm dev                  # applies database migrations, then starts on APP_URL
 
 Migrations live in `database/migrations` and are applied in file-name order by `pnpm db:migrate`, which `pnpm dev` and `pnpm start` run automatically. Applied files are recorded in `_appMigrations` with a checksum, so never edit a migration after it has run; add a new file instead.
 
-| Migration | Purpose |
-| --- | --- |
-| `20260801_base_schema.sql` | Creates the core tables on an empty database. No-op on the existing Supabase database. |
-| `20260909_alpha_rebuild.sql` | Earlier schema normalisation (already applied in production). |
-| `20261015_classes_passes_discover.sql` | Adds `classes`, `class_passes` and `discover_entries`, seeds the current class schedule and pass links, and enables row level security (see below). |
+| Migration                                  | Purpose                                                                                                                                             |
+| ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `20260801_base_schema.sql`                 | Creates the core tables on an empty database. No-op on the existing Supabase database.                                                              |
+| `20260909_alpha_rebuild.sql`               | Earlier schema normalisation (already applied in production).                                                                                       |
+| `20261015_classes_passes_discover.sql`     | Adds `classes`, `class_passes` and `discover_entries`, seeds the current class schedule and pass links, and enables row level security (see below). |
+| `20261016_rental_audience_per_booking.sql` | Stores private or group on each booking (`bookings.audience`), so one order can mix both. `reservations.audience` becomes NULL for mixed orders.    |
 
 To apply a migration by hand instead, paste it into the Supabase SQL editor and then record it so the app skips it:
 
@@ -56,6 +57,7 @@ The site connects to PostgreSQL directly, as the owner of its tables, so RLS nev
 - Availability comes from each studio's weekly opening hours (Admin → Studios). Time is busy when it is held or paid in `bookings`, booked by staff, active in the earlier `studio_booking_items` system, or used by a class assigned to that studio.
 - Studio X is Studio 6 and Studio 7 booked together: open when both are open, busy when either is busy.
 - Bookings start and end on the half hour, last 1 to 8 hours, and can start up to 60 days ahead. Weekly repeats (up to 4 weeks) may run three weeks past that.
+- Private or group is chosen for each booking once a time range is picked, and priced at that studio's private or group hourly rate. The admin panel shows which one each online booking was sold at.
 - At checkout the server re-checks every date under per-studio locks, writes a hold, and opens Stripe Checkout. Holds last 31 minutes plus a 10-minute grace period. A signed webhook (or the return page) confirms payment; expired or cancelled sessions release the hold.
 - Prices are always computed on the server from the studio rates.
 
@@ -103,4 +105,6 @@ Required in production: `DATABASE_URL`, an HTTPS `APP_URL`, `JWT_SECRET` (32+ ch
 
 ## Styling
 
-Plain CSS with readable, screen-related class names (`.home-hero`, `.pillars-strip`, `.class-row`, `.studio-card`, `.time-slot--booked`). Design tokens (black, gold, burgundy, type scale) are in `client/src/styles/tokens.css`; each page imports its own stylesheet next to it. Fonts are Antonio and Jost, self-hosted through Fontsource.
+Plain CSS with readable, screen-related class names (`.home-hero`, `.pillars-strip`, `.class-row`, `.studio-card`, `.time-slot--booked`). Design tokens (burgundy `#711323`, black, gold, type scale) are in `client/src/styles/tokens.css`; each page imports its own stylesheet next to it. Fonts are Antonio and Jost, self-hosted through Fontsource.
+
+Burgundy works as stage lighting: a light from above on every page title, a floor light and film grain fixed to the screen (`client/src/styles/base.css`), a lit stage for the home page's closing call to action, and burgundy-tinted cards, lines and footer edge. Gold stays reserved for headlines, prices and buttons.

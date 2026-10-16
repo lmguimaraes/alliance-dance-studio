@@ -1,16 +1,17 @@
 /*
  * Alliance Dance design tokens.
- * Black and gold from the Alliance identity, burgundy from Alliance Dance Co.
+ * Burgundy (#711323) is the company colour: it lights the stage behind every
+ * page and tints the surfaces. Gold is for type and actions; black is the room.
  */
 :root {
   color-scheme: dark;
 
   /* Colour */
   --color-black: #000000;
-  --color-surface: #0c0b09;
-  --color-surface-raised: #15130f;
-  --color-line: #29241d;
-  --color-line-strong: #43392b;
+  --color-surface: #120709;
+  --color-surface-raised: #1c0b0f;
+  --color-line: #33191e;
+  --color-line-strong: #522a32;
   --color-ivory: #f5efe4;
   --color-stone: #aaa194;
   --color-stone-dim: #8a8275;
@@ -18,9 +19,11 @@
   --color-gold-light: #f7df7a;
   --color-gold-deep: #c98a1f;
   --color-gold-wash: rgba(230, 179, 37, 0.12);
-  --color-burgundy: #7f0d1d;
-  --color-burgundy-bright: #b4283f;
-  --color-burgundy-wash: rgba(127, 13, 29, 0.32);
+  --color-burgundy: #711323;
+  --color-burgundy-deep: #2b070e;
+  --color-burgundy-bright: #a8263c;
+  --color-burgundy-wash: rgba(113, 19, 35, 0.32);
+  --color-burgundy-light: rgba(113, 19, 35, 0.55);
   --color-error: #ef9aa6;
   --gradient-gold: linear-gradient(
     180deg,
@@ -28,6 +31,8 @@
     #eab51c 55%,
     #d3871f 100%
   );
+  /* Film grain over the stage light. */
+  --texture-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.6 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
 
   /* Type */
   --font-display:

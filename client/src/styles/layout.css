@@ -83,7 +83,7 @@
   position: sticky;
   top: 0;
   z-index: 40;
-  background: rgba(0, 0, 0, 0.92);
+  background: rgba(14, 4, 7, 0.78);
   border-bottom: 1px solid var(--color-line);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
@@ -290,7 +290,13 @@
   z-index: 39;
   overflow-y: auto;
   padding-block: 1.5rem 3rem;
-  background: var(--color-black);
+  background:
+    radial-gradient(
+      ellipse 90% 45% at 30% 0,
+      var(--color-burgundy-wash),
+      transparent 80%
+    ),
+    var(--color-black);
 }
 
 .mobile-menu__links {
@@ -351,10 +357,16 @@
 
 /* Site footer -------------------------------------------------------------- */
 
+/* The edge of the stage: a burgundy line with its light falling forward. */
 .site-footer {
   margin-top: var(--section-gap);
-  border-top: 1px solid var(--color-line);
+  border-top: 1px solid var(--color-burgundy);
   padding-block: 2.5rem;
+  background: radial-gradient(
+    ellipse 70% 180px at 50% 0,
+    var(--color-burgundy-wash),
+    transparent 80%
+  );
   font-size: var(--text-sm);
 }
 

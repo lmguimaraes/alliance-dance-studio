@@ -14,6 +14,7 @@ const item = (overrides: Partial<CartItem> = {}): CartItem => ({
   spaceKey: "studio-6",
   studioIds: [6],
   spaceName: "Studio 6",
+  audience: "private",
   date: "2026-10-20",
   startTime: "10:00",
   endTime: "12:00",
@@ -24,10 +25,19 @@ const item = (overrides: Partial<CartItem> = {}): CartItem => ({
 });
 
 describe("cart model", () => {
-  it("prices items for the selected rental type", () => {
-    const state = { audience: "private" as const, items: [item({ weeks: 3 })] };
-    expect(cartTotal(state)).toBe(9000);
-    expect(cartTotal({ ...state, audience: "group" })).toBe(13200);
+  it("prices each item at its own rate", () => {
+    expect(cartTotal({ items: [item({ weeks: 3 })] })).toBe(9000);
+    expect(cartTotal({ items: [item({ weeks: 3, audience: "group" })] })).toBe(
+      13200
+    );
+    expect(
+      cartTotal({
+        items: [
+          item(),
+          item({ id: "b", date: "2026-10-21", audience: "group" }),
+        ],
+      })
+    ).toBe(3000 + 4400);
   });
 
   it("detects overlaps across studios that share a room and across weeks", () => {
@@ -89,17 +99,16 @@ describe("cart model", () => {
   it("restores only valid, upcoming items from storage", () => {
     const restored = restoreCart(
       {
-        audience: "group",
         items: [
           item(),
           item({ id: "past", date: "2026-10-01" }),
           { ...item({ id: "bad" }), endTime: "09:00" },
+          { ...item({ id: "no-rate", date: "2026-10-22" }), audience: "vip" },
           "garbage",
         ],
       },
       "2026-10-15"
     );
-    expect(restored.audience).toBe("group");
     expect(restored.items.map(entry => entry.id)).toEqual(["a"]);
     expect(restoreCart(null, "2026-10-15")).toEqual(EMPTY_CART);
   });

@@ -2,11 +2,7 @@ import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
 import type { RequestHandler } from "express";
 import { nanoid } from "nanoid";
 import Stripe from "stripe";
-import {
-  dateKeyToDate,
-  type Audience,
-  type RentalItemInput,
-} from "../shared/booking";
+import { dateKeyToDate, type RentalItemInput } from "../shared/booking";
 import { ENV } from "./_core/env";
 import {
   attachCheckoutSession,
@@ -62,7 +58,7 @@ function getStripe(): Stripe {
   return stripeClient;
 }
 
-export function hashCancellationToken(token: string): string {
+function hashCancellationToken(token: string): string {
   return createHash("sha256").update(token, "utf8").digest("hex");
 }
 
@@ -115,7 +111,7 @@ function lineItems(
     const dates = item.occurrences
       .map(o => formatDate(o.date, locale))
       .join(", ");
-    const rate = quote.audience === "group" ? text.group : text.private;
+    const rate = item.audience === "group" ? text.group : text.private;
     return {
       quantity: item.occurrences.length,
       price_data: {
@@ -136,7 +132,6 @@ export type CheckoutResult =
 
 export async function createStripeCheckout(input: {
   items: RentalItemInput[];
-  audience: Audience;
   customerName: string;
   customerEmail: string;
   customerPhone?: string;
@@ -152,7 +147,6 @@ export async function createStripeCheckout(input: {
   const hold = await createReservationHold({
     id: reservationId,
     items: input.items,
-    audience: input.audience,
     customerName: input.customerName,
     customerEmail: input.customerEmail,
     customerPhone: input.customerPhone,

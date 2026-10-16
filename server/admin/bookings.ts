@@ -5,6 +5,7 @@ import {
   priceForMinutes,
   studioNow,
   timeToMinutes,
+  type Audience,
 } from "../../shared/booking";
 import { getSql, inTransaction, type SqlExecutor } from "../db";
 import {
@@ -29,6 +30,8 @@ export type AdminBooking = {
   startTime: string;
   endTime: string;
   status: AdminBookingStatus;
+  /** Rate sold online; null for staff and legacy bookings. */
+  audience: Audience | null;
   customerName: string;
   customerEmail: string;
   customerPhone: string | null;
@@ -73,6 +76,7 @@ export async function listAdminBookings(input: {
       userPhone: string | null;
       specialRequests: string | null;
       totalPrice: number;
+      audience: Audience | null;
       reservationId: string | null;
       paymentStatus: AdminBooking["paymentStatus"];
       stripePaymentIntentId: string | null;
@@ -92,6 +96,7 @@ export async function listAdminBookings(input: {
       b."userPhone",
       b."specialRequests",
       b."totalPrice",
+      b.audience,
       b."reservationId",
       r.status AS "paymentStatus",
       r."stripePaymentIntentId",
@@ -162,6 +167,7 @@ export async function listAdminBookings(input: {
     startTime: row.startTime,
     endTime: row.endTime,
     status: row.status,
+    audience: row.audience,
     customerName: row.userName,
     customerEmail: row.userEmail,
     customerPhone: row.userPhone,
@@ -212,6 +218,7 @@ export async function listAdminBookings(input: {
       startTime: minutesToTime(interval.start),
       endTime: minutesToTime(interval.end),
       status,
+      audience: null,
       customerName: row.customerName,
       customerEmail: row.customerEmail,
       customerPhone: row.customerPhone,

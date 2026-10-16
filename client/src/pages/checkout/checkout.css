@@ -88,7 +88,6 @@
   line-height: 1;
 }
 
-.order-summary__rate,
 .order-summary__note {
   color: var(--color-stone-dim);
   font-size: var(--text-xs);
