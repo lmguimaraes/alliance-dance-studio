@@ -43,7 +43,6 @@
   --text-base: 1rem;
   --text-lg: 1.125rem;
   --text-xl: 1.3125rem;
-  --display-hero: clamp(3.25rem, 9.5vw, 7rem);
   --display-title: clamp(2.75rem, 7.5vw, 5.25rem);
   --display-section: clamp(1.9rem, 4vw, 2.75rem);
 

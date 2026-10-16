@@ -209,26 +209,28 @@ function StudioEditor({
                 </option>
               ))}
             </select>
-            <input
-              className="field__input"
-              type="time"
-              step={1800}
-              aria-label={t("admin.studios.opens")}
-              value={window.startTime}
-              onChange={event =>
-                setHours(index, { startTime: event.target.value })
-              }
-            />
-            <input
-              className="field__input"
-              type="time"
-              step={1800}
-              aria-label={t("admin.studios.closes")}
-              value={window.endTime}
-              onChange={event =>
-                setHours(index, { endTime: event.target.value })
-              }
-            />
+            <div className="hours-row__times">
+              <input
+                className="field__input"
+                type="time"
+                step={1800}
+                aria-label={t("admin.studios.opens")}
+                value={window.startTime}
+                onChange={event =>
+                  setHours(index, { startTime: event.target.value })
+                }
+              />
+              <input
+                className="field__input"
+                type="time"
+                step={1800}
+                aria-label={t("admin.studios.closes")}
+                value={window.endTime}
+                onChange={event =>
+                  setHours(index, { endTime: event.target.value })
+                }
+              />
+            </div>
             <button
               type="button"
               className="icon-button"
@@ -305,6 +307,8 @@ export default function StudiosPanel({
       <p className="admin-panel__help">{t("admin.studios.help")}</p>
       {list.isLoading ? (
         <p className="admin-panel__state">{t("common.loading")}</p>
+      ) : list.error ? (
+        <p className="notice notice--error">{t("errors.loadBody")}</p>
       ) : (
         <div className="admin-cards">
           {(list.data ?? []).map(studio => (

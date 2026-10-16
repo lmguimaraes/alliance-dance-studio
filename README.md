@@ -8,7 +8,7 @@ Built with React 19 and Vite on the front end, and Express, tRPC and PostgreSQL 
 
 | Path                      | What it does                                                                                                                                                                        |
 | ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `/`                       | Home: hero and the four ways into Alliance                                                                                                                                          |
+| `/`                       | Home: hero, the four parts of Alliance (Academy, Company, Studios, Productions) and a call to action                                                                                |
 | `/discover/:section`      | Directors, Company, Dancers, Our story, Awards, Teams, Gallery (Instagram feed and studios)                                                                                         |
 | `/classes`                | Weekly schedule by day with class type, level and instructor filters; pass purchase through Stripe Payment Links                                                                    |
 | `/studio-rental`          | Live studio availability. Pick a start and end time on a studio, choose private or group, optionally repeat it weekly for up to 4 weeks (under "Extra options"), add it to the cart |
@@ -107,4 +107,4 @@ Required in production: `DATABASE_URL`, an HTTPS `APP_URL`, `JWT_SECRET` (32+ ch
 
 Plain CSS with readable, screen-related class names (`.home-hero`, `.pillars-strip`, `.class-row`, `.studio-card`, `.time-slot--booked`). Design tokens (burgundy `#711323`, black, gold, type scale) are in `client/src/styles/tokens.css`; each page imports its own stylesheet next to it. Fonts are Antonio and Jost, self-hosted through Fontsource.
 
-Burgundy works as stage lighting: a light from above on every page title, a floor light and film grain fixed to the screen (`client/src/styles/base.css`), a lit stage for the home page's closing call to action, and burgundy-tinted cards, lines and footer edge. Gold stays reserved for headlines, prices and buttons.
+Burgundy works as stage lighting: a light from above on every page title, a floor light and film grain fixed to the screen (`client/src/styles/base.css`), a lit burgundy stage behind the home page headline, and burgundy-tinted cards, lines and footer edge. Gold stays reserved for headlines, prices and buttons.

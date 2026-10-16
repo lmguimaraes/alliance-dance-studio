@@ -1,21 +1,15 @@
 import { useTranslation } from "react-i18next";
 import { Link } from "wouter";
-import { Instagram, Mail } from "lucide-react";
-import { BRAND, PATHS } from "@/lib/brand";
+import { Facebook, Instagram, Mail, MapPin } from "lucide-react";
+import { AREAS, BRAND, PATHS } from "@/lib/brand";
 
 export default function SiteFooter() {
   const { t } = useTranslation();
-  const links = [
-    { href: PATHS.discover(), label: t("nav.discover") },
-    { href: PATHS.classes, label: t("nav.classes") },
-    { href: PATHS.rental, label: t("nav.rental") },
-    { href: PATHS.contact, label: t("nav.contact") },
-  ];
 
   return (
     <footer className="site-footer">
       <div className="container">
-        <div className="site-footer__row">
+        <div className="site-footer__main">
           <Link
             href={PATHS.home}
             className="site-footer__mark"
@@ -29,31 +23,62 @@ export default function SiteFooter() {
               loading="lazy"
             />
           </Link>
-          <nav className="site-footer__links" aria-label={t("nav.footer")}>
-            {links.map(link => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="site-footer__link"
-              >
-                {link.label}
-              </Link>
-            ))}
+
+          <nav className="site-footer__column" aria-labelledby="footer-explore">
+            <h2 id="footer-explore" className="site-footer__heading">
+              {t("footer.explore")}
+            </h2>
+            <ul className="site-footer__list" role="list">
+              {AREAS.map(area => (
+                <li key={area.key}>
+                  <Link href={area.href} className="site-footer__link">
+                    {t(`areas.${area.key}.name`)}
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </nav>
-          <div className="site-footer__contact">
-            <a href={`mailto:${BRAND.email}`}>
-              <Mail aria-hidden="true" />
-              {BRAND.email}
-            </a>
-            <a href={BRAND.instagramUrl} target="_blank" rel="noreferrer">
-              <Instagram aria-hidden="true" />
-              Instagram
-            </a>
+
+          <div className="site-footer__column">
+            <h2 className="site-footer__heading">{t("footer.connect")}</h2>
+            <ul className="site-footer__list site-footer__contact" role="list">
+              <li>
+                <a href={`mailto:${BRAND.email}`}>
+                  <Mail aria-hidden="true" />
+                  <span>{BRAND.email}</span>
+                </a>
+              </li>
+              <li>
+                <a href={BRAND.instagramUrl} target="_blank" rel="noreferrer">
+                  <Instagram aria-hidden="true" />
+                  <span>
+                    <span className="visually-hidden">Instagram: </span>
+                    {`@${BRAND.instagramHandle}`}
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href={BRAND.facebookUrl} target="_blank" rel="noreferrer">
+                  <Facebook aria-hidden="true" />
+                  <span>
+                    <span className="visually-hidden">Facebook: </span>
+                    {BRAND.facebookName}
+                  </span>
+                </a>
+              </li>
+              <li>
+                <span className="site-footer__place">
+                  <MapPin aria-hidden="true" />
+                  <span>{t("common.location")}</span>
+                </span>
+              </li>
+            </ul>
           </div>
         </div>
+
         <div className="site-footer__row">
           <p className="site-footer__meta">
-            © {new Date().getFullYear()} {BRAND.name}. {BRAND.city}
+            © {new Date().getFullYear()} {BRAND.name}
           </p>
           <Link
             href={PATHS.admin}

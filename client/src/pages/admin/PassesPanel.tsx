@@ -127,6 +127,8 @@ export default function PassesPanel({
 
       {list.isLoading ? (
         <p className="admin-panel__state">{t("common.loading")}</p>
+      ) : list.error ? (
+        <p className="notice notice--error">{t("errors.loadBody")}</p>
       ) : passes.length === 0 ? (
         <p className="admin-panel__state">{t("admin.passes.empty")}</p>
       ) : (

@@ -2,7 +2,6 @@
   "nav": {
     "home": "Alliance Dance home",
     "main": "Main",
-    "footer": "Footer",
     "discover": "Discover",
     "classes": "Classes",
     "rental": "Studio rental",
@@ -21,7 +20,31 @@
     "optional": "(optional)",
     "today": "Today",
     "previousWeek": "Previous week",
-    "nextWeek": "Next week"
+    "nextWeek": "Next week",
+    "location": "Montréal, Québec, Canada"
+  },
+  "areas": {
+    "label": "Ways into Alliance",
+    "academy": {
+      "name": "Academy",
+      "summary": "Dance education, training & artistic growth."
+    },
+    "company": {
+      "name": "Company",
+      "summary": "Our artists, performances & competitions."
+    },
+    "studios": {
+      "name": "Studios",
+      "summary": "Spaces to rehearse, create & connect."
+    },
+    "productions": {
+      "name": "Productions",
+      "summary": "Shows, events & artistic experiences."
+    }
+  },
+  "footer": {
+    "explore": "Explore",
+    "connect": "Connect"
   },
   "errors": {
     "loadTitle": "This couldn't load.",
@@ -32,35 +55,19 @@
     "reload": "Reload page"
   },
   "home": {
-    "meta": "Alliance Dance brings a dance company, classes and studio rentals together in Montreal.",
+    "meta": "Alliance Dance in Montréal: dance classes, a performing company, studio rentals and artistic productions.",
     "hero": {
-      "title": "One dance brand. Multiple ways to move.",
-      "intro": "Alliance Dance brings the company, classes and studio together into a single modern brand for dancers, creators and community in Montreal.",
+      "eyebrow": "Alliance Dance — Montréal",
+      "title": "More than dance. A way to create, connect & inspire.",
+      "tagline": "Rooted in Montréal. Driven by artistry. Connected through movement.",
+      "intro": "Alliance brings together dancers, artists and creative minds of all backgrounds and levels through education, performance, inspiring spaces and artistic productions. From first steps to international stages, we share a space where passion meets experience, creativity takes shape and everyone has room to grow.",
       "classes": "Explore classes",
       "rental": "Studio rental"
     },
-    "pillars": {
-      "label": "Ways into Alliance",
-      "train": {
-        "word": "Train",
-        "label": "Classes for every level"
-      },
-      "perform": {
-        "word": "Perform",
-        "label": "Alliance Dance Co."
-      },
-      "create": {
-        "word": "Create",
-        "label": "Studio rental"
-      },
-      "belong": {
-        "word": "Belong",
-        "label": "Our Montreal community"
-      }
-    },
     "cta": {
-      "title": "Find the right part of Alliance for your project, training or rehearsal.",
-      "action": "Contact Alliance"
+      "title": "Every great story starts with a first move.",
+      "body": "Whether you're taking your first dance class, joining our artistic community or bringing a creative project to life, there's a place for you at Alliance.",
+      "action": "Connect with us"
     }
   },
   "discover": {

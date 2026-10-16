@@ -50,7 +50,7 @@ export default function ContactPage() {
           </li>
           <li className="contact-details__item">
             <MapPin aria-hidden="true" />
-            <span>{BRAND.city}</span>
+            <span>{t("common.location")}</span>
           </li>
         </ul>
 

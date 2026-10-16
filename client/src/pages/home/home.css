@@ -1,43 +1,40 @@
+/* The stage: burgundy light pours onto the headline from above. */
 .home-hero {
-  position: relative;
-  isolation: isolate;
-  overflow: clip;
-  padding-block: clamp(3.5rem, 10vw, 8rem) clamp(3rem, 7vw, 5.5rem);
-}
-
-/* A single stage beam crossing the headline from the top left. */
-.home-hero::before {
-  content: "";
-  position: absolute;
-  z-index: -1;
-  top: -40%;
-  left: -20%;
-  width: 95%;
-  height: 160%;
-  background: linear-gradient(
-    118deg,
-    transparent 36%,
-    rgba(168, 38, 60, 0.38) 44%,
-    rgba(113, 19, 35, 0.14) 51%,
-    transparent 60%
-  );
-  filter: blur(24px);
-  /* Fade out before the edge of the hero so the beam has no hard end. */
-  -webkit-mask-image: linear-gradient(180deg, #000 40%, transparent 78%);
-  mask-image: linear-gradient(180deg, #000 40%, transparent 78%);
-  pointer-events: none;
+  padding-block: clamp(3rem, 8vw, 6.5rem) clamp(3rem, 7vw, 5.5rem);
+  background:
+    radial-gradient(
+      ellipse 75% 40% at 50% 20%,
+      rgba(168, 38, 60, 0.5),
+      transparent 75%
+    ),
+    linear-gradient(
+      180deg,
+      var(--color-burgundy-deep),
+      var(--color-burgundy) 22%,
+      var(--color-burgundy-deep) 70%,
+      transparent
+    );
 }
 
 .home-hero__layout {
   display: grid;
-  gap: 2rem;
+  gap: clamp(1.5rem, 4vw, 2.5rem);
+}
+
+.home-hero__eyebrow {
+  color: var(--color-gold);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
 
 .home-hero__title {
   font-family: var(--font-display);
   font-weight: 300;
-  font-size: var(--display-hero);
-  line-height: 0.92;
+  font-size: clamp(2.75rem, 8vw, 6.25rem);
+  /* Room for accented capitals (É, Ç) between lines. */
+  line-height: 1.08;
   letter-spacing: 0.005em;
   text-transform: uppercase;
   background: var(--gradient-gold);
@@ -57,6 +54,28 @@
 .home-hero__body {
   display: grid;
   gap: 2rem;
+  padding-top: clamp(1.5rem, 4vw, 2.5rem);
+  border-top: 1px solid var(--color-burgundy-bright);
+}
+
+.home-hero__lead {
+  display: grid;
+  align-content: start;
+  gap: 1.5rem;
+}
+
+.home-hero__tagline {
+  max-width: 24ch;
+  color: var(--color-ivory);
+  font-size: clamp(1.3rem, 2.4vw, 1.75rem);
+  font-weight: 500;
+  line-height: 1.3;
+  text-wrap: balance;
+}
+
+.home-hero__story {
+  display: grid;
+  gap: 2rem;
 }
 
 .home-hero__actions {
@@ -66,18 +85,9 @@
 }
 
 @media (min-width: 900px) {
-  .home-hero__layout {
-    grid-template-columns: 1fr minmax(0, 27rem);
-    row-gap: 3rem;
-  }
-
-  .home-hero__title {
-    grid-column: 1 / -1;
-  }
-
-  .home-hero__beat {
-    align-self: end;
-    margin-bottom: 1.1rem;
+  .home-hero__body {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 34rem);
+    column-gap: 4rem;
   }
 }
 
@@ -113,7 +123,7 @@
 
 .pillars-strip__word {
   font-family: var(--font-display);
-  font-size: clamp(1.9rem, 4.5vw, 2.75rem);
+  font-size: clamp(1.5rem, 6.5vw, 2.5rem);
   font-weight: 400;
   letter-spacing: 0.02em;
   line-height: 1;
@@ -132,9 +142,13 @@
   color: var(--color-gold);
 }
 
-@media (min-width: 720px) {
+@media (min-width: 960px) {
   .pillars-strip {
     grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .pillars-strip__word {
+    font-size: clamp(1.6rem, 2.6vw, 2.5rem);
   }
 
   .pillars-strip__item,
@@ -154,23 +168,53 @@
   }
 }
 
-/* Closing call to action on a lit stage floor. */
+/* Closing call to action: a single stage beam from the top left. */
 .home-cta {
+  position: relative;
+  isolation: isolate;
+  overflow: clip;
   margin-top: var(--section-gap);
   padding-block: clamp(4rem, 10vw, 7rem);
-  background:
-    radial-gradient(
-      ellipse 75% 38% at 50% 78%,
-      rgba(168, 38, 60, 0.5),
-      transparent 75%
-    ),
-    linear-gradient(
-      180deg,
-      transparent,
-      var(--color-burgundy-deep) 30%,
-      var(--color-burgundy) 78%,
-      var(--color-burgundy-deep)
-    );
+  /* Kept inside the section so the light never meets an edge. */
+  background: radial-gradient(
+    ellipse 55% 55% at 24% 40%,
+    rgba(113, 19, 35, 0.4),
+    transparent 72%
+  );
+}
+
+.home-cta::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: -40%;
+  left: -20%;
+  width: 95%;
+  height: 160%;
+  background: linear-gradient(
+    118deg,
+    transparent 36%,
+    rgba(168, 38, 60, 0.38) 44%,
+    rgba(113, 19, 35, 0.14) 51%,
+    transparent 60%
+  );
+  filter: blur(24px);
+  /* Fade in and out inside the section so the beam has no hard ends. */
+  -webkit-mask-image: linear-gradient(
+    180deg,
+    transparent 25%,
+    #000 45%,
+    #000 55%,
+    transparent 85%
+  );
+  mask-image: linear-gradient(
+    180deg,
+    transparent 25%,
+    #000 45%,
+    #000 55%,
+    transparent 85%
+  );
+  pointer-events: none;
 }
 
 .home-cta__inner {
@@ -179,18 +223,26 @@
   justify-items: start;
 }
 
+.home-cta__text {
+  display: grid;
+  gap: 1.25rem;
+}
+
 .home-cta__title {
-  max-width: 22ch;
+  max-width: 20ch;
 }
 
 @media (min-width: 900px) {
   .home-cta__inner {
     grid-template-columns: 1fr auto;
     align-items: end;
+    column-gap: 3rem;
   }
 }
 
-/* The call to action already ends on the stage edge. */
+/* The call to action runs straight into the footer, without the stage edge. */
 .site-main:has(.home-cta) + .site-footer {
   margin-top: 0;
+  border-top: 0;
+  background: none;
 }

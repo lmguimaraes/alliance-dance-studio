@@ -120,6 +120,8 @@ export default function ClassesPanel({
 
       {list.isLoading ? (
         <p className="admin-panel__state">{t("common.loading")}</p>
+      ) : list.error ? (
+        <p className="notice notice--error">{t("errors.loadBody")}</p>
       ) : classes.length === 0 ? (
         <p className="admin-panel__state">{t("admin.classes.empty")}</p>
       ) : (

@@ -116,6 +116,8 @@
 .field {
   display: grid;
   gap: 0.45rem;
+  /* Lets inputs shrink inside grids instead of pushing past their container. */
+  min-width: 0;
 }
 
 .field__label {

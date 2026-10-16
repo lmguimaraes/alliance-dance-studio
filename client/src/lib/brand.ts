@@ -1,9 +1,10 @@
 export const BRAND = {
   name: "Alliance Dance",
   email: "info@alliancedance.ca",
-  city: "Montreal, QC",
   instagramHandle: "alliancedancecompany",
   instagramUrl: "https://www.instagram.com/alliancedancecompany/",
+  facebookName: "Alliance Dance Company",
+  facebookUrl: "https://www.facebook.com/alliancedancemtl/",
   logos: {
     header: "/logos/alliance-gold-horizontal-header.webp",
     large: "/logos/alliance-gold-horizontal-admin.webp",
@@ -36,3 +37,11 @@ export const PATHS = {
   contact: "/contact",
   admin: "/admin",
 } as const;
+
+/** The four parts of Alliance, on the home page and in the footer. */
+export const AREAS = [
+  { key: "academy", href: PATHS.classes },
+  { key: "company", href: PATHS.discover("company") },
+  { key: "studios", href: PATHS.rental },
+  { key: "productions", href: PATHS.discover("gallery") },
+] as const;

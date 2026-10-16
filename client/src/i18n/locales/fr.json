@@ -2,7 +2,6 @@
   "nav": {
     "home": "Accueil Alliance Dance",
     "main": "Principal",
-    "footer": "Pied de page",
     "discover": "Découvrir",
     "classes": "Cours",
     "rental": "Location de studio",
@@ -21,7 +20,31 @@
     "optional": "(facultatif)",
     "today": "Aujourd'hui",
     "previousWeek": "Semaine précédente",
-    "nextWeek": "Semaine suivante"
+    "nextWeek": "Semaine suivante",
+    "location": "Montréal, Québec, Canada"
+  },
+  "areas": {
+    "label": "Les portes d'entrée d'Alliance",
+    "academy": {
+      "name": "Académie",
+      "summary": "Formation en danse, entraînement et développement artistique."
+    },
+    "company": {
+      "name": "Compagnie",
+      "summary": "Nos artistes, nos spectacles et nos compétitions."
+    },
+    "studios": {
+      "name": "Studios",
+      "summary": "Des espaces pour répéter, créer et se rencontrer."
+    },
+    "productions": {
+      "name": "Productions",
+      "summary": "Spectacles, événements et expériences artistiques."
+    }
+  },
+  "footer": {
+    "explore": "Explorer",
+    "connect": "Nous joindre"
   },
   "errors": {
     "loadTitle": "Le chargement a échoué.",
@@ -32,35 +55,19 @@
     "reload": "Recharger la page"
   },
   "home": {
-    "meta": "Alliance Dance réunit une compagnie de danse, des cours et la location de studios à Montréal.",
+    "meta": "Alliance Dance à Montréal : cours de danse, compagnie de scène, location de studios et productions artistiques.",
     "hero": {
-      "title": "Une marque de danse. Plusieurs façons de bouger.",
-      "intro": "Alliance Dance réunit la compagnie, les cours et le studio sous une même marque moderne pour les danseurs, les créateurs et la communauté de Montréal.",
+      "eyebrow": "Alliance Dance — Montréal",
+      "title": "Plus que de la danse. Une façon de créer, de rassembler et d'inspirer.",
+      "tagline": "Ancrés à Montréal. Portés par l'art. Unis par le mouvement.",
+      "intro": "Alliance réunit danseurs, artistes et esprits créatifs de tous horizons et de tous niveaux grâce à la formation, à la scène, à des espaces inspirants et à des productions artistiques. Des premiers pas aux scènes internationales, nous partageons un lieu où la passion rencontre l'expérience, où la créativité prend forme et où chacun a sa place pour grandir.",
       "classes": "Voir les cours",
       "rental": "Location de studio"
     },
-    "pillars": {
-      "label": "Les portes d'entrée d'Alliance",
-      "train": {
-        "word": "Apprendre",
-        "label": "Des cours pour tous les niveaux"
-      },
-      "perform": {
-        "word": "Se produire",
-        "label": "Alliance Dance Co."
-      },
-      "create": {
-        "word": "Créer",
-        "label": "Location de studio"
-      },
-      "belong": {
-        "word": "Rassembler",
-        "label": "Notre communauté montréalaise"
-      }
-    },
     "cta": {
-      "title": "Trouvez la partie d'Alliance qui convient à votre projet, votre entraînement ou votre répétition.",
-      "action": "Contacter Alliance"
+      "title": "Chaque grande histoire commence par un premier pas.",
+      "body": "Que vous preniez votre premier cours de danse, rejoigniez notre communauté artistique ou donniez vie à un projet créatif, il y a une place pour vous chez Alliance.",
+      "action": "Communiquez avec nous"
     }
   },
   "discover": {
