@@ -82,8 +82,9 @@ async function startServer(): Promise<void> {
   });
 
   const server = createServer(app);
+  let closeVite: (() => Promise<void>) | null = null;
   if (ENV.isProduction) serveStatic(app);
-  else await setupVite(app, server);
+  else closeVite = await setupVite(app, server);
 
   server.requestTimeout = 30_000;
   server.headersTimeout = 35_000;
@@ -99,6 +100,8 @@ async function startServer(): Promise<void> {
     if (closing) return;
     closing = true;
     console.log(`Received ${signal}; shutting down.`);
+    // Exit even if a connection or watcher refuses to close.
+    setTimeout(() => process.exit(process.exitCode ?? 0), 4_000).unref();
     server.close(async error => {
       await closeDatabase().catch(() => undefined);
       if (error) {
@@ -106,6 +109,13 @@ async function startServer(): Promise<void> {
         process.exitCode = 1;
       }
     });
+    // Idle keep-alive sockets would otherwise hold the server open.
+    server.closeIdleConnections();
+    if (closeVite) {
+      // Development only: open HMR sockets and the file watcher.
+      server.closeAllConnections();
+      void closeVite().catch(() => undefined);
+    }
   };
 
   process.once("SIGTERM", () => shutdown("SIGTERM"));
