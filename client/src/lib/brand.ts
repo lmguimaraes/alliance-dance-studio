@@ -1,5 +1,6 @@
 export const BRAND = {
   name: "Alliance Dance",
+  legalName: "Alliance Dance Inc.",
   email: "info@alliancedance.ca",
   instagramHandle: "alliancedancecompany",
   instagramUrl: "https://www.instagram.com/alliancedancecompany/",

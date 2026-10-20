@@ -78,7 +78,7 @@ export default function SiteFooter() {
 
         <div className="site-footer__row">
           <p className="site-footer__meta">
-            © {new Date().getFullYear()} {BRAND.name}
+            © {new Date().getFullYear()} {BRAND.legalName}
           </p>
           <Link
             href={PATHS.admin}

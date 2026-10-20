@@ -1,16 +1,16 @@
 /* The stage: burgundy light pours onto the headline from above. */
 .home-hero {
-  padding-block: clamp(3rem, 8vw, 6.5rem) clamp(3rem, 7vw, 5.5rem);
+  padding-block: clamp(2.5rem, 7vw, 5.5rem) var(--section-gap);
   background:
     radial-gradient(
       ellipse 75% 40% at 50% 20%,
-      rgba(168, 38, 60, 0.5),
+      rgba(168, 38, 60, 0.28),
       transparent 75%
     ),
     linear-gradient(
       180deg,
       var(--color-burgundy-deep),
-      var(--color-burgundy) 22%,
+      rgba(113, 19, 35, 0.78) 22%,
       var(--color-burgundy-deep) 70%,
       transparent
     );
@@ -173,8 +173,8 @@
   position: relative;
   isolation: isolate;
   overflow: clip;
-  margin-top: var(--section-gap);
-  padding-block: clamp(4rem, 10vw, 7rem);
+  /* One section gap above; the footer follows closely below. */
+  padding-block: var(--section-gap) calc(var(--section-gap) * 0.5);
   /* Kept inside the section so the light never meets an edge. */
   background: radial-gradient(
     ellipse 55% 55% at 24% 40%,

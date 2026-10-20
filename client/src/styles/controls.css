@@ -275,7 +275,7 @@
   display: grid;
   justify-items: start;
   gap: 1rem;
-  padding: 2rem 0;
+  padding-block: 0.5rem;
   color: var(--color-stone);
 }
 

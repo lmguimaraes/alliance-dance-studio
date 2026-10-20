@@ -175,13 +175,14 @@ a.class-row__instructor:hover {
 .pass-shop {
   display: grid;
   gap: 2.5rem;
-  margin-top: var(--section-gap);
+  margin-top: calc(var(--section-gap) * 0.5);
 }
 
 .pass-shop__header {
   display: grid;
   gap: 1rem;
-  padding-top: var(--section-gap);
+  /* Half a section gap on each side of the dividing line. */
+  padding-top: calc(var(--section-gap) * 0.5);
   border-top: 1px solid var(--color-line);
 }
 
