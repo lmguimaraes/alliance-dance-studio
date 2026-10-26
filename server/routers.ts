@@ -39,6 +39,11 @@ import {
   updateStudio,
 } from "./content";
 import { getInstagramGallery } from "./instagram";
+import {
+  confirmPassCheckout,
+  createPassCheckout,
+  listPassSales,
+} from "./passes";
 import { createFixedWindowRateLimiter, RateLimitError } from "./rateLimit";
 import {
   cancelStripeCheckout,
@@ -192,23 +197,23 @@ const passInput = z
     detailsEn: optionalText(200),
     detailsFr: optionalText(200),
     detailsEs: optionalText(200),
-    priceCents: z.number().int().min(0).max(1_000_000),
+    // Stripe can't take a payment of zero.
+    priceCents: z.number().int().min(1).max(1_000_000),
     currency: z
       .string()
       .trim()
       .toLowerCase()
       .regex(/^[a-z]{3}$/),
-    stripeUrl: z
-      .string()
-      .trim()
-      .regex(
-        /^https:\/\/(buy|checkout)\.stripe\.com\//,
-        "Use a Stripe Payment Link."
-      ),
+    requiresClass: z.boolean(),
     sortOrder: z.number().int().min(-1000).max(1000),
     isActive: z.boolean(),
   })
   .strict();
+
+const checkoutSessionId = z
+  .string()
+  .max(255)
+  .regex(/^cs_(?:test|live)_[A-Za-z0-9]+$/);
 
 const discoverSection = z.enum(["directors", "dancers", "teams", "awards"]);
 
@@ -345,10 +350,7 @@ export const appRouter = router({
       .input(
         z
           .object({
-            sessionId: z
-              .string()
-              .max(255)
-              .regex(/^cs_(?:test|live)_[A-Za-z0-9]+$/),
+            sessionId: checkoutSessionId,
           })
           .strict()
       )
@@ -379,6 +381,35 @@ export const appRouter = router({
         run(() => {
           limiters.checkoutStatus.consume(clientKey(ctx.req));
           return cancelStripeCheckout(input);
+        })
+      ),
+  }),
+
+  passes: router({
+    checkout: publicProcedure
+      .input(
+        z
+          .object({
+            passId: id,
+            classId: id.nullable(),
+            customerName: z.string().trim().min(2).max(120),
+            customerEmail: z.string().trim().email().max(254),
+            locale: z.enum(["en", "fr", "es"]),
+          })
+          .strict()
+      )
+      .mutation(({ input, ctx }) =>
+        run(() => {
+          limiters.checkout.consume(clientKey(ctx.req));
+          return createPassCheckout(input);
+        })
+      ),
+    confirm: publicProcedure
+      .input(z.object({ sessionId: checkoutSessionId }).strict())
+      .mutation(({ input, ctx }) =>
+        run(() => {
+          limiters.checkoutStatus.consume(clientKey(ctx.req));
+          return confirmPassCheckout(input.sessionId);
         })
       ),
   }),
@@ -463,6 +494,19 @@ export const appRouter = router({
       remove: adminProcedure
         .input(z.object({ id }).strict())
         .mutation(({ input }) => run(() => deletePass(input.id))),
+    }),
+
+    passSales: router({
+      list: adminProcedure
+        .input(
+          z
+            .object({
+              status: z.enum(["paid", "all"]),
+              search: z.string().max(120).optional(),
+            })
+            .strict()
+        )
+        .query(({ input }) => run(() => listPassSales(input))),
     }),
 
     discover: router({

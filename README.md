@@ -6,15 +6,15 @@ Built with React 19 and Vite on the front end, and Express, tRPC and PostgreSQL 
 
 ## Pages
 
-| Path                      | What it does                                                                                                                                                                        |
-| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `/`                       | Home: hero, the four parts of Alliance (Academy, Company, Studios, Productions) and a call to action                                                                                |
-| `/discover/:section`      | Directors, Company, Dancers, Our story, Awards, Teams, Gallery (Instagram feed and studios)                                                                                         |
-| `/classes`                | Weekly schedule by day: search, style and level chips (from the active classes in the admin), day tabs, a timeline of class cards; pass purchase through Stripe Payment Links       |
-| `/studio-rental`          | Live studio availability. Pick a start and end time on a studio, choose private or group, optionally repeat it weekly for up to 4 weeks (under "Extra options"), add it to the cart |
-| `/studio-rental/checkout` | Booking summary with live prices, customer details, payment with Stripe Checkout, confirmation                                                                                      |
-| `/contact`                | Contact details and an email form                                                                                                                                                   |
-| `/admin`                  | Admin panel (password)                                                                                                                                                              |
+| Path                      | What it does                                                                                                                                                                                                    |
+| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/`                       | Home: hero, the four parts of Alliance (Academy, Company, Studios, Productions) and a call to action                                                                                                            |
+| `/discover/:section`      | Directors, Company, Dancers, Our story, Awards, Teams, Gallery (Instagram feed and studios)                                                                                                                     |
+| `/classes`                | Weekly schedule by day: search, style and level chips (from the active classes in the admin), day tabs, a timeline of class cards; passes bought on the site (name, email, class) and paid with Stripe Checkout |
+| `/studio-rental`          | Live studio availability. Pick a start and end time on a studio, choose private or group, optionally repeat it weekly for up to 4 weeks (under "Extra options"), add it to the cart                             |
+| `/studio-rental/checkout` | Booking summary with live prices, customer details, payment with Stripe Checkout, confirmation                                                                                                                  |
+| `/contact`                | Contact details and an email form                                                                                                                                                                               |
+| `/admin`                  | Admin panel (password)                                                                                                                                                                                          |
 
 `/about` and `/gallery` redirect to their Discover sections.
 
@@ -38,6 +38,7 @@ Migrations live in `database/migrations` and are applied in file-name order by `
 | `20260909_alpha_rebuild.sql`               | Earlier schema normalisation (already applied in production).                                                                                       |
 | `20261015_classes_passes_discover.sql`     | Adds `classes`, `class_passes` and `discover_entries`, seeds the current class schedule and pass links, and enables row level security (see below). |
 | `20261016_rental_audience_per_booking.sql` | Stores private or group on each booking (`bookings.audience`), so one order can mix both. `reservations.audience` becomes NULL for mixed orders.    |
+| `20261026_pass_purchases.sql`              | Adds `pass_purchases` (every pass sale) and `class_passes.requires_class`, and removes the Payment Link column from `class_passes`.                 |
 
 To apply a migration by hand instead, paste it into the Supabase SQL editor and then record it so the app skips it:
 
@@ -66,10 +67,10 @@ The site connects to PostgreSQL directly, as the owner of its tables, so RLS nev
 1. Add a webhook endpoint at `https://<your domain>/api/stripe/webhook` with `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `checkout.session.expired` and `checkout.session.async_payment_failed`. Put its signing secret in `STRIPE_WEBHOOK_SECRET`.
 2. For local testing: `stripe listen --forward-to localhost:3000/api/stripe/webhook`.
 3. Test cards: `4242 4242 4242 4242` succeeds, `4000 0000 0000 9995` is declined.
-4. Class passes use Stripe Payment Links, managed in Admin → Passes. Sessions from Payment Links reach the same webhook and are ignored.
+4. Class passes use the same keys and webhook. The customer enters name, email and (for class packages) the class on the website; the Stripe page shows the email locked and the name and class under the pass, and the sale is saved in `pass_purchases` when it is paid. Other Checkout sessions on the account are ignored.
 5. At launch, set `STRIPE_TEST_MODE_ONLY=false` and switch to live keys.
 
-Refunds are issued from the Stripe Dashboard. Cancelling a paid booking in the admin panel frees the time but does not refund it.
+Refunds (bookings and passes) are issued from the Stripe Dashboard. Cancelling a paid booking in the admin panel frees the time but does not refund it.
 
 ## Admin panel
 
@@ -77,7 +78,8 @@ Open `/admin` (also linked in the footer) and sign in with `ADMIN_PASSWORD`. Unt
 
 - **Bookings**: upcoming, past or all; search; add, edit, cancel or delete. Overlaps with other bookings and classes are refused. Bookings paid online are cancelled rather than deleted, and keep their paid amount.
 - **Classes**: weekly classes with type, level, instructor, optional studio (which blocks rentals at that time) and optional first and last dates.
-- **Passes**: name and details in three languages, price and Stripe Payment Link.
+- **Passes**: name and details in three languages, price, and whether the customer chooses a class (one class per pass).
+- **Pass sales**: every pass bought on the site with the customer, pass, class, amount and status, with a link to the payment in Stripe. Unfinished checkouts are marked "Not completed" after about 45 minutes.
 - **Discover**: directors, dancers, teams and awards, with text in three languages (English is used when a translation is empty).
 - **Studios**: rates, capacity, photo and weekly opening hours.
 

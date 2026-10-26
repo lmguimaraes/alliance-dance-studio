@@ -201,10 +201,39 @@
       "pickTitle": "Choisir une carte",
       "buy": "Acheter",
       "buyNamed": "Acheter : {{name}}",
-      "stripeNote": "Le paiement s'ouvre dans un nouvel onglet sur Stripe.",
       "categories": {
         "classes": "Cartes de cours",
         "rehearsal": "Répétition libre"
+      }
+    },
+    "purchase": {
+      "class": "Cours",
+      "chooseClass": "Choisissez un cours",
+      "oneClass": "Une carte est valable pour un seul cours.",
+      "pay": "Continuer vers le paiement",
+      "otherPass": "Choisir une autre carte",
+      "note": "Vous payez sur la page sécurisée de Stripe, où votre nom, votre courriel et votre cours sont déjà remplis.",
+      "failed": "Le paiement n'a pas pu démarrer. Réessayez dans un instant.",
+      "unavailable": "Cette carte ou ce cours n'est plus offert. Choisissez-en un autre.",
+      "result": {
+        "confirming": "Confirmation de votre paiement…",
+        "paid": {
+          "title": "Paiement reçu",
+          "body": "Paiement enregistré pour {{pass}} avec le courriel {{email}}.",
+          "class": "Cours : {{name}}"
+        },
+        "processing": {
+          "title": "Paiement en cours",
+          "body": "Stripe confirme encore votre paiement. Votre carte sera enregistrée dès que ce sera fait."
+        },
+        "cancelled": {
+          "title": "Paiement annulé",
+          "body": "Aucun montant n'a été débité. Choisissez une carte quand vous le souhaitez."
+        },
+        "failed": {
+          "title": "Nous n'avons pas pu confirmer votre paiement",
+          "body": "Si vous avez été débité, écrivez-nous à {{email}} et nous réglerons la situation."
+        }
       }
     }
   },
@@ -390,6 +419,7 @@
       "bookings": "Réservations",
       "classes": "Cours",
       "passes": "Cartes",
+      "passSales": "Ventes de cartes",
       "discover": "Découvrir",
       "studios": "Studios"
     },
@@ -480,7 +510,7 @@
     "passes": {
       "add": "Ajouter une carte",
       "edit": "Modifier la carte",
-      "help": "Les cartes renvoient vers des liens de paiement Stripe. Créez le lien dans Stripe, puis collez-le ici.",
+      "help": "Les clients choisissent une carte sur la page des cours et paient avec Stripe. Le prix indiqué ici est celui qu'ils paient.",
       "empty": "Aucune carte pour l'instant.",
       "name": "Nom",
       "details": "Détails",
@@ -488,10 +518,34 @@
       "price": "Prix",
       "priceDollars": "Prix ($)",
       "order": "Ordre",
-      "stripeUrl": "Lien de paiement Stripe",
-      "stripeHint": "Commence par https://buy.stripe.com/",
+      "requiresClass": "Le client choisit un cours (un cours par carte)",
       "visible": "Afficher sur la page des cours",
       "confirmDelete": "Supprimer cette carte ?"
+    },
+    "passSales": {
+      "help": "Cartes achetées sur le site. Les remboursements se font dans le tableau de bord Stripe.",
+      "show": "Afficher",
+      "filters": {
+        "paid": "Payées",
+        "all": "Toutes, y compris non payées"
+      },
+      "search": "Rechercher par nom, courriel, carte ou cours",
+      "empty": "Aucune vente de carte pour l'instant.",
+      "summary_one": "{{count}} vente payée, {{total}}",
+      "summary_many": "{{count}} ventes payées, {{total}}",
+      "summary_other": "{{count}} ventes payées, {{total}}",
+      "date": "Date",
+      "customer": "Client",
+      "pass": "Carte",
+      "status": "Statut",
+      "amount": "Montant",
+      "stripe": "Stripe",
+      "statuses": {
+        "paid": "Payée",
+        "checkout_pending": "En attente de paiement",
+        "expired": "Non finalisée",
+        "cancelled": "Annulée"
+      }
     },
     "discover": {
       "add": "Ajouter une fiche",

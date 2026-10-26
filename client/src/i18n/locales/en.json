@@ -201,10 +201,39 @@
       "pickTitle": "Choose a pass",
       "buy": "Buy",
       "buyNamed": "Buy {{name}}",
-      "stripeNote": "Payment opens in a new tab on Stripe.",
       "categories": {
         "classes": "Class passes",
         "rehearsal": "Open rehearsal"
+      }
+    },
+    "purchase": {
+      "class": "Class",
+      "chooseClass": "Choose a class",
+      "oneClass": "A pass is for one class.",
+      "pay": "Continue to payment",
+      "otherPass": "Choose another pass",
+      "note": "You'll pay on Stripe's secure page, where your name, email and class are already filled in.",
+      "failed": "Payment couldn't be started. Try again in a moment.",
+      "unavailable": "This pass or class is no longer available. Choose another.",
+      "result": {
+        "confirming": "Confirming your payment…",
+        "paid": {
+          "title": "Payment received",
+          "body": "We've recorded your payment for {{pass}} under {{email}}.",
+          "class": "Class: {{name}}"
+        },
+        "processing": {
+          "title": "Payment processing",
+          "body": "Stripe is still confirming your payment. Your pass is recorded as soon as it's done."
+        },
+        "cancelled": {
+          "title": "Payment cancelled",
+          "body": "Nothing was charged. Choose a pass again whenever you're ready."
+        },
+        "failed": {
+          "title": "We couldn't confirm your payment",
+          "body": "If you were charged, write to {{email}} and we'll sort it out."
+        }
       }
     }
   },
@@ -384,6 +413,7 @@
       "bookings": "Bookings",
       "classes": "Classes",
       "passes": "Passes",
+      "passSales": "Pass sales",
       "discover": "Discover",
       "studios": "Studios"
     },
@@ -474,7 +504,7 @@
     "passes": {
       "add": "Add pass",
       "edit": "Edit pass",
-      "help": "Passes link to Stripe Payment Links. Create the link in Stripe, then paste it here.",
+      "help": "Customers choose a pass on the classes page and pay with Stripe. The price here is what they pay.",
       "empty": "No passes yet.",
       "name": "Name",
       "details": "Details",
@@ -482,10 +512,33 @@
       "price": "Price",
       "priceDollars": "Price ($)",
       "order": "Order",
-      "stripeUrl": "Stripe Payment Link",
-      "stripeHint": "Starts with https://buy.stripe.com/",
+      "requiresClass": "Customer chooses a class (one class per pass)",
       "visible": "Show on the classes page",
       "confirmDelete": "Delete this pass?"
+    },
+    "passSales": {
+      "help": "Passes bought on the website. Refunds are made in the Stripe Dashboard.",
+      "show": "Show",
+      "filters": {
+        "paid": "Paid",
+        "all": "All, including unpaid"
+      },
+      "search": "Search by name, email, pass or class",
+      "empty": "No pass sales yet.",
+      "summary_one": "{{count}} paid sale, {{total}}",
+      "summary_other": "{{count}} paid sales, {{total}}",
+      "date": "Date",
+      "customer": "Customer",
+      "pass": "Pass",
+      "status": "Status",
+      "amount": "Amount",
+      "stripe": "Stripe",
+      "statuses": {
+        "paid": "Paid",
+        "checkout_pending": "Awaiting payment",
+        "expired": "Not completed",
+        "cancelled": "Cancelled"
+      }
     },
     "discover": {
       "add": "Add entry",

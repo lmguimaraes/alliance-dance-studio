@@ -11,11 +11,19 @@ import AdminLogin from "./AdminLogin";
 import BookingsPanel from "./BookingsPanel";
 import ClassesPanel from "./ClassesPanel";
 import DiscoverPanel from "./DiscoverPanel";
+import PassSalesPanel from "./PassSalesPanel";
 import PassesPanel from "./PassesPanel";
 import StudiosPanel from "./StudiosPanel";
 import "./admin.css";
 
-const TABS = ["bookings", "classes", "passes", "discover", "studios"] as const;
+const TABS = [
+  "bookings",
+  "classes",
+  "passes",
+  "passSales",
+  "discover",
+  "studios",
+] as const;
 type Tab = (typeof TABS)[number];
 
 function tabFromHash(): Tab {
@@ -124,6 +132,7 @@ export default function AdminPage() {
         )}
         {tab === "classes" && <ClassesPanel onUnauthorized={onUnauthorized} />}
         {tab === "passes" && <PassesPanel onUnauthorized={onUnauthorized} />}
+        {tab === "passSales" && <PassSalesPanel />}
         {tab === "discover" && (
           <DiscoverPanel onUnauthorized={onUnauthorized} />
         )}

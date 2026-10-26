@@ -1,7 +1,7 @@
 import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
 import type { RequestHandler } from "express";
 import { nanoid } from "nanoid";
-import Stripe from "stripe";
+import type Stripe from "stripe";
 import { dateKeyToDate, type RentalItemInput } from "../shared/booking";
 import { ENV } from "./_core/env";
 import {
@@ -16,11 +16,17 @@ import {
   type ReservationSummary,
 } from "./booking/orders";
 import { BookingError } from "./booking/rules";
-
-/** Stripe requires Checkout sessions to stay open for at least 30 minutes. */
-const CHECKOUT_SESSION_MINUTES = 31;
-
-export type CheckoutLocale = "en" | "fr" | "es";
+import {
+  confirmPassCheckout,
+  expirePassCheckout,
+  passPurchaseId,
+} from "./passes";
+import {
+  checkoutExpiry,
+  getPaymentIntentId,
+  getStripe,
+  type CheckoutLocale,
+} from "./stripeClient";
 
 const lineItemText: Record<
   CheckoutLocale,
@@ -39,25 +45,6 @@ const lineItemText: Record<
   },
 };
 
-let stripeClient: Stripe | null = null;
-
-function getStripe(): Stripe {
-  if (!ENV.stripeSecretKey) {
-    throw new BookingError(
-      "PRECONDITION_FAILED",
-      "Stripe is not configured on the server."
-    );
-  }
-  if (ENV.stripeTestModeOnly && !ENV.stripeSecretKey.startsWith("sk_test_")) {
-    throw new BookingError(
-      "PRECONDITION_FAILED",
-      "This deployment only accepts a Stripe test-mode secret key."
-    );
-  }
-  stripeClient ??= new Stripe(ENV.stripeSecretKey);
-  return stripeClient;
-}
-
 function hashCancellationToken(token: string): string {
   return createHash("sha256").update(token, "utf8").digest("hex");
 }
@@ -66,13 +53,6 @@ function tokenMatches(token: string, expectedHash: string): boolean {
   const actual = Buffer.from(hashCancellationToken(token), "hex");
   const expected = Buffer.from(expectedHash, "hex");
   return actual.length === expected.length && timingSafeEqual(actual, expected);
-}
-
-function getPaymentIntentId(session: Stripe.Checkout.Session): string | null {
-  if (!session.payment_intent) return null;
-  return typeof session.payment_intent === "string"
-    ? session.payment_intent
-    : session.payment_intent.id;
 }
 
 function getReservationId(session: Stripe.Checkout.Session): string {
@@ -141,8 +121,7 @@ export async function createStripeCheckout(input: {
   const stripe = getStripe();
   const reservationId = nanoid(24);
   const cancelToken = randomBytes(24).toString("base64url");
-  const expiresAtSeconds =
-    Math.floor(Date.now() / 1000) + CHECKOUT_SESSION_MINUTES * 60;
+  const expiresAtSeconds = checkoutExpiry();
 
   const hold = await createReservationHold({
     id: reservationId,
@@ -356,12 +335,29 @@ export const stripeWebhookHandler: RequestHandler = async (req, res) => {
     const session = event.type.startsWith("checkout.session.")
       ? (event.data.object as Stripe.Checkout.Session)
       : null;
-    // Class-pass Payment Links share the Stripe account; only studio
-    // reservations carry a reservation reference.
+    const isPass = Boolean(session && passPurchaseId(session));
+    // Studio reservations carry a reservation reference; anything else on
+    // the same Stripe account is ignored.
     const isReservation = Boolean(
       session &&
+      !isPass &&
       (session.metadata?.reservationId || session.client_reference_id)
     );
+
+    if (isPass) {
+      switch (event.type) {
+        case "checkout.session.completed":
+        case "checkout.session.async_payment_succeeded":
+          await confirmPassCheckout((session as Stripe.Checkout.Session).id);
+          break;
+        case "checkout.session.expired":
+        case "checkout.session.async_payment_failed":
+          await expirePassCheckout(session as Stripe.Checkout.Session);
+          break;
+        default:
+          break;
+      }
+    }
 
     switch (isReservation ? event.type : "ignored") {
       case "checkout.session.completed":

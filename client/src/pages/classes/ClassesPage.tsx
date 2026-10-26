@@ -1,6 +1,6 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Instagram, Search, X } from "lucide-react";
+import { Instagram, Loader2, Search, X } from "lucide-react";
 import {
   addDays,
   CLASS_LEVELS,
@@ -11,6 +11,7 @@ import {
 } from "@shared/booking";
 import DateStrip from "@/components/DateStrip";
 import PageHeader from "@/components/PageHeader";
+import { BRAND } from "@/lib/brand";
 import { cx } from "@/lib/cx";
 import { useFormat } from "@/lib/format";
 import { trpc } from "@/lib/trpc";
@@ -25,11 +26,93 @@ import {
   type ClassFilters,
   type ScheduledClass,
 } from "./classSchedule";
-import PassPicker from "./PassPicker";
+import PassPurchase, { type PurchaseStart } from "./PassPurchase";
 import PassShop from "./PassShop";
 import "./classes.css";
 
 const SCHEDULE_DAYS = 56;
+
+type PassSummary = {
+  status: "checkout_pending" | "paid" | "expired" | "cancelled";
+  passName: string;
+  classLabel: string | null;
+  customerEmail: string;
+};
+
+type PassReturn =
+  | { kind: "confirming" }
+  | { kind: "done"; summary: PassSummary }
+  | { kind: "failed" }
+  | { kind: "cancelled" };
+
+/** Message shown after coming back from the Stripe page. */
+function PassResult({
+  result,
+  onClose,
+}: {
+  result: PassReturn;
+  onClose: () => void;
+}) {
+  const { t } = useTranslation();
+  const summary = result.kind === "done" ? result.summary : null;
+  const outcome =
+    result.kind === "done"
+      ? summary?.status === "paid"
+        ? "paid"
+        : summary?.status === "checkout_pending"
+          ? "processing"
+          : "cancelled"
+      : result.kind;
+
+  return (
+    <div
+      className={cx(
+        "notice pass-result",
+        outcome === "paid" && "notice--success",
+        outcome === "failed" && "notice--error"
+      )}
+      role={outcome === "failed" ? "alert" : "status"}
+    >
+      {outcome === "confirming" ? (
+        <p className="pass-result__confirming">
+          <Loader2 className="spinner" aria-hidden="true" />
+          {t("classes.purchase.result.confirming")}
+        </p>
+      ) : (
+        <>
+          <strong>{t(`classes.purchase.result.${outcome}.title`)}</strong>
+          {outcome === "paid" && summary ? (
+            <>
+              {t("classes.purchase.result.paid.body", {
+                pass: summary.passName,
+                email: summary.customerEmail,
+              })}
+              {summary.classLabel && (
+                <span className="pass-result__class">
+                  {t("classes.purchase.result.paid.class", {
+                    name: summary.classLabel,
+                  })}
+                </span>
+              )}
+            </>
+          ) : (
+            t(`classes.purchase.result.${outcome}.body`, {
+              email: BRAND.email,
+            })
+          )}
+          <button
+            type="button"
+            className="icon-button pass-result__close"
+            onClick={onClose}
+            aria-label={t("common.close")}
+          >
+            <X aria-hidden="true" />
+          </button>
+        </>
+      )}
+    </div>
+  );
+}
 
 function Avatar({ item }: { item: ScheduledClass }) {
   const initials = (item.instructorName ?? item.style)
@@ -92,7 +175,34 @@ export default function ClassesPage() {
   const lastDate = addDays(today, SCHEDULE_DAYS - 1);
   const [date, setDate] = useState(today);
   const [filters, setFilters] = useState<ClassFilters>(NO_FILTERS);
-  const [passFor, setPassFor] = useState<ScheduledClass | null>(null);
+  const [purchase, setPurchase] = useState<PurchaseStart | null>(null);
+  const [passReturn, setPassReturn] = useState<PassReturn | null>(null);
+  const confirmPass = trpc.passes.confirm.useMutation();
+
+  // Coming back from Stripe: /classes?pass=success&session_id=… or ?pass=cancelled
+  const handledReturn = useRef(false);
+  useEffect(() => {
+    if (handledReturn.current) return;
+    handledReturn.current = true;
+    const params = new URLSearchParams(window.location.search);
+    const outcome = params.get("pass");
+    if (!outcome) return;
+    window.history.replaceState(
+      window.history.state,
+      "",
+      window.location.pathname
+    );
+    const sessionId = params.get("session_id");
+    if (outcome === "success" && sessionId) {
+      setPassReturn({ kind: "confirming" });
+      confirmPass
+        .mutateAsync({ sessionId })
+        .then(summary => setPassReturn({ kind: "done", summary }))
+        .catch(() => setPassReturn({ kind: "failed" }));
+    } else {
+      setPassReturn({ kind: "cancelled" });
+    }
+  }, [confirmPass]);
 
   const query = trpc.site.classes.useQuery(undefined, {
     staleTime: 5 * 60 * 1000,
@@ -126,6 +236,12 @@ export default function ClassesPage() {
   return (
     <>
       <PageHeader title={t("classes.title")} intro={t("classes.intro")} />
+
+      {passReturn && (
+        <div className="container">
+          <PassResult result={passReturn} onClose={() => setPassReturn(null)} />
+        </div>
+      )}
 
       <section
         className="container class-finder"
@@ -287,7 +403,9 @@ export default function ClassesPage() {
                           <button
                             type="button"
                             className="button button--outline button--small class-card__buy"
-                            onClick={() => setPassFor(item)}
+                            onClick={() =>
+                              setPurchase({ pass: null, forClass: item })
+                            }
                             disabled={!passes.length}
                           >
                             {t("classes.buyPass")}
@@ -331,11 +449,15 @@ export default function ClassesPage() {
         </div>
       </section>
 
-      <PassShop passes={passes} />
-      <PassPicker
+      <PassShop
         passes={passes}
-        forClass={passFor}
-        onClose={() => setPassFor(null)}
+        onBuy={pass => setPurchase({ pass, forClass: null })}
+      />
+      <PassPurchase
+        start={purchase}
+        passes={passes}
+        classes={classes}
+        onClose={() => setPurchase(null)}
       />
     </>
   );

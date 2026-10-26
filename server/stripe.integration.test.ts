@@ -265,7 +265,7 @@ describe.skipIf(!TEST_DATABASE_URL)(
       expect(quote.available).toBe(true);
     });
 
-    it("verifies webhooks and ignores sessions from Payment Links", async () => {
+    it("verifies webhooks and ignores sessions from other integrations", async () => {
       const send = async (event: unknown, signature = "valid") => {
         const response = { statusCode: 200, body: undefined as unknown };
         const res = {

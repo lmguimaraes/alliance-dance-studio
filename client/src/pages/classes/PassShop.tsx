@@ -12,16 +12,27 @@ export type Pass = {
   detailsEs: string | null;
   priceCents: number;
   currency: string;
-  stripeUrl: string;
+  /** The customer chooses the one class the pass is for. */
+  requiresClass: boolean;
 };
 
 const CATEGORIES = ["classes", "rehearsal"] as const;
 
+export function passName(language: string, pass: Pass): string {
+  return localized(currentLanguage(language), {
+    en: pass.nameEn,
+    fr: pass.nameFr,
+    es: pass.nameEs,
+  });
+}
+
 export function PassList({
   passes,
+  onBuy,
   compact = false,
 }: {
   passes: Pass[];
+  onBuy: (pass: Pass) => void;
   compact?: boolean;
 }) {
   const { t, i18n } = useTranslation();
@@ -43,11 +54,7 @@ export function PassList({
               role="list"
             >
               {group.map(pass => {
-                const name = localized(language, {
-                  en: pass.nameEn,
-                  fr: pass.nameFr,
-                  es: pass.nameEs,
-                });
+                const name = passName(language, pass);
                 const details = localized(language, {
                   en: pass.detailsEn,
                   fr: pass.detailsFr,
@@ -64,15 +71,14 @@ export function PassList({
                     <span className="pass-card__price tabular">
                       {format.money(pass.priceCents, pass.currency)}
                     </span>
-                    <a
+                    <button
+                      type="button"
                       className="button button--outline button--small pass-card__buy"
-                      href={pass.stripeUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      onClick={() => onBuy(pass)}
                       aria-label={t("classes.passes.buyNamed", { name })}
                     >
                       {t("classes.passes.buy")}
-                    </a>
+                    </button>
                   </li>
                 );
               })}
@@ -84,7 +90,13 @@ export function PassList({
   );
 }
 
-export default function PassShop({ passes }: { passes: Pass[] }) {
+export default function PassShop({
+  passes,
+  onBuy,
+}: {
+  passes: Pass[];
+  onBuy: (pass: Pass) => void;
+}) {
   const { t } = useTranslation();
   if (!passes.length) return null;
 
@@ -101,7 +113,7 @@ export default function PassShop({ passes }: { passes: Pass[] }) {
         <p className="lead">{t("classes.passes.intro")}</p>
       </div>
       <div className="pass-shop__groups">
-        <PassList passes={passes} />
+        <PassList passes={passes} onBuy={onBuy} />
       </div>
     </section>
   );

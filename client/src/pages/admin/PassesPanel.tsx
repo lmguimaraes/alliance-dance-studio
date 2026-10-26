@@ -25,7 +25,7 @@ type PassForm = {
   detailsEs: string;
   price: string;
   currency: string;
-  stripeUrl: string;
+  requiresClass: boolean;
   sortOrder: string;
   isActive: boolean;
 };
@@ -41,7 +41,7 @@ const BLANK: PassForm = {
   detailsEs: "",
   price: "",
   currency: "cad",
-  stripeUrl: "",
+  requiresClass: true,
   sortOrder: "0",
   isActive: true,
 };
@@ -73,7 +73,7 @@ export default function PassesPanel({
     event.preventDefault();
     if (!form) return;
     const priceCents = dollarsToCents(form.price);
-    if (priceCents === null) {
+    if (priceCents === null || priceCents <= 0) {
       toast.error(t("admin.errors.invalid"));
       return;
     }
@@ -87,7 +87,7 @@ export default function PassesPanel({
       detailsEs: emptyToNull(form.detailsEs),
       priceCents,
       currency: form.currency || "cad",
-      stripeUrl: form.stripeUrl,
+      requiresClass: form.requiresClass,
       sortOrder: Number(form.sortOrder) || 0,
       isActive: form.isActive,
     };
@@ -157,14 +157,11 @@ export default function PassesPanel({
                 >
                   <td>
                     <div>{pass.nameEn}</div>
-                    <a
-                      className="admin-table__sub"
-                      href={pass.stripeUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      {pass.stripeUrl.replace("https://", "")}
-                    </a>
+                    {pass.requiresClass && (
+                      <div className="admin-table__sub">
+                        {t("admin.passes.requiresClass")}
+                      </div>
+                    )}
                   </td>
                   <td>
                     {t(`classes.passes.categories.${pass.category}`)}
@@ -194,7 +191,7 @@ export default function PassesPanel({
                           detailsEs: pass.detailsEs ?? "",
                           price: centsToDollars(pass.priceCents),
                           currency: pass.currency,
-                          stripeUrl: pass.stripeUrl,
+                          requiresClass: pass.requiresClass,
                           sortOrder: String(pass.sortOrder),
                           isActive: pass.isActive,
                         })
@@ -310,24 +307,15 @@ export default function PassesPanel({
                 />
               </label>
             </div>
-            <label className="field">
-              <span className="field__label">
-                {t("admin.passes.stripeUrl")}
-              </span>
+            <label className="checkbox">
               <input
-                className="field__input"
-                type="url"
-                required
-                placeholder="https://buy.stripe.com/…"
-                pattern="https://(buy|checkout)\.stripe\.com/.+"
-                value={form.stripeUrl}
+                type="checkbox"
+                checked={form.requiresClass}
                 onChange={event =>
-                  setForm({ ...form, stripeUrl: event.target.value })
+                  setForm({ ...form, requiresClass: event.target.checked })
                 }
               />
-              <span className="field__hint">
-                {t("admin.passes.stripeHint")}
-              </span>
+              {t("admin.passes.requiresClass")}
             </label>
             <label className="checkbox">
               <input

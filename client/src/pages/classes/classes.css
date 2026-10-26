@@ -464,12 +464,46 @@
   font-size: 1.375rem;
 }
 
-.pass-picker {
+/* Buying a pass ------------------------------------------------------------ */
+
+.pass-purchase {
   display: grid;
-  gap: 1.75rem;
+  gap: 1.25rem;
 }
 
-.pass-picker__note {
+.pass-purchase__actions {
+  display: grid;
+  justify-items: center;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.pass-purchase__note {
   color: var(--color-stone-dim);
   font-size: var(--text-xs);
+  text-align: center;
+}
+
+/* Message after returning from Stripe. */
+.pass-result {
+  position: relative;
+  margin-bottom: 1.5rem;
+  padding-right: 3.5rem;
+}
+
+.pass-result__class {
+  display: block;
+  margin-top: 0.25rem;
+}
+
+.pass-result__confirming {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.pass-result__close {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
 }

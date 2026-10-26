@@ -201,10 +201,39 @@
       "pickTitle": "Elige un pase",
       "buy": "Comprar",
       "buyNamed": "Comprar {{name}}",
-      "stripeNote": "El pago se abre en una nueva pestaña de Stripe.",
       "categories": {
         "classes": "Pases de clases",
         "rehearsal": "Ensayo libre"
+      }
+    },
+    "purchase": {
+      "class": "Clase",
+      "chooseClass": "Elige una clase",
+      "oneClass": "Un pase es para una sola clase.",
+      "pay": "Continuar al pago",
+      "otherPass": "Elegir otro pase",
+      "note": "Pagarás en la página segura de Stripe, donde tu nombre, correo y clase ya aparecen completados.",
+      "failed": "No se pudo iniciar el pago. Inténtalo de nuevo en un momento.",
+      "unavailable": "Este pase o esta clase ya no está disponible. Elige otro.",
+      "result": {
+        "confirming": "Confirmando tu pago…",
+        "paid": {
+          "title": "Pago recibido",
+          "body": "Pago registrado para {{pass}} con el correo {{email}}.",
+          "class": "Clase: {{name}}"
+        },
+        "processing": {
+          "title": "Pago en proceso",
+          "body": "Stripe aún está confirmando tu pago. Registraremos tu pase en cuanto termine."
+        },
+        "cancelled": {
+          "title": "Pago cancelado",
+          "body": "No se cobró nada. Elige un pase cuando quieras."
+        },
+        "failed": {
+          "title": "No pudimos confirmar tu pago",
+          "body": "Si se te cobró, escríbenos a {{email}} y lo resolveremos."
+        }
       }
     }
   },
@@ -390,6 +419,7 @@
       "bookings": "Reservas",
       "classes": "Clases",
       "passes": "Pases",
+      "passSales": "Ventas de pases",
       "discover": "Descubrir",
       "studios": "Estudios"
     },
@@ -480,7 +510,7 @@
     "passes": {
       "add": "Añadir pase",
       "edit": "Editar pase",
-      "help": "Los pases enlazan a Payment Links de Stripe. Crea el enlace en Stripe y pégalo aquí.",
+      "help": "Los clientes eligen un pase en la página de clases y pagan con Stripe. El precio de aquí es el que pagan.",
       "empty": "Todavía no hay pases.",
       "name": "Nombre",
       "details": "Detalles",
@@ -488,10 +518,34 @@
       "price": "Precio",
       "priceDollars": "Precio ($)",
       "order": "Orden",
-      "stripeUrl": "Payment Link de Stripe",
-      "stripeHint": "Empieza por https://buy.stripe.com/",
+      "requiresClass": "El cliente elige una clase (una clase por pase)",
       "visible": "Mostrar en la página de clases",
       "confirmDelete": "¿Eliminar este pase?"
+    },
+    "passSales": {
+      "help": "Pases comprados en el sitio. Los reembolsos se hacen en el panel de Stripe.",
+      "show": "Mostrar",
+      "filters": {
+        "paid": "Pagados",
+        "all": "Todos, incluidos los no pagados"
+      },
+      "search": "Buscar por nombre, correo, pase o clase",
+      "empty": "Todavía no hay ventas de pases.",
+      "summary_one": "{{count}} venta pagada, {{total}}",
+      "summary_many": "{{count}} ventas pagadas, {{total}}",
+      "summary_other": "{{count}} ventas pagadas, {{total}}",
+      "date": "Fecha",
+      "customer": "Cliente",
+      "pass": "Pase",
+      "status": "Estado",
+      "amount": "Importe",
+      "stripe": "Stripe",
+      "statuses": {
+        "paid": "Pagado",
+        "checkout_pending": "Pendiente de pago",
+        "expired": "Sin completar",
+        "cancelled": "Cancelado"
+      }
     },
     "discover": {
       "add": "Añadir ficha",

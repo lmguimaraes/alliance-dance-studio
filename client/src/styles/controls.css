@@ -261,6 +261,11 @@
   font-weight: 500;
 }
 
+.notice--success {
+  border-color: var(--color-gold-deep);
+  background: var(--color-gold-wash);
+}
+
 .notice--error {
   border-color: var(--color-burgundy-bright);
   background: var(--color-burgundy-wash);
