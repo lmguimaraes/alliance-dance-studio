@@ -1,4 +1,11 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  Fragment,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useTranslation } from "react-i18next";
 import { Instagram, Loader2, Search, X } from "lucide-react";
 import {
@@ -133,34 +140,49 @@ function Avatar({ item }: { item: ScheduledClass }) {
   );
 }
 
-type ChipGroupProps = {
-  label: string;
-  allLabel: string;
-  value: string;
-  options: { value: string; label: string }[];
-  onChange: (value: string) => void;
-};
+type Chip = { kind: "style" | "level"; value: string; label: string };
 
-/** A row of filter chips; one is pressed at a time, "All" clears it. */
-function ChipGroup({
+/**
+ * One row of chips with one choice: a class type or a level. Picking one
+ * replaces the other; "All classes" clears it.
+ */
+function FilterChips({
   label,
   allLabel,
-  value,
-  options,
-  onChange,
-}: ChipGroupProps) {
+  chips,
+  filters,
+  onSelect,
+}: {
+  label: string;
+  allLabel: string;
+  chips: Chip[];
+  filters: ClassFilters;
+  onSelect: (chip: Chip | null) => void;
+}) {
   return (
     <div className="filter-chips" role="group" aria-label={label}>
-      {[{ value: "", label: allLabel }, ...options].map(option => (
-        <button
-          key={option.value || "all"}
-          type="button"
-          className="filter-chip"
-          aria-pressed={value === option.value}
-          onClick={() => onChange(option.value)}
-        >
-          {option.label}
-        </button>
+      <button
+        type="button"
+        className="filter-chip"
+        aria-pressed={!filters.style && !filters.level}
+        onClick={() => onSelect(null)}
+      >
+        {allLabel}
+      </button>
+      {chips.map((chip, index) => (
+        <Fragment key={`${chip.kind}-${chip.value}`}>
+          {index > 0 && chip.kind !== chips[index - 1].kind && (
+            <span className="filter-chips__divider" aria-hidden="true" />
+          )}
+          <button
+            type="button"
+            className="filter-chip"
+            aria-pressed={filters[chip.kind] === chip.value}
+            onClick={() => onSelect(chip)}
+          >
+            {chip.label}
+          </button>
+        </Fragment>
       ))}
     </div>
   );
@@ -225,6 +247,24 @@ export default function ClassesPage() {
     [classes]
   );
 
+  // Types first, then levels; a group with a single value is left out.
+  const chips: Chip[] = [
+    ...(styles.length > 1
+      ? styles.map(style => ({
+          kind: "style" as const,
+          value: style,
+          label: style,
+        }))
+      : []),
+    ...(levels.length > 1
+      ? levels.map(level => ({
+          kind: "level" as const,
+          value: level,
+          label: levelLabel(level),
+        }))
+      : []),
+  ];
+
   const dayClasses = classesOn(classes, date, filters, levelLabel);
   const nextDate = dayClasses.length
     ? null
@@ -275,25 +315,19 @@ export default function ClassesPage() {
               </button>
             )}
           </div>
-          {styles.length > 1 && (
-            <ChipGroup
-              label={t("classes.filters.style")}
-              allLabel={t("classes.filters.allStyles")}
-              value={filters.style}
-              options={styles.map(style => ({ value: style, label: style }))}
-              onChange={setFilter("style")}
-            />
-          )}
-          {levels.length > 1 && (
-            <ChipGroup
-              label={t("classes.filters.level")}
-              allLabel={t("classes.filters.allLevels")}
-              value={filters.level}
-              options={levels.map(level => ({
-                value: level,
-                label: levelLabel(level),
-              }))}
-              onChange={setFilter("level")}
+          {chips.length > 0 && (
+            <FilterChips
+              label={t("classes.filters.label")}
+              allLabel={t("classes.filters.all")}
+              chips={chips}
+              filters={filters}
+              onSelect={chip =>
+                setFilters(current => ({
+                  ...current,
+                  style: chip?.kind === "style" ? chip.value : "",
+                  level: chip?.kind === "level" ? chip.value : "",
+                }))
+              }
             />
           )}
         </div>

@@ -78,7 +78,7 @@
   height: 18px;
 }
 
-/* One row of chips per filter; scrolls sideways on phones. */
+/* One row of chips; scrolls sideways when it doesn't fit. */
 .filter-chips {
   display: flex;
   gap: 0.5rem;
@@ -119,13 +119,14 @@
   color: var(--color-black);
 }
 
-@media (min-width: 720px) {
-  .filter-chips {
-    flex-wrap: wrap;
-    margin-inline: 0;
-    padding-inline: 0;
-    overflow: visible;
-  }
+/* Separates class types from levels. */
+.filter-chips__divider {
+  flex-shrink: 0;
+  align-self: center;
+  width: 1px;
+  height: 1.5rem;
+  margin-inline: 0.25rem;
+  background: var(--color-line-strong);
 }
 
 /* Day ---------------------------------------------------------------------- */

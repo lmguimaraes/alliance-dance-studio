@@ -179,10 +179,8 @@
       "clear": "Effacer la recherche"
     },
     "filters": {
-      "style": "Type de cours",
-      "level": "Niveau",
-      "allStyles": "Tous les styles",
-      "allLevels": "Tous les niveaux",
+      "label": "Filtrer par type de cours ou niveau",
+      "all": "Tous les cours",
       "clear": "Voir tous les cours"
     },
     "levels": {

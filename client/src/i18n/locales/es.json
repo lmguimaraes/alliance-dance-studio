@@ -179,10 +179,8 @@
       "clear": "Borrar búsqueda"
     },
     "filters": {
-      "style": "Tipo de clase",
-      "level": "Nivel",
-      "allStyles": "Todos los estilos",
-      "allLevels": "Todos los niveles",
+      "label": "Filtrar por tipo de clase o nivel",
+      "all": "Todas las clases",
       "clear": "Ver todas las clases"
     },
     "levels": {
