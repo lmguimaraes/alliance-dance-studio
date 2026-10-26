@@ -9,6 +9,7 @@ import { createContext } from "./context";
 import { ENV, validateRuntimeConfiguration } from "./env";
 import { isMalformedRequestTarget } from "./requestTarget";
 import { serveStatic, setupVite } from "./vite";
+import { runMigrations } from "../../scripts/run-database-migrations.mjs";
 
 function configuredPort(): number {
   const port = Number.parseInt(process.env.PORT || "3000", 10);
@@ -33,6 +34,9 @@ const CONTENT_SECURITY_POLICY = [
 
 async function startServer(): Promise<void> {
   validateRuntimeConfiguration();
+  // Every start, including watch restarts after a pull, brings the database
+  // up to date before any request can reach code that expects the new schema.
+  await runMigrations();
 
   const app = express();
   app.disable("x-powered-by");

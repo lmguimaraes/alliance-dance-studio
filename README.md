@@ -23,14 +23,14 @@ Built with React 19 and Vite on the front end, and Express, tRPC and PostgreSQL 
 ```bash
 pnpm install
 cp .env.example .env      # then fill in DATABASE_URL and the Stripe test keys
-pnpm dev                  # applies database migrations, then starts on APP_URL
+pnpm dev                  # applies database migrations, then starts on APP_URL (restarts on changes)
 ```
 
 `pnpm db:seed` creates Studio 5, 6 and 7 with daily 09:00–22:00 hours on an empty database. It replaces the opening hours of those three studios, so don't run it against production.
 
 ## Database
 
-Migrations live in `database/migrations` and are applied in file-name order by `pnpm db:migrate`, which `pnpm dev` and `pnpm start` run automatically. Applied files are recorded in `_appMigrations` with a checksum, so never edit a migration after it has run; add a new file instead.
+Migrations live in `database/migrations` and are applied in file-name order every time the server starts, including the automatic restarts of `pnpm dev` after a `git pull`, so the database always matches the code. `pnpm db:migrate` runs them on their own. Applied files are recorded in `_appMigrations` with a checksum, so never edit a migration after it has run; add a new file instead.
 
 | Migration                                  | Purpose                                                                                                                                             |
 | ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -39,6 +39,7 @@ Migrations live in `database/migrations` and are applied in file-name order by `
 | `20261015_classes_passes_discover.sql`     | Adds `classes`, `class_passes` and `discover_entries`, seeds the current class schedule and pass links, and enables row level security (see below). |
 | `20261016_rental_audience_per_booking.sql` | Stores private or group on each booking (`bookings.audience`), so one order can mix both. `reservations.audience` becomes NULL for mixed orders.    |
 | `20261026_pass_purchases.sql`              | Adds `pass_purchases` (every pass sale) and `class_passes.requires_class`, and removes the Payment Link column from `class_passes`.                 |
+| `20261027_fall_session_2026.sql`           | The Fall 2026 class schedule (October 26 to December 17); earlier classes end on October 25.                                                        |
 
 To apply a migration by hand instead, paste it into the Supabase SQL editor and then record it so the app skips it:
 
@@ -100,7 +101,7 @@ GitHub Actions runs all of the above, against a temporary PostgreSQL, on every p
 ```bash
 pnpm install --frozen-lockfile
 pnpm build
-pnpm start          # migrates, then serves dist/ on PORT
+pnpm start          # applies migrations, then serves dist/ on PORT
 ```
 
 Required in production: `DATABASE_URL`, an HTTPS `APP_URL`, `JWT_SECRET` (32+ characters), `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET`. Set `ADMIN_PASSWORD` too. Behind a load balancer or proxy, set `TRUST_PROXY_HOPS` so rate limits see real client addresses. Rate limits are kept in memory per process; use a shared limiter if you run more than one instance.

@@ -1,5 +1,6 @@
 import {
   minutesToTime,
+  studioNow,
   timeToMinutes,
   type ClassLevel,
 } from "../shared/booking";
@@ -31,8 +32,13 @@ export type DanceClass = {
 
 export type DanceClassInput = Omit<DanceClass, "id" | "studioName">;
 
-async function selectClasses(activeOnly: boolean): Promise<DanceClass[]> {
+/**
+ * Public: active classes that haven't ended (the filter chips come from these).
+ * Admin: every class.
+ */
+async function selectClasses(publicOnly: boolean): Promise<DanceClass[]> {
   const sql = getSql();
+  const today = studioNow().dateKey;
   return sql<DanceClass[]>`
     SELECT
       c.id,
@@ -52,7 +58,8 @@ async function selectClasses(activeOnly: boolean): Promise<DanceClass[]> {
       c.is_active AS "isActive"
     FROM classes AS c
     LEFT JOIN studios AS s ON s.id = c.studio_id
-    WHERE ${activeOnly} = FALSE OR c.is_active IS TRUE
+    WHERE ${publicOnly} = FALSE
+       OR (c.is_active IS TRUE AND (c.ends_on IS NULL OR c.ends_on >= ${today}::date))
     ORDER BY c.day_of_week, c.start_time, c.title
   `;
 }
