@@ -95,3 +95,78 @@
   outline: 2px solid var(--color-gold);
   outline-offset: 3px;
 }
+
+/* Tabs: weekday and date with a gold underline (classes). ------------------ */
+
+.date-strip--tabs .date-strip__days {
+  gap: 0;
+  border-bottom: 1px solid var(--color-line);
+}
+
+.date-strip--tabs .date-strip__day {
+  gap: 0.15rem;
+  padding: 0.6rem 0.25rem 0.85rem;
+  color: var(--color-stone);
+  transition: color var(--duration-fast) ease;
+}
+
+.date-strip--tabs .date-strip__weekday {
+  color: inherit;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.date-strip--tabs .date-strip__date {
+  color: var(--color-stone-dim);
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.date-strip--tabs .date-strip__day:not(:disabled):hover {
+  color: var(--color-ivory);
+}
+
+.date-strip--tabs .date-strip__day--selected {
+  color: var(--color-ivory);
+}
+
+.date-strip--tabs .date-strip__day--selected .date-strip__date {
+  color: var(--color-gold);
+}
+
+.date-strip--tabs .date-strip__day--selected::after {
+  content: "";
+  position: absolute;
+  right: 0.5rem;
+  bottom: -1px;
+  left: 0.5rem;
+  width: auto;
+  height: 2px;
+  background: var(--color-gold);
+}
+
+.date-strip--tabs .date-strip__day:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: -2px;
+}
+
+.date-strip__long {
+  display: none;
+}
+
+@media (min-width: 720px) {
+  .date-strip--tabs .date-strip__weekday {
+    font-size: var(--text-base);
+  }
+
+  .date-strip__long {
+    display: inline;
+  }
+
+  .date-strip__short {
+    display: none;
+  }
+}

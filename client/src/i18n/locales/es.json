@@ -173,24 +173,27 @@
     "scheduleTitle": "Horario de clases",
     "chooseDay": "Elegir un día",
     "timeZoneNote": "Los horarios se muestran en hora de Montreal.",
+    "search": {
+      "label": "Buscar clases",
+      "placeholder": "Clase, estilo o profesor",
+      "clear": "Borrar búsqueda"
+    },
     "filters": {
       "style": "Tipo de clase",
       "level": "Nivel",
-      "instructor": "Profesor",
-      "allStyles": "Todas las clases",
+      "allStyles": "Todos los estilos",
       "allLevels": "Todos los niveles",
-      "allInstructors": "Todos los profesores",
-      "clear": "Borrar filtros"
+      "clear": "Ver todas las clases"
     },
     "levels": {
       "beginner": "Principiante",
       "intermediate": "Intermedio",
       "advanced": "Avanzado",
-      "open": "Todos los niveles"
+      "open": "Abierto a todos"
     },
     "buyPass": "Comprar un pase",
     "empty": "No hay clases este día.",
-    "emptyFiltered": "Ninguna clase coincide con estos filtros este día.",
+    "emptyFiltered": "Ninguna clase coincide con tu búsqueda o tus filtros este día.",
     "nextClass": "Próxima clase: {{date}}",
     "passes": {
       "title": "Pases",

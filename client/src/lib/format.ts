@@ -29,11 +29,6 @@ function createFormatters(language: Language) {
   const dateFormat = (options: Intl.DateTimeFormatOptions) =>
     new Intl.DateTimeFormat(locale, { ...options, timeZone: "UTC" });
 
-  const longDate = dateFormat({
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-  });
   const fullDate = dateFormat({
     weekday: "long",
     month: "long",
@@ -48,6 +43,7 @@ function createFormatters(language: Language) {
   const monthDay = dateFormat({ month: "short", day: "numeric" });
   const monthYear = dateFormat({ month: "long", year: "numeric" });
   const weekdayShort = dateFormat({ weekday: "short" });
+  const weekdayLong = dateFormat({ weekday: "long" });
   const dayNumber = dateFormat({ day: "numeric" });
   const time = new Intl.DateTimeFormat(locale, {
     hour: "numeric",
@@ -76,13 +72,14 @@ function createFormatters(language: Language) {
         minimumFractionDigits: cents % 100 === 0 ? 0 : 2,
       }).format(cents / 100);
     },
-    longDate: (dateKey: string) => longDate.format(dateKeyToDate(dateKey)),
     fullDate: (dateKey: string) => fullDate.format(dateKeyToDate(dateKey)),
     shortDate: (dateKey: string) => shortDate.format(dateKeyToDate(dateKey)),
     monthDay: (dateKey: string) => monthDay.format(dateKeyToDate(dateKey)),
     monthYear: (dateKey: string) => monthYear.format(dateKeyToDate(dateKey)),
     weekdayShort: (dateKey: string) =>
       weekdayShort.format(dateKeyToDate(dateKey)),
+    weekdayLong: (dateKey: string) =>
+      weekdayLong.format(dateKeyToDate(dateKey)),
     dayNumber: (dateKey: string) => dayNumber.format(dateKeyToDate(dateKey)),
     time: (value: string) => time.format(timeAsDate(value)),
     timeRange: (start: string, end: string) =>

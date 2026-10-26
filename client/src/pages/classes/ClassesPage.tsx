@@ -1,14 +1,24 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Instagram } from "lucide-react";
-import { addDays, CLASS_LEVELS, studioNow } from "@shared/booking";
+import { Instagram, Search, X } from "lucide-react";
+import {
+  addDays,
+  CLASS_LEVELS,
+  minutesToTime,
+  studioNow,
+  timeToMinutes,
+  type ClassLevel,
+} from "@shared/booking";
 import DateStrip from "@/components/DateStrip";
 import PageHeader from "@/components/PageHeader";
+import { cx } from "@/lib/cx";
 import { useFormat } from "@/lib/format";
 import { trpc } from "@/lib/trpc";
 import { usePageMeta } from "@/lib/usePageMeta";
 import {
   classesOn,
+  groupByStartTime,
+  hasFilters,
   nextClassDate,
   NO_FILTERS,
   uniqueSorted,
@@ -30,13 +40,46 @@ function Avatar({ item }: { item: ScheduledClass }) {
     .map(part => part[0]?.toUpperCase())
     .join("");
   return (
-    <span className="class-row__avatar" aria-hidden="true">
+    <span className="class-card__avatar" aria-hidden="true">
       {item.instructorImageUrl ? (
         <img src={item.instructorImageUrl} alt="" loading="lazy" />
       ) : (
         initials
       )}
     </span>
+  );
+}
+
+type ChipGroupProps = {
+  label: string;
+  allLabel: string;
+  value: string;
+  options: { value: string; label: string }[];
+  onChange: (value: string) => void;
+};
+
+/** A row of filter chips; one is pressed at a time, "All" clears it. */
+function ChipGroup({
+  label,
+  allLabel,
+  value,
+  options,
+  onChange,
+}: ChipGroupProps) {
+  return (
+    <div className="filter-chips" role="group" aria-label={label}>
+      {[{ value: "", label: allLabel }, ...options].map(option => (
+        <button
+          key={option.value || "all"}
+          type="button"
+          className="filter-chip"
+          aria-pressed={value === option.value}
+          onClick={() => onChange(option.value)}
+        >
+          {option.label}
+        </button>
+      ))}
+    </div>
   );
 }
 
@@ -57,28 +100,28 @@ export default function ClassesPage() {
   const classes = (query.data?.classes ?? []) as ScheduledClass[];
   const passes = query.data?.passes ?? [];
 
-  const options = useMemo(
-    () => ({
-      styles: uniqueSorted(classes.map(item => item.style)),
-      levels: CLASS_LEVELS.filter(level =>
-        classes.some(item => item.level === level)
-      ),
-      instructors: uniqueSorted(classes.map(item => item.instructorName)),
-    }),
+  const levelLabel = useCallback(
+    (level: ClassLevel) => t(`classes.levels.${level}`),
+    [t]
+  );
+  // Chips come from the classes that are active in the admin panel.
+  const styles = useMemo(
+    () => uniqueSorted(classes.map(item => item.style)),
     [classes]
   );
-  const dayClasses = classesOn(classes, date, filters);
-  const nextDate = dayClasses.length
-    ? null
-    : nextClassDate(classes, date, lastDate, filters);
-  const filtersActive = Boolean(
-    filters.style || filters.level || filters.instructor
+  const levels = useMemo(
+    () =>
+      CLASS_LEVELS.filter(level => classes.some(item => item.level === level)),
+    [classes]
   );
 
-  const updateFilter =
-    (key: keyof ClassFilters) =>
-    (event: React.ChangeEvent<HTMLSelectElement>) =>
-      setFilters(current => ({ ...current, [key]: event.target.value }));
+  const dayClasses = classesOn(classes, date, filters, levelLabel);
+  const nextDate = dayClasses.length
+    ? null
+    : nextClassDate(classes, date, lastDate, filters, levelLabel);
+  const filtering = hasFilters(filters);
+  const setFilter = (key: keyof ClassFilters) => (value: string) =>
+    setFilters(current => ({ ...current, [key]: value }));
 
   return (
     <>
@@ -88,59 +131,55 @@ export default function ClassesPage() {
         className="container class-finder"
         aria-labelledby="class-finder-title"
       >
-        <div className="class-finder__toolbar">
-          <h2 id="class-finder-title" className="visually-hidden">
-            {t("classes.scheduleTitle")}
-          </h2>
-          <div className="class-filters">
-            <label className="field">
-              <span className="field__label">{t("classes.filters.style")}</span>
-              <select
-                className="field__select"
-                value={filters.style}
-                onChange={updateFilter("style")}
+        <h2 id="class-finder-title" className="visually-hidden">
+          {t("classes.scheduleTitle")}
+        </h2>
+
+        <div className="class-finder__filters">
+          <div className="class-search">
+            <Search className="class-search__icon" aria-hidden="true" />
+            <input
+              className="class-search__input"
+              type="search"
+              value={filters.search}
+              onChange={event => setFilter("search")(event.target.value)}
+              placeholder={t("classes.search.placeholder")}
+              aria-label={t("classes.search.label")}
+              autoComplete="off"
+              enterKeyHint="search"
+            />
+            {filters.search && (
+              <button
+                type="button"
+                className="class-search__clear"
+                onClick={() => setFilter("search")("")}
+                aria-label={t("classes.search.clear")}
               >
-                <option value="">{t("classes.filters.allStyles")}</option>
-                {options.styles.map(style => (
-                  <option key={style} value={style}>
-                    {style}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="field">
-              <span className="field__label">{t("classes.filters.level")}</span>
-              <select
-                className="field__select"
-                value={filters.level}
-                onChange={updateFilter("level")}
-              >
-                <option value="">{t("classes.filters.allLevels")}</option>
-                {options.levels.map(level => (
-                  <option key={level} value={level}>
-                    {t(`classes.levels.${level}`)}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="field">
-              <span className="field__label">
-                {t("classes.filters.instructor")}
-              </span>
-              <select
-                className="field__select"
-                value={filters.instructor}
-                onChange={updateFilter("instructor")}
-              >
-                <option value="">{t("classes.filters.allInstructors")}</option>
-                {options.instructors.map(name => (
-                  <option key={name} value={name}>
-                    {name}
-                  </option>
-                ))}
-              </select>
-            </label>
+                <X aria-hidden="true" />
+              </button>
+            )}
           </div>
+          {styles.length > 1 && (
+            <ChipGroup
+              label={t("classes.filters.style")}
+              allLabel={t("classes.filters.allStyles")}
+              value={filters.style}
+              options={styles.map(style => ({ value: style, label: style }))}
+              onChange={setFilter("style")}
+            />
+          )}
+          {levels.length > 1 && (
+            <ChipGroup
+              label={t("classes.filters.level")}
+              allLabel={t("classes.filters.allLevels")}
+              value={filters.level}
+              options={levels.map(level => ({
+                value: level,
+                label: levelLabel(level),
+              }))}
+              onChange={setFilter("level")}
+            />
+          )}
         </div>
 
         <DateStrip
@@ -149,18 +188,22 @@ export default function ClassesPage() {
           lastDate={lastDate}
           onSelect={setDate}
           label={t("classes.chooseDay")}
+          variant="tabs"
         />
 
         <div className="class-day" aria-live="polite">
           <div className="class-day__heading">
-            <h3 className="class-day__date">{format.longDate(date)}</h3>
+            <h3 className="class-day__title">
+              {format.weekdayLong(date)}
+              <span className="class-day__date">{format.monthDay(date)}</span>
+            </h3>
             <p className="class-day__note">{t("classes.timeZoneNote")}</p>
           </div>
 
           {query.isLoading ? (
-            <div className="class-list" aria-busy="true">
+            <div className="class-timeline" aria-busy="true">
               {[0, 1, 2].map(index => (
-                <div key={index} className="skeleton class-row--skeleton" />
+                <div key={index} className="skeleton class-card--skeleton" />
               ))}
             </div>
           ) : query.error ? (
@@ -176,62 +219,90 @@ export default function ClassesPage() {
               </button>
             </div>
           ) : dayClasses.length ? (
-            <ul className="class-list" role="list">
-              {dayClasses.map(item => (
-                <li key={item.id} className="class-row">
-                  <div className="class-row__time">
-                    <span className="class-row__start tabular">
-                      {format.time(item.startTime)}
-                    </span>
-                    <span className="class-row__duration">
-                      {format.duration(item.durationMinutes)}
-                    </span>
-                  </div>
-                  <Avatar item={item} />
-                  <div className="class-row__details">
-                    <h4 className="class-row__title">{item.title}</h4>
-                    <p className="class-row__meta">
-                      <span className="class-row__level">
-                        {t(`classes.levels.${item.level}`)}
-                      </span>
-                      {item.instructorName &&
-                        (item.instructorInstagram ? (
-                          <a
-                            className="class-row__instructor"
-                            href={`https://www.instagram.com/${item.instructorInstagram}/`}
-                            target="_blank"
-                            rel="noreferrer"
+            <ol className="class-timeline" role="list">
+              {groupByStartTime(dayClasses).map(group => (
+                <li key={group.startTime} className="class-timeline__slot">
+                  <p className="class-timeline__time tabular">
+                    {format.time(group.startTime)}
+                  </p>
+                  <ul className="class-timeline__cards" role="list">
+                    {group.items.map(item => (
+                      <li key={item.id}>
+                        <article
+                          className="class-card"
+                          aria-labelledby={`class-${item.id}`}
+                        >
+                          <div className="class-card__top">
+                            <p className="class-card__when tabular">
+                              {format.timeRange(
+                                item.startTime,
+                                minutesToTime(
+                                  timeToMinutes(item.startTime) +
+                                    item.durationMinutes
+                                )
+                              )}
+                            </p>
+                            <span className="class-card__style">
+                              {item.style}
+                            </span>
+                          </div>
+                          <h4
+                            id={`class-${item.id}`}
+                            className="class-card__title"
                           >
-                            <Instagram aria-hidden="true" />
-                            {item.instructorName}
-                          </a>
-                        ) : (
-                          <span className="class-row__instructor">
-                            {item.instructorName}
-                          </span>
-                        ))}
-                    </p>
-                    {item.studioName && (
-                      <p className="class-row__place">{item.studioName}</p>
-                    )}
-                  </div>
-                  <button
-                    type="button"
-                    className="button button--primary class-row__action"
-                    onClick={() => setPassFor(item)}
-                    disabled={!passes.length}
-                  >
-                    {t("classes.buyPass")}
-                  </button>
+                            {item.title}
+                          </h4>
+                          {item.instructorName && (
+                            <p className="class-card__teacher">
+                              <Avatar item={item} />
+                              {item.instructorInstagram ? (
+                                <a
+                                  href={`https://www.instagram.com/${item.instructorInstagram}/`}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                >
+                                  {item.instructorName}
+                                  <Instagram aria-hidden="true" />
+                                </a>
+                              ) : (
+                                <span>{item.instructorName}</span>
+                              )}
+                            </p>
+                          )}
+                          <ul className="class-card__tags" role="list">
+                            {item.studioName && (
+                              <li className="class-tag class-tag--room">
+                                {item.studioName}
+                              </li>
+                            )}
+                            <li
+                              className={cx(
+                                "class-tag",
+                                `class-tag--${item.level}`
+                              )}
+                            >
+                              {levelLabel(item.level)}
+                            </li>
+                          </ul>
+                          <button
+                            type="button"
+                            className="button button--outline button--small class-card__buy"
+                            onClick={() => setPassFor(item)}
+                            disabled={!passes.length}
+                          >
+                            {t("classes.buyPass")}
+                          </button>
+                        </article>
+                      </li>
+                    ))}
+                  </ul>
                 </li>
               ))}
-            </ul>
+            </ol>
           ) : (
             <div className="empty-state">
               <p>
-                {filtersActive
-                  ? t("classes.emptyFiltered")
-                  : t("classes.empty")}
+                {filtering ? t("classes.emptyFiltered") : t("classes.empty")}
               </p>
               <div className="button-row">
                 {nextDate && (
@@ -245,7 +316,7 @@ export default function ClassesPage() {
                     })}
                   </button>
                 )}
-                {filtersActive && (
+                {filtering && (
                   <button
                     type="button"
                     className="button button--quiet"

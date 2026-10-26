@@ -173,24 +173,27 @@
     "scheduleTitle": "Horaire des cours",
     "chooseDay": "Choisir un jour",
     "timeZoneNote": "Les heures sont indiquées à l'heure de Montréal.",
+    "search": {
+      "label": "Rechercher un cours",
+      "placeholder": "Cours, style ou professeur",
+      "clear": "Effacer la recherche"
+    },
     "filters": {
       "style": "Type de cours",
       "level": "Niveau",
-      "instructor": "Professeur",
-      "allStyles": "Tous les cours",
+      "allStyles": "Tous les styles",
       "allLevels": "Tous les niveaux",
-      "allInstructors": "Tous les professeurs",
-      "clear": "Effacer les filtres"
+      "clear": "Voir tous les cours"
     },
     "levels": {
       "beginner": "Débutant",
       "intermediate": "Intermédiaire",
       "advanced": "Avancé",
-      "open": "Tous niveaux"
+      "open": "Ouvert à tous"
     },
     "buyPass": "Acheter une carte",
     "empty": "Aucun cours ce jour-là.",
-    "emptyFiltered": "Aucun cours ne correspond à ces filtres ce jour-là.",
+    "emptyFiltered": "Aucun cours ne correspond à votre recherche ou à vos filtres ce jour-là.",
     "nextClass": "Prochain cours : {{date}}",
     "passes": {
       "title": "Cartes",

@@ -12,6 +12,8 @@ type DateStripProps = {
   onSelect: (date: string) => void;
   /** Label for the group of day buttons, read by screen readers. */
   label: string;
+  /** "circles" (rentals) or "tabs": weekday and date with an underline. */
+  variant?: "circles" | "tabs";
 };
 
 const DAYS_SHOWN = 7;
@@ -23,6 +25,7 @@ export default function DateStrip({
   lastDate,
   onSelect,
   label,
+  variant = "circles",
 }: DateStripProps) {
   const { t } = useTranslation();
   const format = useFormat();
@@ -51,22 +54,26 @@ export default function DateStrip({
     onSelect(start);
   }
 
+  const tabs = variant === "tabs";
+
   return (
-    <div className="date-strip">
-      <div className="date-strip__header">
-        <p className="date-strip__month" aria-live="polite">
-          {format.monthYear(selected)}
-        </p>
-        {selected !== today && (
-          <button
-            type="button"
-            className="button button--quiet"
-            onClick={() => onSelect(today)}
-          >
-            {t("common.today")}
-          </button>
-        )}
-      </div>
+    <div className={cx("date-strip", tabs && "date-strip--tabs")}>
+      {!tabs && (
+        <div className="date-strip__header">
+          <p className="date-strip__month" aria-live="polite">
+            {format.monthYear(selected)}
+          </p>
+          {selected !== today && (
+            <button
+              type="button"
+              className="button button--quiet"
+              onClick={() => onSelect(today)}
+            >
+              {t("common.today")}
+            </button>
+          )}
+        </div>
+      )}
       <div className="date-strip__week">
         <button
           type="button"
@@ -94,12 +101,37 @@ export default function DateStrip({
                 disabled={unavailable}
                 onClick={() => onSelect(day)}
               >
-                <span className="date-strip__weekday">
-                  {format.weekdayShort(day)}
-                </span>
-                <span className="date-strip__number">
-                  {format.dayNumber(day)}
-                </span>
+                {tabs ? (
+                  <>
+                    <span className="date-strip__weekday">
+                      <span className="date-strip__long">
+                        {day === today
+                          ? t("common.today")
+                          : format.weekdayLong(day)}
+                      </span>
+                      <span className="date-strip__short">
+                        {format.weekdayShort(day)}
+                      </span>
+                    </span>
+                    <span className="date-strip__date">
+                      <span className="date-strip__long">
+                        {format.monthDay(day)}
+                      </span>
+                      <span className="date-strip__short">
+                        {format.dayNumber(day)}
+                      </span>
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <span className="date-strip__weekday">
+                      {format.weekdayShort(day)}
+                    </span>
+                    <span className="date-strip__number">
+                      {format.dayNumber(day)}
+                    </span>
+                  </>
+                )}
               </button>
             );
           })}
