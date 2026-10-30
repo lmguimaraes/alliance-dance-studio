@@ -14,6 +14,10 @@ type DateStripProps = {
   label: string;
   /** "circles" (rentals) or "tabs": weekday and date with an underline. */
   variant?: "circles" | "tabs";
+  /** Dates after this one can be looked at but not booked. */
+  viewOnlyAfter?: string;
+  /** Added to the accessible name of those dates. */
+  viewOnlyLabel?: string;
 };
 
 const DAYS_SHOWN = 7;
@@ -26,6 +30,8 @@ export default function DateStrip({
   onSelect,
   label,
   variant = "circles",
+  viewOnlyAfter,
+  viewOnlyLabel,
 }: DateStripProps) {
   const { t } = useTranslation();
   const format = useFormat();
@@ -87,6 +93,8 @@ export default function DateStrip({
         <div className="date-strip__days" role="group" aria-label={label}>
           {days.map(day => {
             const unavailable = day < today || day > lastDate;
+            const viewOnly = viewOnlyAfter !== undefined && day > viewOnlyAfter;
+            const name = format.fullDate(day);
             return (
               <button
                 key={day}
@@ -94,10 +102,14 @@ export default function DateStrip({
                 className={cx(
                   "date-strip__day",
                   day === selected && "date-strip__day--selected",
-                  day === today && "date-strip__day--today"
+                  day === today && "date-strip__day--today",
+                  viewOnly && "date-strip__day--view-only"
                 )}
                 aria-pressed={day === selected}
-                aria-label={format.fullDate(day)}
+                aria-label={
+                  viewOnly && viewOnlyLabel ? `${name}, ${viewOnlyLabel}` : name
+                }
+                title={viewOnly ? viewOnlyLabel : undefined}
                 disabled={unavailable}
                 onClick={() => onSelect(day)}
               >

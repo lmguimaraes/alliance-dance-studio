@@ -208,6 +208,15 @@
       "class": "Clase",
       "chooseClass": "Elige una clase",
       "oneClass": "Un pase es para una sola clase.",
+      "date": "Fecha de tu clase",
+      "chooseClassFirst": "Elige primero una clase",
+      "noDates": "No hay próximas fechas para esta clase",
+      "todayDate": "{{date}} (hoy)",
+      "dropIn": {
+        "label": "Tu clase suelta",
+        "when": "{{date}} a las {{time}}",
+        "note": "Este pase es válido solo para esta fecha."
+      },
       "pay": "Continuar al pago",
       "otherPass": "Elegir otro pase",
       "note": "Pagarás en la página segura de Stripe, donde tu nombre, correo y clase ya aparecen completados.",
@@ -240,6 +249,13 @@
     "intro": "Elige un estudio, una hora de inicio y una de fin, y añádelo a tu carrito.",
     "chooseDay": "Elegir una fecha",
     "timeZoneNote": "Los horarios se muestran en hora de Montreal. Las reservas empiezan en punto o a la media hora y duran de 1 a 8 horas.",
+    "window": {
+      "viewOnly": "solo disponibilidad, aún no se puede reservar",
+      "note": "Puedes reservar hasta {{days}} días antes; las fechas posteriores solo muestran la disponibilidad.",
+      "title": "Las reservas para esta fecha abren el {{date}}",
+      "body": "Las reservas abren {{days}} días antes. Ya puedes ver la disponibilidad del {{date}}, pero todavía no se puede reservar.",
+      "cardNote": "Se puede reservar desde el {{date}}"
+    },
     "audience": {
       "label": "Tipo de alquiler",
       "private": "Privado",
@@ -286,7 +302,8 @@
       "weeks_one": "{{count}} semana",
       "weeks_many": "{{count}} semanas",
       "weeks_other": "{{count}} semanas",
-      "until": "Cada semana hasta el {{date}}"
+      "until": "Cada semana hasta el {{date}}",
+      "windowLimit": "Las reservas abren {{days}} días antes, así que la repetición no puede pasar del {{date}}."
     },
     "addToCart": "Añadir al carrito",
     "addToCartAmount": "Añadir al carrito, {{amount}}",
@@ -298,7 +315,7 @@
       "unavailable_one": "No disponible el {{dates}}. Elige menos semanas u otra hora.",
       "unavailable_many": "No disponible los días {{dates}}. Elige menos semanas u otra hora.",
       "unavailable_other": "No disponible los días {{dates}}. Elige menos semanas u otra hora.",
-      "tooFar": "Fechas demasiado lejanas para reservar: {{dates}}. Elige menos semanas.",
+      "tooFar": "Las reservas abren {{days}} días antes, así que {{dates}} aún no se puede reservar.",
       "past": "Esta hora ya empezó. Elige una hora posterior."
     }
   },
@@ -347,7 +364,7 @@
     "problems": {
       "invalid": "este estudio ya no está disponible",
       "past": "esta hora ya pasó",
-      "too_far": "demasiado lejos para reservar",
+      "too_far": "más de {{days}} días antes",
       "closed": "fuera del horario de apertura",
       "booked": "ya reservado",
       "overlap": "se superpone con otra reserva de tu carrito"
@@ -517,6 +534,7 @@
       "priceDollars": "Precio ($)",
       "order": "Orden",
       "requiresClass": "El cliente elige una clase (una clase por pase)",
+      "requiresDate": "El cliente también elige la fecha (clase suelta)",
       "visible": "Mostrar en la página de clases",
       "confirmDelete": "¿Eliminar este pase?"
     },

@@ -208,6 +208,15 @@
       "class": "Cours",
       "chooseClass": "Choisissez un cours",
       "oneClass": "Une carte est valable pour un seul cours.",
+      "date": "Date de votre cours",
+      "chooseClassFirst": "Choisissez d'abord un cours",
+      "noDates": "Aucune date à venir pour ce cours",
+      "todayDate": "{{date}} (aujourd'hui)",
+      "dropIn": {
+        "label": "Votre cours à l'unité",
+        "when": "{{date}} à {{time}}",
+        "note": "Cette carte est valable pour cette date seulement."
+      },
       "pay": "Continuer vers le paiement",
       "otherPass": "Choisir une autre carte",
       "note": "Vous payez sur la page sécurisée de Stripe, où votre nom, votre courriel et votre cours sont déjà remplis.",
@@ -240,6 +249,13 @@
     "intro": "Choisissez un studio, une heure de début et une heure de fin, puis ajoutez-le à votre panier.",
     "chooseDay": "Choisir une date",
     "timeZoneNote": "Les heures sont indiquées à l'heure de Montréal. Les réservations commencent à l'heure ou à la demi-heure, de 1 à 8 heures.",
+    "window": {
+      "viewOnly": "disponibilités seulement, pas encore réservable",
+      "note": "Vous pouvez réserver jusqu'à {{days}} jours à l'avance; les dates suivantes affichent seulement les disponibilités.",
+      "title": "Les réservations pour cette date ouvrent le {{date}}",
+      "body": "Les réservations ouvrent {{days}} jours à l'avance. Vous pouvez consulter les disponibilités du {{date}} dès maintenant, mais pas encore réserver.",
+      "cardNote": "Réservable à partir du {{date}}"
+    },
     "audience": {
       "label": "Type de location",
       "private": "Privée",
@@ -286,7 +302,8 @@
       "weeks_one": "{{count}} semaine",
       "weeks_many": "{{count}} semaines",
       "weeks_other": "{{count}} semaines",
-      "until": "Chaque semaine jusqu'au {{date}}"
+      "until": "Chaque semaine jusqu'au {{date}}",
+      "windowLimit": "Les réservations ouvrent {{days}} jours à l'avance : la répétition ne peut pas dépasser le {{date}}."
     },
     "addToCart": "Ajouter au panier",
     "addToCartAmount": "Ajouter au panier, {{amount}}",
@@ -298,7 +315,7 @@
       "unavailable_one": "Non disponible le {{dates}}. Choisissez moins de semaines ou une autre heure.",
       "unavailable_many": "Non disponible les {{dates}}. Choisissez moins de semaines ou une autre heure.",
       "unavailable_other": "Non disponible les {{dates}}. Choisissez moins de semaines ou une autre heure.",
-      "tooFar": "Dates trop éloignées pour réserver : {{dates}}. Choisissez moins de semaines.",
+      "tooFar": "Les réservations ouvrent {{days}} jours à l'avance : {{dates}} ne peut pas encore être réservé.",
       "past": "Cette heure est déjà commencée. Choisissez une heure plus tard."
     }
   },
@@ -347,7 +364,7 @@
     "problems": {
       "invalid": "ce studio n'est plus disponible",
       "past": "cette heure est passée",
-      "too_far": "trop éloigné pour réserver",
+      "too_far": "plus de {{days}} jours à l'avance",
       "closed": "en dehors des heures d'ouverture",
       "booked": "déjà réservé",
       "overlap": "chevauche une autre réservation de votre panier"
@@ -517,6 +534,7 @@
       "priceDollars": "Prix ($)",
       "order": "Ordre",
       "requiresClass": "Le client choisit un cours (un cours par carte)",
+      "requiresDate": "Le client choisit aussi la date (cours à l'unité)",
       "visible": "Afficher sur la page des cours",
       "confirmDelete": "Supprimer cette carte ?"
     },

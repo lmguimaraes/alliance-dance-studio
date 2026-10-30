@@ -3,8 +3,10 @@ import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 import { Link } from "wouter";
 import { toast } from "sonner";
+import { CalendarClock } from "lucide-react";
 import {
   addDays,
+  AVAILABILITY_VIEW_DAYS,
   BOOKING_WINDOW_DAYS,
   intervalsOverlap,
   MAX_BOOKING_MINUTES,
@@ -46,7 +48,9 @@ export default function StudioRentalPage() {
   usePageMeta(t("rental.title"), t("rental.intro"));
 
   const today = useMemo(() => studioNow().dateKey, []);
-  const lastDate = addDays(today, BOOKING_WINDOW_DAYS);
+  // Availability can be browsed further ahead than it can be booked.
+  const lastDate = addDays(today, AVAILABILITY_VIEW_DAYS);
+  const lastBookable = addDays(today, BOOKING_WINDOW_DAYS);
   const [date, setDate] = useState(today);
   const [selection, dispatch] = useReducer(selectionReducer, EMPTY_SELECTION);
   const [hover, setHover] = useState<{
@@ -279,6 +283,8 @@ export default function StudioRentalPage() {
             lastDate={lastDate}
             onSelect={setDate}
             label={t("rental.chooseDay")}
+            viewOnlyAfter={lastBookable}
+            viewOnlyLabel={t("rental.window.viewOnly")}
           />
           <ul
             className="availability-legend"
@@ -298,8 +304,30 @@ export default function StudioRentalPage() {
               {t("rental.slot.in_cart")}
             </li>
           </ul>
-          <p className="rental-toolbar__note">{t("rental.timeZoneNote")}</p>
+          <p className="rental-toolbar__note">
+            {t("rental.timeZoneNote")}{" "}
+            {t("rental.window.note", { days: BOOKING_WINDOW_DAYS })}
+          </p>
         </div>
+
+        {day && !day.bookable && (
+          <div className="booking-window-notice" role="status">
+            <CalendarClock aria-hidden="true" />
+            <div>
+              <strong>
+                {t("rental.window.title", {
+                  date: format.longDate(day.bookingOpensOn),
+                })}
+              </strong>
+              <p>
+                {t("rental.window.body", {
+                  days: BOOKING_WINDOW_DAYS,
+                  date: format.longDate(day.date),
+                })}
+              </p>
+            </div>
+          </div>
+        )}
 
         {dayQuery.error && !day ? (
           <div className="notice notice--error" role="alert">
@@ -329,6 +357,8 @@ export default function StudioRentalPage() {
                 space={space}
                 date={date}
                 today={today}
+                bookable={day.bookable}
+                bookingOpensOn={day.bookingOpensOn}
                 rangeStart={day.range.start}
                 slots={slotsBySpace.get(space.key) ?? []}
                 audience={audience}
@@ -421,7 +451,7 @@ function describeProblems(
   );
   const reasons = new Set(problems.map(problem => problem.problem));
   if (reasons.size === 1 && reasons.has("too_far"))
-    return t("rental.problems.tooFar", { dates });
+    return t("rental.problems.tooFar", { dates, days: BOOKING_WINDOW_DAYS });
   if (reasons.size === 1 && reasons.has("past"))
     return t("rental.problems.past");
   return t("rental.problems.unavailable", { dates, count: problems.length });

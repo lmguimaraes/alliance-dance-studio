@@ -54,6 +54,34 @@
   border: 1px dashed var(--color-gold);
 }
 
+/* Shown for dates past the booking window. */
+.booking-window-notice {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.9rem;
+  align-items: start;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--color-gold-deep);
+  border-radius: var(--radius-md);
+  background: var(--color-gold-wash);
+  color: var(--color-stone);
+  font-size: var(--text-sm);
+}
+
+.booking-window-notice > svg {
+  width: 1.4rem;
+  height: 1.4rem;
+  color: var(--color-gold);
+}
+
+.booking-window-notice strong {
+  display: block;
+  margin-bottom: 0.2rem;
+  color: var(--color-ivory);
+  font-size: var(--text-base);
+  font-weight: 500;
+}
+
 .studio-grid {
   display: grid;
   gap: 1.25rem;
@@ -206,6 +234,26 @@
 
 .time-slot:disabled {
   cursor: not-allowed;
+}
+
+/* Past the booking window: free time stays readable but can't be picked. */
+.time-grid--view-only .time-slot--available {
+  color: var(--color-stone);
+}
+
+.studio-card__opens {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--color-stone);
+  font-size: var(--text-sm);
+}
+
+.studio-card__opens svg {
+  flex: none;
+  width: 1.1rem;
+  height: 1.1rem;
+  color: var(--color-gold);
 }
 
 /* Card footer -------------------------------------------------------------- */

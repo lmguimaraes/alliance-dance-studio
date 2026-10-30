@@ -40,6 +40,7 @@ Migrations live in `database/migrations` and are applied in file-name order ever
 | `20261016_rental_audience_per_booking.sql` | Stores private or group on each booking (`bookings.audience`), so one order can mix both. `reservations.audience` becomes NULL for mixed orders.    |
 | `20261026_pass_purchases.sql`              | Adds `pass_purchases` (every pass sale) and `class_passes.requires_class`, and removes the Payment Link column from `class_passes`.                 |
 | `20261027_fall_session_2026.sql`           | The Fall 2026 class schedule (October 26 to December 17); earlier classes end on October 25.                                                        |
+| `20261030_drop_in_class_date.sql`          | Adds `class_passes.requires_date` (set on the drop-in pass) and `pass_purchases.class_date`, so a drop-in is bought for one class on one date.      |
 
 To apply a migration by hand instead, paste it into the Supabase SQL editor and then record it so the app skips it:
 
@@ -58,7 +59,7 @@ The site connects to PostgreSQL directly, as the owner of its tables, so RLS nev
 
 - Availability comes from each studio's weekly opening hours (Admin → Studios). Time is busy when it is held or paid in `bookings`, booked by staff, active in the earlier `studio_booking_items` system, or used by a class assigned to that studio.
 - Studio X is Studio 6 and Studio 7 booked together: open when both are open, busy when either is busy.
-- Bookings start and end on the half hour, last 1 to 8 hours, and can start up to 60 days ahead. Weekly repeats (up to 4 weeks) may run three weeks past that.
+- Bookings start and end on the half hour, last 1 to 8 hours, and every date, weekly repeats included (up to 4 weeks), must be within 30 days. Availability can be viewed up to 90 days ahead; later dates are shown as view only with the day booking opens.
 - Private or group is chosen for each booking once a time range is picked, and priced at that studio's private or group hourly rate. The admin panel shows which one each online booking was sold at.
 - At checkout the server re-checks every date under per-studio locks, writes a hold, and opens Stripe Checkout. Holds last 31 minutes plus a 10-minute grace period. A signed webhook (or the return page) confirms payment; expired or cancelled sessions release the hold.
 - Prices are always computed on the server from the studio rates.
@@ -68,7 +69,7 @@ The site connects to PostgreSQL directly, as the owner of its tables, so RLS nev
 1. Add a webhook endpoint at `https://<your domain>/api/stripe/webhook` with `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `checkout.session.expired` and `checkout.session.async_payment_failed`. Put its signing secret in `STRIPE_WEBHOOK_SECRET`.
 2. For local testing: `stripe listen --forward-to localhost:3000/api/stripe/webhook`.
 3. Test cards: `4242 4242 4242 4242` succeeds, `4000 0000 0000 9995` is declined.
-4. Class passes use the same keys and webhook. The customer enters name, email and (for class packages) the class on the website; the Stripe page shows the email locked and the name and class under the pass, and the sale is saved in `pass_purchases` when it is paid. Other Checkout sessions on the account are ignored.
+4. Class passes use the same keys and webhook. The customer enters name, email and (for class packages) the class on the website, plus the date for a drop-in (it starts on the date open on the schedule); the Stripe page shows the email locked and the name and class under the pass, and the sale is saved in `pass_purchases` when it is paid. Other Checkout sessions on the account are ignored.
 5. At launch, set `STRIPE_TEST_MODE_ONLY=false` and switch to live keys.
 
 Refunds (bookings and passes) are issued from the Stripe Dashboard. Cancelling a paid booking in the admin panel frees the time but does not refund it.
@@ -79,7 +80,7 @@ Open `/admin` (also linked in the footer) and sign in with `ADMIN_PASSWORD`. Unt
 
 - **Bookings**: upcoming, past or all; search; add, edit, cancel or delete. Overlaps with other bookings and classes are refused. Bookings paid online are cancelled rather than deleted, and keep their paid amount.
 - **Classes**: weekly classes with type, level, instructor, optional studio (which blocks rentals at that time) and optional first and last dates.
-- **Passes**: name and details in three languages, price, and whether the customer chooses a class (one class per pass).
+- **Passes**: name and details in three languages, price, whether the customer chooses a class (one class per pass) and, for a drop-in, also the date.
 - **Pass sales**: every pass bought on the site with the customer, pass, class, amount and status, with a link to the payment in Stripe. Unfinished checkouts are marked "Not completed" after about 45 minutes.
 - **Discover**: directors, dancers, teams and awards, with text in three languages (English is used when a translation is empty).
 - **Studios**: rates, capacity, photo and weekly opening hours.

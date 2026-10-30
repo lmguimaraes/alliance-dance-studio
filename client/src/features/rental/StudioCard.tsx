@@ -1,9 +1,9 @@
 import { useTranslation } from "react-i18next";
-import { ChevronDown, Loader2 } from "lucide-react";
+import { CalendarClock, ChevronDown, Loader2 } from "lucide-react";
 import {
   addDays,
+  BOOKING_WINDOW_DAYS,
   daysBetween,
-  LAST_BOOKABLE_DAY,
   MAX_REPEAT_WEEKS,
   minutesToTime,
   SLOT_MINUTES,
@@ -31,6 +31,9 @@ type StudioCardProps = {
   space: RentalSpaceView;
   date: string;
   today: string;
+  /** False past the booking window: the grid is shown but can't be picked. */
+  bookable: boolean;
+  bookingOpensOn: string;
   rangeStart: number;
   slots: SlotView[];
   audience: Audience;
@@ -54,6 +57,8 @@ export default function StudioCard({
   space,
   date,
   today,
+  bookable,
+  bookingOpensOn,
   rangeStart,
   slots,
   audience,
@@ -92,6 +97,11 @@ export default function StudioCard({
     : null;
   const minutes = hasRange ? (endIndex - startIndex + 1) * SLOT_MINUTES : 0;
   const amount = Math.round((rate * minutes) / 60) * weeks;
+  // Weekly repeats can't reach past the booking window either.
+  const lastBookable = addDays(today, BOOKING_WINDOW_DAYS);
+  const repeatFits = (count: number) =>
+    daysBetween(lastBookable, addDays(date, (count - 1) * 7)) <= 0;
+  const repeatLimited = !repeatFits(MAX_REPEAT_WEEKS);
 
   return (
     <article
@@ -124,6 +134,7 @@ export default function StudioCard({
           startIndex={startIndex}
           endIndex={endIndex}
           previewEndIndex={isActive ? previewEndIndex : null}
+          viewOnly={!bookable}
           onPick={onPick}
           onHover={onHover}
         />
@@ -131,7 +142,18 @@ export default function StudioCard({
         <p className="studio-card__closed">{t("rental.closedDay")}</p>
       )}
 
-      {isOpen && (
+      {isOpen && !bookable && (
+        <footer className="studio-card__footer">
+          <p className="studio-card__opens">
+            <CalendarClock aria-hidden="true" />
+            {t("rental.window.cardNote", {
+              date: format.monthDay(bookingOpensOn),
+            })}
+          </p>
+        </footer>
+      )}
+
+      {isOpen && bookable && (
         <footer className="studio-card__footer">
           <div className="selection-summary" aria-live="polite">
             {hasRange && startTime && endTime ? (
@@ -219,9 +241,7 @@ export default function StudioCard({
                       { length: MAX_REPEAT_WEEKS },
                       (_, index) => index + 1
                     ).map(count => {
-                      const lastDate = addDays(date, (count - 1) * 7);
-                      const tooFar =
-                        daysBetween(today, lastDate) > LAST_BOOKABLE_DAY;
+                      const tooFar = !repeatFits(count);
                       return (
                         <button
                           key={count}
@@ -245,6 +265,14 @@ export default function StudioCard({
                         })
                       : t("rental.repeat.once")}
                   </p>
+                  {repeatLimited && (
+                    <p className="repeat-picker__hint">
+                      {t("rental.repeat.windowLimit", {
+                        days: BOOKING_WINDOW_DAYS,
+                        date: format.monthDay(lastBookable),
+                      })}
+                    </p>
+                  )}
                 </div>
               )}
             </div>

@@ -1,4 +1,10 @@
-import { addDays, dayOfWeek, type ClassLevel } from "@shared/booking";
+import {
+  addDays,
+  CLASS_SCHEDULE_DAYS,
+  dayOfWeek,
+  timeToMinutes,
+  type ClassLevel,
+} from "@shared/booking";
 
 export type ScheduledClass = {
   id: number;
@@ -118,6 +124,25 @@ export function nextClassDate(
       return date;
   }
   return null;
+}
+
+/**
+ * Dates a class takes place from today on, as far as the schedule goes.
+ * Today's class is left out once it has started.
+ */
+export function upcomingDates(
+  item: ScheduledClass,
+  now: { dateKey: string; minutes: number },
+  days: number = CLASS_SCHEDULE_DAYS
+): string[] {
+  const dates: string[] = [];
+  for (let offset = 0; offset < days; offset += 1) {
+    const date = addDays(now.dateKey, offset);
+    if (!runsOn(item, date)) continue;
+    if (offset === 0 && timeToMinutes(item.startTime) <= now.minutes) continue;
+    dates.push(date);
+  }
+  return dates;
 }
 
 export function uniqueSorted(values: Array<string | null>): string[] {

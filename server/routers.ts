@@ -205,6 +205,7 @@ const passInput = z
       .toLowerCase()
       .regex(/^[a-z]{3}$/),
     requiresClass: z.boolean(),
+    requiresDate: z.boolean(),
     sortOrder: z.number().int().min(-1000).max(1000),
     isActive: z.boolean(),
   })
@@ -392,6 +393,10 @@ export const appRouter = router({
           .object({
             passId: id,
             classId: id.nullable(),
+            classDate: z
+              .string()
+              .regex(/^\d{4}-\d{2}-\d{2}$/)
+              .nullish(),
             customerName: z.string().trim().min(2).max(120),
             customerEmail: z.string().trim().email().max(254),
             locale: z.enum(["en", "fr", "es"]),
@@ -401,7 +406,10 @@ export const appRouter = router({
       .mutation(({ input, ctx }) =>
         run(() => {
           limiters.checkout.consume(clientKey(ctx.req));
-          return createPassCheckout(input);
+          return createPassCheckout({
+            ...input,
+            classDate: input.classDate ?? null,
+          });
         })
       ),
     confirm: publicProcedure

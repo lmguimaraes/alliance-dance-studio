@@ -1,18 +1,20 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { TRPCClientError } from "@trpc/client";
 import { useTranslation } from "react-i18next";
-import { Loader2, LockKeyhole } from "lucide-react";
+import { CalendarCheck, Loader2, LockKeyhole } from "lucide-react";
 import { addDays, studioNow } from "@shared/booking";
 import Dialog from "@/components/Dialog";
 import { currentLanguage, useFormat } from "@/lib/format";
 import { trpc } from "@/lib/trpc";
-import type { ScheduledClass } from "./classSchedule";
+import { upcomingDates, type ScheduledClass } from "./classSchedule";
 import { PassList, passName, type Pass } from "./PassShop";
 
 /** What the dialog was opened for: a pass, or a class card (pass not chosen yet). */
 export type PurchaseStart = {
   pass: Pass | null;
   forClass: ScheduledClass | null;
+  /** The date open on the schedule: a drop-in starts on it when it can. */
+  date: string;
 };
 
 type Props = {
@@ -27,6 +29,10 @@ const REFERENCE_SUNDAY = "2026-10-18";
 // Monday first, as on the schedule.
 const WEEK_ORDER = [1, 2, 3, 4, 5, 6, 0];
 
+/** "miércoles, 4 de noviembre" → "Miércoles, 4 de noviembre" at the start of a line. */
+const capitalized = (text: string) =>
+  text.charAt(0).toLocaleUpperCase() + text.slice(1);
+
 export default function PassPurchase({
   start,
   passes,
@@ -40,6 +46,7 @@ export default function PassPurchase({
 
   const [pass, setPass] = useState<Pass | null>(null);
   const [classId, setClassId] = useState("");
+  const [classDate, setClassDate] = useState("");
   const [contact, setContact] = useState({ name: "", email: "" });
   const [error, setError] = useState<string | null>(null);
 
@@ -48,10 +55,13 @@ export default function PassPurchase({
     if (!start) return;
     setPass(start.pass);
     setClassId(start.forClass ? String(start.forClass.id) : "");
+    setClassDate("");
     setError(null);
   }, [start]);
 
-  const today = useMemo(() => studioNow().dateKey, []);
+  // Taken when the dialog opens, so today's class drops out once it starts.
+  const now = useMemo(() => studioNow(), [start]);
+  const today = now.dateKey;
   const classOptions = useMemo(
     () =>
       classes
@@ -71,6 +81,23 @@ export default function PassPurchase({
     [classes, format, today]
   );
 
+  // Drop-in: the dates the chosen class takes place.
+  const chosenClass = classes.find(item => String(item.id) === classId);
+  const dateOptions = useMemo(
+    () => (chosenClass ? upcomingDates(chosenClass, now) : []),
+    [chosenClass, now]
+  );
+  const needsDate = Boolean(pass?.requiresClass && pass.requiresDate);
+
+  // Start on the date open on the schedule, or the class's next date.
+  useEffect(() => {
+    setClassDate(current => {
+      if (dateOptions.includes(current)) return current;
+      if (start && dateOptions.includes(start.date)) return start.date;
+      return dateOptions[0] ?? "";
+    });
+  }, [dateOptions, start]);
+
   // From a class card, offer the passes that cover classes.
   const choices = start?.forClass
     ? passes.filter(item => item.category === "classes")
@@ -84,6 +111,7 @@ export default function PassPurchase({
       const result = await checkout.mutateAsync({
         passId: pass.id,
         classId: pass.requiresClass ? Number(classId) : null,
+        classDate: needsDate ? classDate : null,
         customerName: contact.name,
         customerEmail: contact.email,
         locale: currentLanguage(language),
@@ -177,10 +205,68 @@ export default function PassPurchase({
                   </option>
                 ))}
               </select>
-              <span className="field__hint">
-                {t("classes.purchase.oneClass")}
-              </span>
+              {!needsDate && (
+                <span className="field__hint">
+                  {t("classes.purchase.oneClass")}
+                </span>
+              )}
             </label>
+          )}
+
+          {needsDate && (
+            <label className="field">
+              <span className="field__label">{t("classes.purchase.date")}</span>
+              <select
+                className="field__select"
+                required
+                disabled={!chosenClass || !dateOptions.length}
+                value={classDate}
+                onChange={event => setClassDate(event.target.value)}
+              >
+                {!chosenClass ? (
+                  <option value="">
+                    {t("classes.purchase.chooseClassFirst")}
+                  </option>
+                ) : !dateOptions.length ? (
+                  <option value="">{t("classes.purchase.noDates")}</option>
+                ) : (
+                  dateOptions.map(date => (
+                    <option key={date} value={date}>
+                      {capitalized(
+                        date === today
+                          ? t("classes.purchase.todayDate", {
+                              date: format.longDate(date),
+                            })
+                          : format.longDate(date)
+                      )}
+                    </option>
+                  ))
+                )}
+              </select>
+            </label>
+          )}
+
+          {needsDate && chosenClass && classDate && (
+            <div className="drop-in-summary" aria-live="polite">
+              <CalendarCheck aria-hidden="true" />
+              <div>
+                <p className="drop-in-summary__label">
+                  {t("classes.purchase.dropIn.label")}
+                </p>
+                <p className="drop-in-summary__when">
+                  {capitalized(
+                    t("classes.purchase.dropIn.when", {
+                      date: format.longDate(classDate),
+                      time: format.time(chosenClass.startTime),
+                    })
+                  )}
+                </p>
+                <p className="drop-in-summary__class">{chosenClass.title}</p>
+                <p className="drop-in-summary__note">
+                  {t("classes.purchase.dropIn.note")}
+                </p>
+              </div>
+            </div>
           )}
 
           {error && (
@@ -193,7 +279,7 @@ export default function PassPurchase({
             <button
               type="submit"
               className="button button--primary button--block"
-              disabled={busy}
+              disabled={busy || (needsDate && !classDate)}
             >
               {busy ? (
                 <Loader2 className="spinner" aria-hidden="true" />

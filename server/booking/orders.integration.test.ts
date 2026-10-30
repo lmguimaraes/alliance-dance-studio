@@ -100,6 +100,42 @@ describe.skipIf(!TEST_DATABASE_URL)("booking flow (PostgreSQL)", () => {
     expect(quote.total).toBe(3 * 3000);
   });
 
+  it("shows availability past 30 days but won't book it", async () => {
+    const today = studioNow().dateKey;
+    const later = await m.day.getRentalDay(addDays(today, 45), "cad");
+    expect(later.bookable).toBe(false);
+    expect(later.bookingOpensOn).toBe(addDays(today, 15));
+    expect(later.spaces.length).toBeGreaterThan(0);
+    expect((await m.day.getRentalDay(addDays(today, 30), "cad")).bookable).toBe(
+      true
+    );
+    await expect(
+      m.day.getRentalDay(addDays(today, 91), "cad")
+    ).rejects.toThrow();
+
+    // The fourth week of a series starting on day 20 is day 41.
+    const quote = await m.orders.quoteOrder({
+      items: [
+        {
+          studioIds: [studio5],
+          audience: "private",
+          date: addDays(today, 20),
+          startTime: "10:00",
+          endTime: "11:00",
+          weeks: 4,
+        },
+      ],
+      currency: "cad",
+    });
+    expect(quote.available).toBe(false);
+    expect(quote.items[0].occurrences.map(o => o.problem)).toEqual([
+      null,
+      null,
+      "too_far",
+      "too_far",
+    ]);
+  });
+
   it("holds time and blocks overlapping requests, including Studio X", async () => {
     const held = await m.orders.createReservationHold(
       holdInput([

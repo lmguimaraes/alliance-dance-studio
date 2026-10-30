@@ -26,6 +26,7 @@ type PassForm = {
   price: string;
   currency: string;
   requiresClass: boolean;
+  requiresDate: boolean;
   sortOrder: string;
   isActive: boolean;
 };
@@ -42,6 +43,7 @@ const BLANK: PassForm = {
   price: "",
   currency: "cad",
   requiresClass: true,
+  requiresDate: false,
   sortOrder: "0",
   isActive: true,
 };
@@ -88,6 +90,7 @@ export default function PassesPanel({
       priceCents,
       currency: form.currency || "cad",
       requiresClass: form.requiresClass,
+      requiresDate: form.requiresClass && form.requiresDate,
       sortOrder: Number(form.sortOrder) || 0,
       isActive: form.isActive,
     };
@@ -159,7 +162,11 @@ export default function PassesPanel({
                     <div>{pass.nameEn}</div>
                     {pass.requiresClass && (
                       <div className="admin-table__sub">
-                        {t("admin.passes.requiresClass")}
+                        {t(
+                          pass.requiresDate
+                            ? "admin.passes.requiresDate"
+                            : "admin.passes.requiresClass"
+                        )}
                       </div>
                     )}
                   </td>
@@ -192,6 +199,7 @@ export default function PassesPanel({
                           price: centsToDollars(pass.priceCents),
                           currency: pass.currency,
                           requiresClass: pass.requiresClass,
+                          requiresDate: pass.requiresDate,
                           sortOrder: String(pass.sortOrder),
                           isActive: pass.isActive,
                         })
@@ -316,6 +324,17 @@ export default function PassesPanel({
                 }
               />
               {t("admin.passes.requiresClass")}
+            </label>
+            <label className="checkbox">
+              <input
+                type="checkbox"
+                checked={form.requiresClass && form.requiresDate}
+                disabled={!form.requiresClass}
+                onChange={event =>
+                  setForm({ ...form, requiresDate: event.target.checked })
+                }
+              />
+              {t("admin.passes.requiresDate")}
             </label>
             <label className="checkbox">
               <input

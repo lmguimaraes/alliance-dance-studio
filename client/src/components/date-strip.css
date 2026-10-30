@@ -87,6 +87,13 @@
   opacity: 0.3;
 }
 
+/* Past the booking window: availability only. */
+.date-strip__day--view-only:not(.date-strip__day--selected)
+  .date-strip__number {
+  border-style: dashed;
+  color: var(--color-stone);
+}
+
 .date-strip__day:focus-visible {
   outline: none;
 }

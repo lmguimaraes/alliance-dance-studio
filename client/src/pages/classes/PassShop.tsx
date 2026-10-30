@@ -14,6 +14,8 @@ export type Pass = {
   currency: string;
   /** The customer chooses the one class the pass is for. */
   requiresClass: boolean;
+  /** Drop-in: the customer also chooses the date of the class. */
+  requiresDate: boolean;
 };
 
 const CATEGORIES = ["classes", "rehearsal"] as const;

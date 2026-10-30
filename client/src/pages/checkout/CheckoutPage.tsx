@@ -4,7 +4,11 @@ import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 import { Link } from "wouter";
 import { Loader2, LockKeyhole } from "lucide-react";
-import type { Audience, OccurrenceProblem } from "@shared/booking";
+import {
+  BOOKING_WINDOW_DAYS,
+  type Audience,
+  type OccurrenceProblem,
+} from "@shared/booking";
 import PageHeader from "@/components/PageHeader";
 import { useCart } from "@/features/cart/CartContext";
 import CartItemSummary from "@/features/cart/CartItemSummary";
@@ -124,7 +128,7 @@ function Confirmation({ summary }: { summary: Summary }) {
 }
 
 function problemText(problem: OccurrenceProblem, t: TFunction): string {
-  return t(`checkout.problems.${problem}`);
+  return t(`checkout.problems.${problem}`, { days: BOOKING_WINDOW_DAYS });
 }
 
 export default function CheckoutPage() {

@@ -95,27 +95,26 @@ describe("evaluateOccurrence", () => {
 
   it("accepts open, free, future time", () => {
     expect(
-      evaluateOccurrence(at("2026-10-15", 750, 810), "2026-10-15", OPEN, NOW)
+      evaluateOccurrence(at("2026-10-15", 750, 810), OPEN, NOW)
     ).toBeNull();
   });
 
   it("rejects times that have started", () => {
-    expect(
-      evaluateOccurrence(at("2026-10-15", 720, 780), "2026-10-15", OPEN, NOW)
-    ).toBe("past");
-    expect(
-      evaluateOccurrence(at("2026-10-14", 750, 810), "2026-10-14", OPEN, NOW)
-    ).toBe("past");
+    expect(evaluateOccurrence(at("2026-10-15", 720, 780), OPEN, NOW)).toBe(
+      "past"
+    );
+    expect(evaluateOccurrence(at("2026-10-14", 750, 810), OPEN, NOW)).toBe(
+      "past"
+    );
   });
 
   it("rejects closed and booked time", () => {
-    expect(
-      evaluateOccurrence(at("2026-10-16", 480, 600), "2026-10-16", OPEN, NOW)
-    ).toBe("closed");
+    expect(evaluateOccurrence(at("2026-10-16", 480, 600), OPEN, NOW)).toBe(
+      "closed"
+    );
     expect(
       evaluateOccurrence(
         at("2026-10-16", 600, 720),
-        "2026-10-16",
         {
           ...OPEN,
           busy: [{ start: 690, end: 750 }],
@@ -127,7 +126,6 @@ describe("evaluateOccurrence", () => {
     expect(
       evaluateOccurrence(
         at("2026-10-16", 600, 690),
-        "2026-10-16",
         {
           ...OPEN,
           busy: [{ start: 690, end: 750 }],
@@ -137,13 +135,18 @@ describe("evaluateOccurrence", () => {
     ).toBeNull();
   });
 
-  it("limits the first date to the booking window and repeats to three more weeks", () => {
+  it("books at most 30 days ahead, weekly repeats included", () => {
+    // NOW is October 15: November 14 is the 30th day.
     expect(
-      evaluateOccurrence(at("2026-12-15", 600, 660), "2026-12-15", OPEN, NOW)
-    ).toBe("too_far");
-    expect(
-      evaluateOccurrence(at("2026-12-28", 600, 660), "2026-12-07", OPEN, NOW)
+      evaluateOccurrence(at("2026-11-14", 600, 660), OPEN, NOW)
     ).toBeNull();
+    expect(evaluateOccurrence(at("2026-11-15", 600, 660), OPEN, NOW)).toBe(
+      "too_far"
+    );
+    // The third week of a series that starts on November 1.
+    expect(evaluateOccurrence(at("2026-11-22", 600, 660), OPEN, NOW)).toBe(
+      "too_far"
+    );
   });
 });
 

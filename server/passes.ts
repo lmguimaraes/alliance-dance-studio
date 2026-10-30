@@ -1,6 +1,14 @@
 import { nanoid } from "nanoid";
 import type Stripe from "stripe";
-import { studioNow } from "../shared/booking";
+import {
+  CLASS_SCHEDULE_DAYS,
+  dateKeyToDate,
+  dayOfWeek,
+  daysBetween,
+  isDateKey,
+  studioNow,
+  timeToMinutes,
+} from "../shared/booking";
 import { ENV } from "./_core/env";
 import { BookingError } from "./booking/rules";
 import { getSql } from "./db";
@@ -14,8 +22,9 @@ import {
 
 /**
  * Class passes. The customer enters name, email and (for class packages) the
- * class on the website; the site creates a Stripe Checkout page with the email
- * locked and the name and class in the order summary, and records the sale.
+ * class, plus the date for a drop-in, on the website; the site creates a Stripe
+ * Checkout page with the email locked and the name, class and date in the
+ * order summary, and records the sale.
  */
 
 export type PassPurchaseStatus =
@@ -54,17 +63,28 @@ function localizedName(
   );
 }
 
-/** "Salsa On1 Intermediate (Tuesday, 7:00 p.m.)" in the customer's language. */
+/**
+ * "Salsa On1 Intermediate (Tuesday, 7:00 p.m.)" in the customer's language,
+ * or "Salsa On1 Intermediate (Tuesday, October 27, 7:00 p.m.)" for one date.
+ */
 export function classLabel(
   klass: { title: string; dayOfWeek: number; startTime: string },
-  locale: CheckoutLocale
+  locale: CheckoutLocale,
+  date: string | null = null
 ): string {
   const tag = `${locale}-CA`;
-  // 2026-10-18 is a Sunday, so day 0..6 maps onto that week.
-  const weekday = new Intl.DateTimeFormat(tag, {
-    weekday: "long",
-    timeZone: "UTC",
-  }).format(new Date(Date.UTC(2026, 9, 18 + klass.dayOfWeek)));
+  const weekday = date
+    ? new Intl.DateTimeFormat(tag, {
+        weekday: "long",
+        month: "long",
+        day: "numeric",
+        timeZone: "UTC",
+      }).format(dateKeyToDate(date))
+    : // 2026-10-18 is a Sunday, so day 0..6 maps onto that week.
+      new Intl.DateTimeFormat(tag, {
+        weekday: "long",
+        timeZone: "UTC",
+      }).format(new Date(Date.UTC(2026, 9, 18 + klass.dayOfWeek)));
   const [hours, minutes] = klass.startTime.split(":").map(Number);
   const time = new Intl.DateTimeFormat(tag, {
     hour: "numeric",
@@ -89,6 +109,8 @@ function orderDescription(
 export async function createPassCheckout(input: {
   passId: number;
   classId: number | null;
+  /** Required for drop-in passes: the date the customer will come. */
+  classDate: string | null;
   customerName: string;
   customerEmail: string;
   locale: CheckoutLocale;
@@ -104,10 +126,12 @@ export async function createPassCheckout(input: {
       priceCents: number;
       currency: string;
       requiresClass: boolean;
+      requiresDate: boolean;
     }[]
   >`
     SELECT name_en AS "nameEn", name_fr AS "nameFr", name_es AS "nameEs",
-           price_cents AS "priceCents", currency, requires_class AS "requiresClass"
+           price_cents AS "priceCents", currency, requires_class AS "requiresClass",
+           requires_date AS "requiresDate"
     FROM class_passes
     WHERE id = ${input.passId} AND is_active
   `;
@@ -122,18 +146,28 @@ export async function createPassCheckout(input: {
 
   let label: string | null = null;
   let classId: number | null = null;
+  let classDate: string | null = null;
   if (pass.requiresClass) {
     if (!input.classId)
       throw new BookingError("BAD_REQUEST", "Choose the class for this pass.");
-    const today = studioNow().dateKey;
+    const now = studioNow();
     const [klass] = await sql<
-      { id: number; title: string; dayOfWeek: number; startTime: string }[]
+      {
+        id: number;
+        title: string;
+        dayOfWeek: number;
+        startTime: string;
+        startsOn: string | null;
+        endsOn: string | null;
+      }[]
     >`
       SELECT id, title, day_of_week AS "dayOfWeek",
-             to_char(start_time, 'HH24:MI') AS "startTime"
+             to_char(start_time, 'HH24:MI') AS "startTime",
+             to_char(starts_on, 'YYYY-MM-DD') AS "startsOn",
+             to_char(ends_on, 'YYYY-MM-DD') AS "endsOn"
       FROM classes
       WHERE id = ${input.classId} AND is_active
-        AND (ends_on IS NULL OR ends_on >= ${today}::date)
+        AND (ends_on IS NULL OR ends_on >= ${now.dateKey}::date)
     `;
     if (!klass) {
       throw new BookingError(
@@ -141,8 +175,33 @@ export async function createPassCheckout(input: {
         "This class is no longer on the schedule."
       );
     }
+    if (pass.requiresDate) {
+      const date = input.classDate;
+      if (!date || !isDateKey(date)) {
+        throw new BookingError("BAD_REQUEST", "Choose the date of your class.");
+      }
+      const daysAhead = daysBetween(now.dateKey, date);
+      const runsThatDay =
+        dayOfWeek(date) === klass.dayOfWeek &&
+        (!klass.startsOn || klass.startsOn <= date) &&
+        (!klass.endsOn || klass.endsOn >= date);
+      const started =
+        daysAhead === 0 && timeToMinutes(klass.startTime) <= now.minutes;
+      if (
+        !runsThatDay ||
+        daysAhead < 0 ||
+        daysAhead >= CLASS_SCHEDULE_DAYS ||
+        started
+      ) {
+        throw new BookingError(
+          "BAD_REQUEST",
+          "This class doesn't take place on that date. Choose another date."
+        );
+      }
+      classDate = date;
+    }
     classId = klass.id;
-    label = classLabel(klass, input.locale);
+    label = classLabel(klass, input.locale, classDate);
   }
 
   const id = nanoid(24);
@@ -154,10 +213,10 @@ export async function createPassCheckout(input: {
 
   await sql`
     INSERT INTO pass_purchases (
-      id, pass_id, pass_name, class_id, class_label, customer_name,
-      customer_email, amount_cents, currency, locale
+      id, pass_id, pass_name, class_id, class_label, class_date,
+      customer_name, customer_email, amount_cents, currency, locale
     ) VALUES (
-      ${id}, ${input.passId}, ${passName}, ${classId}, ${label},
+      ${id}, ${input.passId}, ${passName}, ${classId}, ${label}, ${classDate},
       ${input.customerName}, ${input.customerEmail}, ${pass.priceCents},
       ${pass.currency}, ${input.locale}
     )

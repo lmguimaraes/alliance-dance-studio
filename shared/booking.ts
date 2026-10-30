@@ -8,12 +8,13 @@ export const STUDIO_TIME_ZONE = "America/Toronto";
 export const SLOT_MINUTES = 30;
 export const MIN_BOOKING_MINUTES = 60;
 export const MAX_BOOKING_MINUTES = 8 * 60;
-/** How far ahead a first rental date can be chosen. */
-export const BOOKING_WINDOW_DAYS = 60;
+/** Every rental date, weekly repeats included, is at most this many days ahead. */
+export const BOOKING_WINDOW_DAYS = 30;
+/** How far ahead availability can be viewed (but not booked past the window). */
+export const AVAILABILITY_VIEW_DAYS = 90;
 export const MAX_REPEAT_WEEKS = 4;
-/** Weekly repeats may extend past the booking window by up to three weeks. */
-export const LAST_BOOKABLE_DAY =
-  BOOKING_WINDOW_DAYS + 7 * (MAX_REPEAT_WEEKS - 1);
+/** How far ahead the class schedule (and a drop-in date) can be chosen. */
+export const CLASS_SCHEDULE_DAYS = 56;
 export const MAX_CART_ITEMS = 10;
 export const MAX_ORDER_OCCURRENCES = 24;
 export const DAY_MINUTES = 24 * 60;

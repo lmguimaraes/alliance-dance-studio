@@ -78,6 +78,20 @@ describe("class labels on the Stripe page", () => {
       /^Salsa On1 \(domingo, /
     );
   });
+
+  it("adds the full date for a drop-in", async () => {
+    const { classLabel } = await import("./passes");
+    const klass = { title: "Salsa On1", dayOfWeek: 2, startTime: "19:00" };
+    expect(classLabel(klass, "en", "2026-10-27")).toBe(
+      "Salsa On1 (Tuesday, October 27, 7:00 p.m.)"
+    );
+    expect(classLabel(klass, "fr", "2026-10-27")).toBe(
+      "Salsa On1 (mardi 27 octobre, 19 h 00)"
+    );
+    expect(classLabel(klass, "es", "2026-10-27")).toMatch(
+      /^Salsa On1 \(martes, 27 de octubre, /
+    );
+  });
 });
 
 describe.skipIf(!TEST_DATABASE_URL)("class-pass checkout (PostgreSQL)", () => {
@@ -87,11 +101,13 @@ describe.skipIf(!TEST_DATABASE_URL)("class-pass checkout (PostgreSQL)", () => {
   let packageId = 0;
   let unlimitedId = 0;
   let inactiveId = 0;
+  let dropInId = 0;
   let classId = 0;
 
   const customer = {
     customerName: "Maria Lopez",
     customerEmail: "maria.passes@example.com",
+    classDate: null,
   };
   const purchaseIds = () =>
     Array.from(fake.sessions.values()).map(
@@ -106,18 +122,20 @@ describe.skipIf(!TEST_DATABASE_URL)("class-pass checkout (PostgreSQL)", () => {
     const insertPass = async (
       name: string,
       requiresClass: boolean,
-      isActive = true
+      isActive = true,
+      requiresDate = false
     ) =>
       (
         await sql<{ id: number }[]>`
-          INSERT INTO class_passes (category, name_en, name_fr, price_cents, requires_class, is_active)
-          VALUES ('classes', ${name}, ${`${name} (fr)`}, 16000, ${requiresClass}, ${isActive})
+          INSERT INTO class_passes (category, name_en, name_fr, price_cents, requires_class, requires_date, is_active)
+          VALUES ('classes', ${name}, ${`${name} (fr)`}, 16000, ${requiresClass}, ${requiresDate}, ${isActive})
           RETURNING id
         `
       )[0].id;
     packageId = await insertPass("Test 8-class pass", true);
     unlimitedId = await insertPass("Test unlimited", false);
     inactiveId = await insertPass("Test retired pass", false, false);
+    dropInId = await insertPass("Test drop-in", true, true, true);
     [{ id: classId }] = await sql<{ id: number }[]>`
       INSERT INTO classes (title, style, level, day_of_week, start_time, duration_minutes)
       VALUES ('Test Salsa', 'Salsa', 'beginner', 2, '19:00', 60)
@@ -132,7 +150,7 @@ describe.skipIf(!TEST_DATABASE_URL)("class-pass checkout (PostgreSQL)", () => {
     if (ids.length)
       await sql`DELETE FROM pass_purchases WHERE id IN ${sql(ids)}`;
     await sql`DELETE FROM pass_purchases WHERE customer_email = ${customer.customerEmail}`;
-    await sql`DELETE FROM class_passes WHERE id IN ${sql([packageId, unlimitedId, inactiveId])}`;
+    await sql`DELETE FROM class_passes WHERE id IN ${sql([packageId, unlimitedId, inactiveId, dropInId])}`;
     await sql`DELETE FROM classes WHERE id = ${classId}`;
     await db.closeDatabase();
   });
@@ -189,6 +207,50 @@ describe.skipIf(!TEST_DATABASE_URL)("class-pass checkout (PostgreSQL)", () => {
       status: "checkout_pending",
       classLabel: "Test Salsa (mardi, 19 h 00)",
     });
+  });
+
+  it("needs a date the class takes place for a drop-in", async () => {
+    const { addDays, dayOfWeek, studioNow } = await import("../shared/booking");
+    const today = studioNow().dateKey;
+    // The test class is on Tuesdays; pick one from tomorrow on.
+    let tuesday = addDays(today, 1);
+    while (dayOfWeek(tuesday) !== 2) tuesday = addDays(tuesday, 1);
+    const dropIn = (classDate: string | null) =>
+      passes.createPassCheckout({
+        ...customer,
+        passId: dropInId,
+        classId,
+        classDate,
+        locale: "en",
+      });
+
+    await expect(dropIn(null)).rejects.toThrow(/Choose the date/);
+    for (const wrong of [
+      addDays(tuesday, 1), // a Wednesday
+      addDays(tuesday, -7), // in the past
+      addDays(tuesday, 7 * 9), // past the schedule
+    ]) {
+      await expect(dropIn(wrong)).rejects.toThrow(/doesn't take place/);
+    }
+
+    await dropIn(tuesday);
+    const { params } = fake.createCalls.at(-1)!;
+    const label = passes.classLabel(
+      { title: "Test Salsa", dayOfWeek: 2, startTime: "19:00" },
+      "en",
+      tuesday
+    );
+    expect(params.line_items[0].price_data.product_data.description).toBe(
+      `For Maria Lopez. Class: ${label}`
+    );
+    const sql = db.getSql();
+    const [row] = await sql<{ classDate: string; classLabel: string }[]>`
+      SELECT to_char(class_date, 'YYYY-MM-DD') AS "classDate",
+             class_label AS "classLabel"
+      FROM pass_purchases
+      WHERE id = ${params.metadata.passPurchaseId}
+    `;
+    expect(row).toEqual({ classDate: tuesday, classLabel: label });
   });
 
   it("ignores a class for passes that don't need one", async () => {

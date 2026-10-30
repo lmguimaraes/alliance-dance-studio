@@ -12,6 +12,8 @@ type TimeGridProps = {
   startIndex: number | null;
   endIndex: number | null;
   previewEndIndex: number | null;
+  /** Shows availability without letting anyone pick a time. */
+  viewOnly?: boolean;
   onPick: (index: number) => void;
   onHover: (index: number | null) => void;
 };
@@ -24,6 +26,7 @@ export default function TimeGrid({
   startIndex,
   endIndex,
   previewEndIndex,
+  viewOnly = false,
   onPick,
   onHover,
 }: TimeGridProps) {
@@ -33,14 +36,14 @@ export default function TimeGrid({
 
   return (
     <div
-      className="time-grid"
+      className={cx("time-grid", viewOnly && "time-grid--view-only")}
       role="group"
       aria-label={t("rental.grid.label", { name: spaceName })}
       onMouseLeave={() => onHover(null)}
     >
       {slots.map((status, index) => {
         const time = minutesToTime(rangeStart + index * SLOT_MINUTES);
-        const selectable = status === "available";
+        const selectable = !viewOnly && status === "available";
         const isStart = index === startIndex;
         const isEnd = endIndex !== null && index === endIndex;
         const inRange =

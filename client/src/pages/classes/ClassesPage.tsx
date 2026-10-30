@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next";
 import { Instagram, Loader2, Search, X } from "lucide-react";
 import {
   addDays,
+  CLASS_SCHEDULE_DAYS,
   CLASS_LEVELS,
   minutesToTime,
   studioNow,
@@ -36,8 +37,6 @@ import {
 import PassPurchase, { type PurchaseStart } from "./PassPurchase";
 import PassShop from "./PassShop";
 import "./classes.css";
-
-const SCHEDULE_DAYS = 56;
 
 type PassSummary = {
   status: "checkout_pending" | "paid" | "expired" | "cancelled";
@@ -194,7 +193,7 @@ export default function ClassesPage() {
   usePageMeta(t("classes.title"), t("classes.intro"));
 
   const today = useMemo(() => studioNow().dateKey, []);
-  const lastDate = addDays(today, SCHEDULE_DAYS - 1);
+  const lastDate = addDays(today, CLASS_SCHEDULE_DAYS - 1);
   const [date, setDate] = useState(today);
   const [filters, setFilters] = useState<ClassFilters>(NO_FILTERS);
   const [purchase, setPurchase] = useState<PurchaseStart | null>(null);
@@ -438,7 +437,7 @@ export default function ClassesPage() {
                             type="button"
                             className="button button--outline button--small class-card__buy"
                             onClick={() =>
-                              setPurchase({ pass: null, forClass: item })
+                              setPurchase({ pass: null, forClass: item, date })
                             }
                             disabled={!passes.length}
                           >
@@ -485,7 +484,7 @@ export default function ClassesPage() {
 
       <PassShop
         passes={passes}
-        onBuy={pass => setPurchase({ pass, forClass: null })}
+        onBuy={pass => setPurchase({ pass, forClass: null, date })}
       />
       <PassPurchase
         start={purchase}

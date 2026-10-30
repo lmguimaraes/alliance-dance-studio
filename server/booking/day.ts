@@ -1,4 +1,6 @@
 import {
+  addDays,
+  AVAILABILITY_VIEW_DAYS,
   BOOKING_WINDOW_DAYS,
   daysBetween,
   dayOfWeek,
@@ -47,6 +49,10 @@ export type RentalDay = {
     windowDays: number;
     maxWeeks: number;
   };
+  /** False past the booking window: availability is shown but can't be booked. */
+  bookable: boolean;
+  /** The day this date enters the booking window. */
+  bookingOpensOn: string;
   spaces: RentalSpace[];
 };
 
@@ -63,10 +69,11 @@ export async function getRentalDay(
     );
   }
   const daysAhead = daysBetween(today.dateKey, date);
-  if (daysAhead < 0 || daysAhead > BOOKING_WINDOW_DAYS) {
+  // Availability can be viewed further ahead than it can be booked.
+  if (daysAhead < 0 || daysAhead > AVAILABILITY_VIEW_DAYS) {
     throw new BookingError(
       "BAD_REQUEST",
-      `Choose a date from today through the next ${BOOKING_WINDOW_DAYS} days.`
+      `Choose a date from today through the next ${AVAILABILITY_VIEW_DAYS} days.`
     );
   }
 
@@ -99,6 +106,8 @@ export async function getRentalDay(
       windowDays: BOOKING_WINDOW_DAYS,
       maxWeeks: MAX_REPEAT_WEEKS,
     },
+    bookable: daysAhead <= BOOKING_WINDOW_DAYS,
+    bookingOpensOn: addDays(date, -BOOKING_WINDOW_DAYS),
     spaces: spaces.map(space => ({
       ...space,
       slots: buildSlots(

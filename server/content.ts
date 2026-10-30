@@ -150,6 +150,8 @@ export type ClassPass = {
   currency: string;
   /** The customer chooses the one class the pass is for. */
   requiresClass: boolean;
+  /** Drop-in: the customer also chooses the date (needs requiresClass). */
+  requiresDate: boolean;
   sortOrder: number;
   isActive: boolean;
 };
@@ -163,7 +165,7 @@ async function selectPasses(activeOnly: boolean): Promise<ClassPass[]> {
       name_en AS "nameEn", name_fr AS "nameFr", name_es AS "nameEs",
       details_en AS "detailsEn", details_fr AS "detailsFr", details_es AS "detailsEs",
       price_cents AS "priceCents", currency, requires_class AS "requiresClass",
-      sort_order AS "sortOrder", is_active AS "isActive"
+      requires_date AS "requiresDate", sort_order AS "sortOrder", is_active AS "isActive"
     FROM class_passes
     WHERE ${activeOnly} = FALSE OR is_active IS TRUE
     ORDER BY category, sort_order, id
@@ -179,12 +181,13 @@ export async function createPass(
   const [row] = await getSql()<{ id: number }[]>`
     INSERT INTO class_passes (
       category, name_en, name_fr, name_es, details_en, details_fr, details_es,
-      price_cents, currency, requires_class, sort_order, is_active
+      price_cents, currency, requires_class, requires_date, sort_order,
+      is_active
     ) VALUES (
       ${input.category}, ${input.nameEn}, ${input.nameFr}, ${input.nameEs},
       ${input.detailsEn}, ${input.detailsFr}, ${input.detailsEs},
       ${input.priceCents}, ${input.currency}, ${input.requiresClass},
-      ${input.sortOrder}, ${input.isActive}
+      ${input.requiresClass && input.requiresDate}, ${input.sortOrder}, ${input.isActive}
     )
     RETURNING id
   `;
@@ -207,6 +210,7 @@ export async function updatePass(
       price_cents = ${input.priceCents},
       currency = ${input.currency},
       requires_class = ${input.requiresClass},
+      requires_date = ${input.requiresClass && input.requiresDate},
       sort_order = ${input.sortOrder},
       is_active = ${input.isActive},
       updated_at = NOW()

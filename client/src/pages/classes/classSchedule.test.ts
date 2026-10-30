@@ -6,6 +6,7 @@ import {
   nextClassDate,
   NO_FILTERS,
   runsOn,
+  upcomingDates,
   type ScheduledClass,
 } from "./classSchedule";
 
@@ -24,6 +25,37 @@ const klass = (overrides: Partial<ScheduledClass>): ScheduledClass => ({
   startsOn: null,
   endsOn: null,
   ...overrides,
+});
+
+describe("drop-in dates", () => {
+  // 2026-10-27 is a Tuesday.
+  const tuesday = klass({
+    dayOfWeek: 2,
+    startTime: "19:00",
+    endsOn: "2026-11-17",
+  });
+
+  it("lists the class's dates until the session ends", () => {
+    expect(
+      upcomingDates(tuesday, { dateKey: "2026-10-26", minutes: 600 })
+    ).toEqual(["2026-10-27", "2026-11-03", "2026-11-10", "2026-11-17"]);
+  });
+
+  it("keeps today's class until it starts", () => {
+    expect(
+      upcomingDates(tuesday, { dateKey: "2026-10-27", minutes: 18 * 60 })[0]
+    ).toBe("2026-10-27");
+    expect(
+      upcomingDates(tuesday, { dateKey: "2026-10-27", minutes: 19 * 60 })[0]
+    ).toBe("2026-11-03");
+  });
+
+  it("stops at the end of the schedule", () => {
+    const open = klass({ dayOfWeek: 2, startTime: "19:00" });
+    expect(
+      upcomingDates(open, { dateKey: "2026-10-26", minutes: 0 }, 14)
+    ).toEqual(["2026-10-27", "2026-11-03"]);
+  });
 });
 
 describe("class schedule", () => {

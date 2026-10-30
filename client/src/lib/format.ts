@@ -35,6 +35,11 @@ function createFormatters(language: Language) {
     day: "numeric",
     year: "numeric",
   });
+  const longDate = dateFormat({
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+  });
   const shortDate = dateFormat({
     weekday: "short",
     month: "short",
@@ -73,6 +78,8 @@ function createFormatters(language: Language) {
       }).format(cents / 100);
     },
     fullDate: (dateKey: string) => fullDate.format(dateKeyToDate(dateKey)),
+    /** "Tuesday, October 27": a date in the coming weeks, without the year. */
+    longDate: (dateKey: string) => longDate.format(dateKeyToDate(dateKey)),
     shortDate: (dateKey: string) => shortDate.format(dateKeyToDate(dateKey)),
     monthDay: (dateKey: string) => monthDay.format(dateKeyToDate(dateKey)),
     monthYear: (dateKey: string) => monthYear.format(dateKeyToDate(dateKey)),

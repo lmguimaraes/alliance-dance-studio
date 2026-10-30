@@ -127,12 +127,10 @@ async function priceOrder(
         amount: priceForMinutes(studioRate(studio, audience), minutes),
       };
     });
-    const firstDate = items[occurrence.itemIndex].date;
     const problem = overlaps.has(index)
       ? "overlap"
       : evaluateOccurrence(
           occurrence,
-          firstDate,
           factsForSpace(facts, occurrence.studioIds, occurrence.date),
           now
         );

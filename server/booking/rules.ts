@@ -5,7 +5,6 @@ import {
   isContained,
   isDateKey,
   isTime,
-  LAST_BOOKABLE_DAY,
   MAX_BOOKING_MINUTES,
   MAX_ORDER_OCCURRENCES,
   MAX_REPEAT_WEEKS,
@@ -141,13 +140,9 @@ function normalizeStudioIds(studioIds: readonly number[]): number[] {
   return normalized;
 }
 
-/**
- * Returns why an occurrence cannot be booked, or null when it can.
- * `firstDate` is the first date of the item's weekly series.
- */
+/** Returns why an occurrence cannot be booked, or null when it can. */
 export function evaluateOccurrence(
   occurrence: Occurrence,
-  firstDate: string,
   facts: SpaceDayFacts,
   now: Date = new Date()
 ): OccurrenceProblem | null {
@@ -156,12 +151,8 @@ export function evaluateOccurrence(
 
   if (daysAhead < 0) return "past";
   if (daysAhead === 0 && occurrence.start <= today.minutes) return "past";
-  if (
-    daysAhead > LAST_BOOKABLE_DAY ||
-    daysBetween(today.dateKey, firstDate) > BOOKING_WINDOW_DAYS
-  ) {
-    return "too_far";
-  }
+  // Checked per date, so a weekly repeat can't reach past the window either.
+  if (daysAhead > BOOKING_WINDOW_DAYS) return "too_far";
 
   const interval = { start: occurrence.start, end: occurrence.end };
   if (!isContained(interval, facts.opening)) return "closed";

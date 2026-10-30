@@ -208,6 +208,15 @@
       "class": "Class",
       "chooseClass": "Choose a class",
       "oneClass": "A pass is for one class.",
+      "date": "Date of your class",
+      "chooseClassFirst": "Choose a class first",
+      "noDates": "No upcoming dates for this class",
+      "todayDate": "{{date}} (today)",
+      "dropIn": {
+        "label": "Your drop-in class",
+        "when": "{{date}} at {{time}}",
+        "note": "This pass is for this date only."
+      },
       "pay": "Continue to payment",
       "otherPass": "Choose another pass",
       "note": "You'll pay on Stripe's secure page, where your name, email and class are already filled in.",
@@ -240,6 +249,13 @@
     "intro": "Pick a studio, choose a start and an end time, and add it to your cart.",
     "chooseDay": "Choose a date",
     "timeZoneNote": "Times are shown in Montreal time. Bookings start on the hour or half hour, from 1 to 8 hours.",
+    "window": {
+      "viewOnly": "availability only, not bookable yet",
+      "note": "You can book up to {{days}} days ahead; later dates show availability only.",
+      "title": "Booking for this date opens on {{date}}",
+      "body": "Bookings open {{days}} days ahead. You can check availability for {{date}} now, but it can't be booked yet.",
+      "cardNote": "Opens for booking on {{date}}"
+    },
     "audience": {
       "label": "Rental type",
       "private": "Private",
@@ -284,7 +300,8 @@
       "once": "Books this date only.",
       "weeks_one": "{{count}} week",
       "weeks_other": "{{count}} weeks",
-      "until": "Every week until {{date}}"
+      "until": "Every week until {{date}}",
+      "windowLimit": "Bookings open {{days}} days ahead, so repeats can't go past {{date}}."
     },
     "addToCart": "Add to cart",
     "addToCartAmount": "Add to cart, {{amount}}",
@@ -295,7 +312,7 @@
     "problems": {
       "unavailable_one": "Not available on {{dates}}. Choose fewer weeks or another time.",
       "unavailable_other": "Not available on {{dates}}. Choose fewer weeks or another time.",
-      "tooFar": "Too far ahead to book: {{dates}}. Choose fewer weeks.",
+      "tooFar": "Bookings open {{days}} days ahead, so {{dates}} can't be booked yet.",
       "past": "This time has already started. Choose a later time."
     }
   },
@@ -341,7 +358,7 @@
     "problems": {
       "invalid": "this studio is no longer available",
       "past": "this time has passed",
-      "too_far": "too far ahead to book",
+      "too_far": "more than {{days}} days ahead",
       "closed": "outside opening hours",
       "booked": "already booked",
       "overlap": "overlaps another booking in your cart"
@@ -511,6 +528,7 @@
       "priceDollars": "Price ($)",
       "order": "Order",
       "requiresClass": "Customer chooses a class (one class per pass)",
+      "requiresDate": "Customer also chooses the date (drop-in)",
       "visible": "Show on the classes page",
       "confirmDelete": "Delete this pass?"
     },

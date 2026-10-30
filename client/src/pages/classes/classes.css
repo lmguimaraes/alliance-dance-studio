@@ -472,6 +472,51 @@
   gap: 1.25rem;
 }
 
+/* Drop-in: the class and date being paid for, stated plainly. */
+.drop-in-summary {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.9rem;
+  align-items: start;
+  padding: 1rem 1.15rem;
+  border: 1px solid var(--color-gold-deep);
+  border-radius: var(--radius-md);
+  background: var(--color-gold-wash);
+}
+
+.drop-in-summary > svg {
+  width: 1.4rem;
+  height: 1.4rem;
+  margin-top: 0.15rem;
+  color: var(--color-gold);
+}
+
+.drop-in-summary__label {
+  color: var(--color-stone);
+  font-size: var(--text-xs);
+}
+
+.drop-in-summary__when {
+  margin-top: 0.15rem;
+  color: var(--color-ivory);
+  font-family: var(--font-display);
+  font-size: 1.375rem;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+}
+
+.drop-in-summary__class {
+  margin-top: 0.2rem;
+  color: var(--color-ivory);
+  font-size: var(--text-sm);
+}
+
+.drop-in-summary__note {
+  margin-top: 0.4rem;
+  color: var(--color-stone);
+  font-size: var(--text-xs);
+}
+
 .pass-purchase__actions {
   display: grid;
   justify-items: center;
